@@ -28,6 +28,8 @@ ACharacterBase::ACharacterBase() : bIsBuildMode(true)
 
 	GhostMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GhostMeshComponent"));
 	GhostMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
+
+	//GetController<APlayerController>()->PlayerCameraManager->GetCamera;
 }
 
 // Called when the game starts or when spawned
