@@ -17,7 +17,13 @@ struct FBuildingPartsData : public FTableRowBase
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UStaticMesh* Mesh;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FVector MeshOffset;
+	FVector MeshLocationOffset;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FVector SpawnLocationOffset;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FVector Scale;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<ABuildingPartsBase> Class;
 };
 
 class UPrimitiveComponent;

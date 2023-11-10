@@ -14,9 +14,11 @@ ABuildingPartsBase::ABuildingPartsBase()
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	SetRootComponent(BoxComponent);
+	BoxComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	StaticMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
 }
 
 // Called when the game starts or when spawned
@@ -41,5 +43,5 @@ FName ABuildingPartsBase::GetBuildingPartsName(UPrimitiveComponent* TargetCompon
 			return BuildBoxArray[i].BuildingPartsName;
 		}
 	}
-	return TEXT("");
+	return TEXT("None");
 }

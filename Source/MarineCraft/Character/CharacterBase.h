@@ -11,6 +11,7 @@ class UInputAction;
 struct FInputActionValue;
 class UInputMappingContext;
 class USpringArmComponent;
+struct FBuildingPartsData;
 UCLASS()
 class MARINECRAFT_API ACharacterBase : public ACharacter
 {
@@ -33,8 +34,12 @@ public:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Action(const FInputActionValue& Value);
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Animation", Meta = (AllowPrivateAccess))
+	UAnimMontage* AttackMontage;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
 	UMaterialInstance* CanBuildMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
@@ -63,4 +68,6 @@ private:
 	UInputAction* InputAction_Move;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Look;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
+	UInputAction* InputAction_Action;
 };

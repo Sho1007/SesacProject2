@@ -61,35 +61,53 @@ void ACharacterBase::Tick(float DeltaTime)
 
 		FCollisionObjectQueryParams Params;
 		Params.AddObjectTypesToQuery(ECC_GameTraceChannel1);
-		
-		if (GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, Params))
+
+		FCollisionQueryParams CollisionQueryParams;
+		CollisionQueryParams.AddIgnoredActor(this);
+
+		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionQueryParams))
 		{
+			//LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
 			if (BuildTargetComponent == OutHit.GetComponent()) return;
 
-			//LOG(TEXT("ComponentName : %s"), *OutHit.GetComponent()->GetName());
-			BuildTargetComponent = OutHit.GetComponent();
-			
-			if (ABuildingPartsBase* BuildParts = Cast<ABuildingPartsBase>(OutHit.GetActor()))
+			LOG(TEXT("ComponentName : %s"), *OutHit.GetComponent()->GetName());
+
+			if (ABuildingPartsBase* BuildParts = Cast<ABuildingPartsBase>(OutHit.GetComponent()->GetOwner()))
 			{
-				FName BuildingPartsName = BuildParts->GetBuildingPartsName(BuildTargetComponent);
-
-				UMarineCraftGameInstance* GameInstance = GetGameInstance<UMarineCraftGameInstance>();
-				check(GameInstance);
-				FBuildingPartsData* BuildingPartsData = GameInstance->GetBuildingPartsData(BuildingPartsName);
-				check(BuildingPartsData);
-
-				GhostMeshComponent->SetStaticMesh(BuildingPartsData->Mesh);
-				GhostMeshComponent->SetWorldRotation(BuildTargetComponent->GetComponentRotation());
-				GhostMeshComponent->SetWorldLocation(BuildTargetComponent->GetComponentLocation() + BuildTargetComponent->GetComponentRotation().RotateVector(BuildingPartsData->MeshOffset));
-
-				int MaterialNum = GhostMeshComponent->GetMaterials().Num();
-				for (int i = 0; i < MaterialNum; ++i)
+				FName BuildingPartsName = BuildParts->GetBuildingPartsName(OutHit.GetComponent());
+				if (BuildingPartsName.Compare(TEXT("None")) != 0)
 				{
-					GhostMeshComponent->SetMaterial(i, CanBuildMaterial);
+					BuildTargetComponent = OutHit.GetComponent();
+
+					UMarineCraftGameInstance* GameInstance = GetGameInstance<UMarineCraftGameInstance>();
+					check(GameInstance);
+					FBuildingPartsData* BuildingPartsData = GameInstance->GetBuildingPartsData(BuildingPartsName);
+					check(BuildingPartsData);
+
+					GhostMeshComponent->SetStaticMesh(BuildingPartsData->Mesh);
+					GhostMeshComponent->SetWorldRotation(BuildTargetComponent->GetComponentRotation());
+					GhostMeshComponent->SetWorldLocation(BuildTargetComponent->GetComponentLocation() + BuildTargetComponent->GetComponentRotation().RotateVector(BuildingPartsData->MeshLocationOffset));
+					GhostMeshComponent->SetWorldScale3D(BuildingPartsData->Scale);
+
+					int MaterialNum = GhostMeshComponent->GetMaterials().Num();
+					for (int i = 0; i < MaterialNum; ++i)
+					{
+						GhostMeshComponent->SetMaterial(i, CanBuildMaterial);
+					}
+					GhostMeshComponent->SetVisibility(true);
+
+					return;
 				}
 			}
 		}
+		/*if (GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, Params))
+		{
+			
+		}*/
 	}
+
+	BuildTargetComponent = nullptr;
+	GhostMeshComponent->SetVisibility(false);
 }
 
 // Called to bind functionality to input
@@ -101,6 +119,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	check(Input);
 	Input->BindAction(InputAction_Move, ETriggerEvent::Triggered, this, &ACharacterBase::Move);
 	Input->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ACharacterBase::Look);
+	Input->BindAction(InputAction_Action, ETriggerEvent::Started, this, &ACharacterBase::Action);
 }
 
 void ACharacterBase::Move(const FInputActionValue& Value)
@@ -120,4 +139,26 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 
 	AddControllerPitchInput(-VectorValue.Y);
 	AddControllerYawInput(VectorValue.X);
+}
+
+void ACharacterBase::Action(const FInputActionValue& Value)
+{
+	if (bIsBuildMode && BuildTargetComponent != nullptr)
+	{
+		// Spawn BuildingPartsActor
+		if (ABuildingPartsBase* BuildParts = Cast<ABuildingPartsBase>(BuildTargetComponent->GetOwner()))
+		{
+			PlayAnimMontage(AttackMontage);
+			FName BuildingPartsName = BuildParts->GetBuildingPartsName(BuildTargetComponent);
+
+			UMarineCraftGameInstance* GameInstance = GetGameInstance<UMarineCraftGameInstance>();
+			check(GameInstance);
+			FBuildingPartsData* BuildingPartsData = GameInstance->GetBuildingPartsData(BuildingPartsName);
+			check(BuildingPartsData);
+
+			ABuildingPartsBase* NewBuildingParts = GetWorld()->SpawnActor<ABuildingPartsBase>(BuildingPartsData->Class, BuildTargetComponent->GetComponentLocation() + BuildingPartsData->SpawnLocationOffset, BuildTargetComponent->GetComponentRotation());
+			BuildTargetComponent = nullptr;
+			GhostMeshComponent->SetVisibility(false);
+		}	
+	}
 }
