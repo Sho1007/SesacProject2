@@ -146,11 +146,10 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 
 	//LOG(TEXT("VectorValue : %s"), *VectorValue.ToString());
 
-	if (GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Swimming)
-	{
-		AddControllerPitchInput( -VectorValue.Y );
-		AddControllerYawInput( VectorValue.X );
-	}
+
+
+	AddControllerPitchInput( -VectorValue.Y );
+	AddControllerYawInput( VectorValue.X );
 }
 
 void ACharacterBase::StartAction(const FInputActionValue& Value)
