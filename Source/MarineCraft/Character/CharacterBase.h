@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -14,9 +14,8 @@ class USpringArmComponent;
 struct FBuildingPartsData;
 UCLASS()
 class MARINECRAFT_API ACharacterBase : public ACharacter
-{
+{	
 	GENERATED_BODY()
-
 public:
 	// Sets default values for this character's properties
 	ACharacterBase();
@@ -24,7 +23,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -34,9 +32,17 @@ public:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void Action(const FInputActionValue& Value);
+	void StartAction(const FInputActionValue& Value);
+	void CompleteAction( const FInputActionValue& Value );
 
 private:
+	void Charge();
+
+private:
+	// State
+	UPROPERTY( VisibleInstanceOnly, Category = "State" , Meta = ( AllowPrivateAccess ) )
+	bool bIsCharging;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Animation", Meta = (AllowPrivateAccess))
 	UAnimMontage* AttackMontage;
 
