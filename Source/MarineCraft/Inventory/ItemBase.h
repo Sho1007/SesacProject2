@@ -25,8 +25,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	bool IsGrabbed() const;
 
+	// Getter / Setter
+	bool IsGrabbed() const;
+	void Grab();
 private:
 	void Floating(float DeltaTime);
 

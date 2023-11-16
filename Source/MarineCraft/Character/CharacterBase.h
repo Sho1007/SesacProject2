@@ -32,8 +32,17 @@ public:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void Action(const FInputActionValue& Value);
+	void StartAction(const FInputActionValue& Value);
+	void CompleteAction( const FInputActionValue& Value );
+
 private:
+	void Charge();
+
+private:
+	// State
+	UPROPERTY( VisibleInstanceOnly, Category = "State" , Meta = ( AllowPrivateAccess ) )
+	bool bIsCharging;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Animation", Meta = (AllowPrivateAccess))
 	UAnimMontage* AttackMontage;
 
