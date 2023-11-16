@@ -61,9 +61,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
 	float TraceDistance;
 
-	UPROPERTY(EditAnywhere, Category = "Component", Meta = (AllowPrivateAccess))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component", Meta = (AllowPrivateAccess))
 	UCameraComponent* CameraComponent;
-	UPROPERTY( EditAnywhere , Category = "Component", Meta = (AllowPrivateAccess))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere , Category = "Component", Meta = (AllowPrivateAccess))
 	USpringArmComponent* SpringArmComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Move", Meta = (AllowPrivateAccess))
 	float MoveSpeed;
