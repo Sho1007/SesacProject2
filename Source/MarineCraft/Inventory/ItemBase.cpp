@@ -13,9 +13,14 @@ AItemBase::AItemBase()
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>( TEXT( "BoxComponent" ) );
 	SetRootComponent( BoxComponent );
+	BoxComponent->SetCollisionProfileName( TEXT( "Floatsam" ) );
+	BoxComponent->CanCharacterStepUpOn = ECB_No;
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "StaticMeshComponent" ) );
 	StaticMeshComponent->SetupAttachment( RootComponent );
+	StaticMeshComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
+	StaticMeshComponent->CanCharacterStepUpOn = ECB_No;
+
 }
 
 // Called when the game starts or when spawned
@@ -37,12 +42,40 @@ bool AItemBase::IsGrabbed() const
 	return bIsGrabbed;
 }
 
+void AItemBase::Grab()
+{
+	bIsGrabbed = true;
+
+	BoxComponent->SetCollisionProfileName( TEXT( "GrabbedFloatsam" ) );
+}
+
 void AItemBase::Floating(float DeltaTime)
 {
+	// 이동 방향
 	AddActorWorldOffset( FloatingDirection );
 
+
+
 	FVector Location = GetActorLocation();
-	FloatingRate += DeltaTime * FloatingSpeed;
+
+	if (bIsFloatingUp)
+	{
+		AddActorWorldOffset( FVector( 0 , 0 , FloatingSpeed * DeltaTime ) );
+		if (GetActorLocation().Z >= FloatingHeight)
+		{
+			bIsFloatingUp = false;
+		}
+	}
+	else
+	{
+		AddActorWorldOffset( FVector( 0 , 0 , -FloatingSpeed * DeltaTime ) );
+		if ( GetActorLocation().Z <= -FloatingHeight )
+		{
+			bIsFloatingUp = true;
+		}
+	}
+
+	/*FloatingRate += DeltaTime * FloatingSpeed;
 
 	if (bIsFloatingUp)
 	{
@@ -61,5 +94,5 @@ void AItemBase::Floating(float DeltaTime)
 			bIsFloatingUp = true;
 			FloatingRate = 0.0f;
 		}
-	}
+	}*/
 }

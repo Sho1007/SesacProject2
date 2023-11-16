@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "../Character/CharacterBase.h"
@@ -7,9 +7,11 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
+#include <Kismet/KismetMathLibrary.h>
 
 #include "../Building/BuildingPartsBase.h"
 #include "../MarineCraftGameInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase() : bIsBuildMode(true)
@@ -121,16 +123,20 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	check(Input);
 	Input->BindAction(InputAction_Move, ETriggerEvent::Triggered, this, &ACharacterBase::Move);
 	Input->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ACharacterBase::Look);
-	Input->BindAction(InputAction_Action, ETriggerEvent::Started, this, &ACharacterBase::Action);
+	Input->BindAction(InputAction_Action, ETriggerEvent::Started, this, &ACharacterBase::StartAction );
+	Input->BindAction(InputAction_Action, ETriggerEvent::Completed, this, &ACharacterBase::CompleteAction );
 }
 
 void ACharacterBase::Move(const FInputActionValue& Value)
 {
 	FVector2D VectorValue = Value.Get<FVector2D>();
 	//LOG(TEXT("VectorValue : %s"), *VectorValue.ToString());
-	FVector MoveDirection = (GetActorForwardVector() * VectorValue.Y) + (GetActorRightVector() * VectorValue.X);
+	/*FVector MoveDirection = (GetActorForwardVector() * VectorValue.Y) + (GetActorRightVector() * VectorValue.X);
 	MoveDirection.Normalize();
-	AddMovementInput(MoveDirection, MoveSpeed);
+	AddMovementInput(MoveDirection, MoveSpeed);*/
+
+	AddMovementInput( UKismetMathLibrary::GetForwardVector( GetControlRotation() ) , VectorValue.Y * MoveSpeed );
+	AddMovementInput( UKismetMathLibrary::GetRightVector( GetControlRotation() ) , VectorValue.X * MoveSpeed );
 }
 
 void ACharacterBase::Look(const FInputActionValue& Value)
@@ -141,10 +147,13 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 
 	AddControllerPitchInput(-VectorValue.Y);
 	AddControllerYawInput(VectorValue.X);
+
+	
 }
 
-void ACharacterBase::Action(const FInputActionValue& Value)
+void ACharacterBase::StartAction(const FInputActionValue& Value)
 {
+	LOG( TEXT( "" ) );
 	if (bIsBuildMode && BuildTargetComponent != nullptr)
 	{
 		// Spawn BuildingPartsActor
@@ -161,6 +170,16 @@ void ACharacterBase::Action(const FInputActionValue& Value)
 			ABuildingPartsBase* NewBuildingParts = GetWorld()->SpawnActor<ABuildingPartsBase>(BuildingPartsData->Class, BuildTargetComponent->GetComponentLocation() + BuildingPartsData->SpawnLocationOffset, BuildTargetComponent->GetComponentRotation());
 			BuildTargetComponent = nullptr;
 			GhostMeshComponent->SetVisibility(false);
-		}	
+		}
 	}
+}
+
+void ACharacterBase::CompleteAction(const FInputActionValue& Value)
+{
+	LOG( TEXT( "" ) );
+}
+
+void ACharacterBase::Charge()
+{
+	bIsCharging = true;
 }
