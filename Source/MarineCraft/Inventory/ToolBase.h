@@ -3,18 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "ItemBase.h"
 #include "ToolBase.generated.h"
 
-class UBoxComponent;
 UCLASS()
-class MARINECRAFT_API AToolBase : public AActor
+class MARINECRAFT_API AToolBase : public AItemBase
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	AToolBase();
 
 protected:
 	// Called when the game starts or when spawned
@@ -23,10 +18,4 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-protected:
-	UPROPERTY( EditDefaultsOnly)
-	UBoxComponent* BoxComponent;
-	UPROPERTY( EditDefaultsOnly)
-	UStaticMeshComponent* StaticMeshComponent;
 };

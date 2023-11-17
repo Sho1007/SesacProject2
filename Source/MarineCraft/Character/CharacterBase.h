@@ -36,9 +36,13 @@ public:
 	void CompleteAction( const FInputActionValue& Value );
 
 private:
-	void Charge();
+	void Charge(float DeltaTime);
 
 private:
+	// Charge Test
+	UPROPERTY( VisibleInstanceOnly , Category = "State" , Meta = ( AllowPrivateAccess ) )
+	float ChargeValue;
+
 	// State
 	UPROPERTY( VisibleInstanceOnly, Category = "State" , Meta = ( AllowPrivateAccess ) )
 	bool bIsCharging;

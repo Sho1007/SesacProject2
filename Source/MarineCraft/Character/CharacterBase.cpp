@@ -12,6 +12,7 @@
 #include "../Building/BuildingPartsBase.h"
 #include "../MarineCraftGameInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MarineCraft/PlayerController/InGamePlayerController.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase() : bIsBuildMode(true)
@@ -22,7 +23,8 @@ ACharacterBase::ACharacterBase() : bIsBuildMode(true)
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	check(SpringArmComponent);
 	//SpringArmComponent->SetupAttachment(GetMesh(), TEXT("head"));
-	SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "head" ) );
+	//SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules( EAttachmentRule::SnapToTarget , EAttachmentRule::KeepWorld , EAttachmentRule::KeepWorld , false ) , TEXT( "head" ) );
+	SpringArmComponent->SetupAttachment( RootComponent );
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -39,7 +41,6 @@ ACharacterBase::ACharacterBase() : bIsBuildMode(true)
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
 	if (APlayerController* PlayerController = GetController<APlayerController>())
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -113,6 +114,11 @@ void ACharacterBase::Tick(float DeltaTime)
 
 	BuildTargetComponent = nullptr;
 	GhostMeshComponent->SetVisibility(false);
+
+	if (bIsCharging)
+	{
+		Charge(DeltaTime);
+	}
 }
 
 // Called to bind functionality to input
@@ -136,8 +142,11 @@ void ACharacterBase::Move(const FInputActionValue& Value)
 	MoveDirection.Normalize();
 	AddMovementInput(MoveDirection, MoveSpeed);*/
 
-	AddMovementInput( UKismetMathLibrary::GetForwardVector( GetControlRotation() ) , VectorValue.Y * MoveSpeed );
-	AddMovementInput( UKismetMathLibrary::GetRightVector( GetControlRotation() ) , VectorValue.X * MoveSpeed );
+	
+	//AddMovementInput( UKismetMathLibrary::GetForwardVector( GetControlRotation() ) , VectorValue.Y * MoveSpeed );
+	AddMovementInput( GetActorForwardVector() , VectorValue.Y * MoveSpeed );
+	//AddMovementInput( UKismetMathLibrary::GetRightVector( GetControlRotation() ) , VectorValue.X * MoveSpeed );
+	AddMovementInput( GetActorRightVector() , VectorValue.X * MoveSpeed );
 }
 
 void ACharacterBase::Look(const FInputActionValue& Value)
@@ -145,8 +154,6 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 	FVector2D VectorValue = Value.Get<FVector2D>();
 
 	//LOG(TEXT("VectorValue : %s"), *VectorValue.ToString());
-
-
 
 	AddControllerPitchInput( -VectorValue.Y );
 	AddControllerYawInput( VectorValue.X );
@@ -173,14 +180,33 @@ void ACharacterBase::StartAction(const FInputActionValue& Value)
 			GhostMeshComponent->SetVisibility(false);
 		}
 	}
+
+	// Charge Test
+	bIsCharging = true;
 }
 
 void ACharacterBase::CompleteAction(const FInputActionValue& Value)
 {
 	LOG( TEXT( "" ) );
+
+	// Charge Test
+	ChargeValue = 0.0f;
+	bIsCharging = false;
+	if ( AInGamePlayerController* PC = GetController<AInGamePlayerController>() )
+	{
+		PC->SetChargePercent( 0.0f );
+	}
 }
 
-void ACharacterBase::Charge()
+void ACharacterBase::Charge(float DeltaTime)
 {
-	bIsCharging = true;
+	ChargeValue += DeltaTime;
+
+	LOG( TEXT( "Charge Value : %f" ) , ChargeValue );
+
+	if (AInGamePlayerController* PC = GetController<AInGamePlayerController>())
+	{
+		// Todo : Change 1.0f to Tool's MaxChargeTime
+		PC->SetChargePercent(ChargeValue / 1.0f);
+	}
 }

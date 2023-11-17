@@ -7,6 +7,7 @@
 #include "Hook.generated.h"
 
 class UCableComponent;
+class AFloatsamBase;
 UCLASS()
 class MARINECRAFT_API AHook : public AToolBase
 {
@@ -36,7 +37,7 @@ private:
 
 private:
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
-	TSet<AActor*> FloatsamSet;
+	TSet<AFloatsamBase*> FloatsamSet;
 	UPROPERTY( EditDefaultsOnly, Meta = ( AllowPrivateAccess ) )
 	float ForceAmount;
 	UPROPERTY( EditDefaultsOnly, Meta = ( AllowPrivateAccess ) )
@@ -45,6 +46,8 @@ private:
 	float CatchDistance;
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
 	bool bShouldMovetoPlayer;
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
+	bool bIsThrown;
 	UPROPERTY( VisibleInstanceOnly, Meta = ( AllowPrivateAccess ) )
 	ACharacter* PlayerCharacter;
 	

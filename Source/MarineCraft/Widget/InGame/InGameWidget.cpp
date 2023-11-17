@@ -9,3 +9,8 @@ void UInGameWidget::Setup()
 {
 
 }
+
+void UInGameWidget::SetChargePercent(float NewChargePercent)
+{
+	ChargeWidget->SetPercent( NewChargePercent );
+}

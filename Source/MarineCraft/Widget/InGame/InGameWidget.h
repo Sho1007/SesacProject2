@@ -15,8 +15,9 @@ class MARINECRAFT_API UInGameWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
 	void Setup();
-	
+	void SetChargePercent(float NewChargePercent);
 private:
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UChargeWidget* ChargeWidget;

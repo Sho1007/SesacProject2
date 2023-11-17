@@ -26,29 +26,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	// Getter / Setter
-	bool IsGrabbed() const;
-	void Grab();
-private:
-	void Floating(float DeltaTime);
-
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMeshComponent;
 	UPROPERTY(EditDefaultsOnly)
 	UBoxComponent* BoxComponent;
-
-
-	// Floating
-	bool	bIsFloatingUp;
-	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
-	float	FloatingHeight = 100.0f;
-	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
-	float	FloatingSpeed = 100.0f;
-	float	FloatingRate;
-	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
-	FVector FloatingDirection;
-
-	UPROPERTY(EditInstanceOnly)
-	bool bIsGrabbed;
 };

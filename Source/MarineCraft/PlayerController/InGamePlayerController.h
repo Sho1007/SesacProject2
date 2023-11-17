@@ -18,6 +18,7 @@ class MARINECRAFT_API AInGamePlayerController : public APlayerController
 public:
 	virtual void BeginPlay() override;
 
+	void SetChargePercent( float NewChargePercent );
 private:
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	TSubclassOf<UInGameWidget> InGameWidgetClass;

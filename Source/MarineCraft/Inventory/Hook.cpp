@@ -8,7 +8,7 @@
 #include <WaterBodyActor.h>
 #include <CableComponent.h>
 
-#include "ItemBase.h"
+#include "FloatsamBase.h"
 
 
 // Sets default values
@@ -17,8 +17,9 @@ AHook::AHook()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//BoxComponent->SetSimulatePhysics( true );
-	BoxComponent->SetCollisionEnabled( ECollisionEnabled::QueryAndPhysics );
+	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
+	BoxComponent->SetCollisionProfileName( TEXT( "Hook" ) );
+	BoxComponent->CanCharacterStepUpOn = ECB_No;
 
 	CableComponent = CreateDefaultSubobject<UCableComponent>( TEXT( "CableComponent" ) );
 	CableComponent->SetupAttachment( RootComponent );
@@ -65,8 +66,10 @@ void AHook::MoveToPlayer( float DeltaTime )
 
 void AHook::Catch()
 {
+	bIsThrown = false;
+	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
 	bShouldMovetoPlayer = false;
-	this->SetActorHiddenInGame(true);
+	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HookSocket" ) );
 	BoxComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
 
 	for (AActor* Iter : FloatsamSet)
@@ -79,6 +82,7 @@ void AHook::Catch()
 void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if ( bIsThrown == false ) return;
 	//LOG( TEXT( "Overlapped Actor : %s" ), *OtherActor->GetName());
 
 	if (AWaterBody* Water = Cast<AWaterBody>(OtherActor))
@@ -87,11 +91,11 @@ void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		BoxComponent->SetSimulatePhysics( false );
 		BoxComponent->SetWorldRotation( FRotator( -90 , 0 , -90 ) );
 	}
-	else if (AItemBase* Item = Cast<AItemBase>(OtherActor))
+	else if (AFloatsamBase* Floatsam = Cast<AFloatsamBase>(OtherActor))
 	{
-		Item->Grab();
-		Item->AttachToActor( this , FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
-		FloatsamSet.Add( Item );
+		Floatsam->Grab();
+		Floatsam->AttachToActor( this , FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
+		FloatsamSet.Add( Floatsam );
 
 		bShouldMovetoPlayer = true;
 	}
@@ -99,6 +103,8 @@ void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void AHook::Launch()
 {
+	bIsThrown = true;
+	BoxComponent->SetCollisionEnabled( ECollisionEnabled::QueryAndPhysics );
 	BoxComponent->SetSimulatePhysics( true );
 	FVector LaunchDirection = PlayerCharacter->GetActorForwardVector() + PlayerCharacter->GetActorUpVector();
 	LaunchDirection.Normalize();

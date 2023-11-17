@@ -15,3 +15,8 @@ void AInGamePlayerController::BeginPlay()
 	InGameWidget->AddToViewport();
 	//InGameWidget->Setup();
 }
+
+void AInGamePlayerController::SetChargePercent(float NewChargePercent)
+{
+	InGameWidget->SetChargePercent(NewChargePercent);
+}
