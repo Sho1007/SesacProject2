@@ -32,3 +32,8 @@ void AItemBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+const FItemInstanceData* AItemBase::GetInstanceData() const
+{
+	return &InstanceData;
+}

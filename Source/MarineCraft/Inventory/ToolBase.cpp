@@ -14,3 +14,8 @@ void AToolBase::Tick(float DeltaTime)
 {
 	Super::Tick( DeltaTime );
 }
+
+bool AToolBase::IsChargeable() const
+{
+	return bIsChargeable;
+}

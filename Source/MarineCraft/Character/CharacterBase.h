@@ -12,6 +12,7 @@ struct FInputActionValue;
 class UInputMappingContext;
 class USpringArmComponent;
 struct FBuildingPartsData;
+class UPlayerInventoryComponent;
 UCLASS()
 class MARINECRAFT_API ACharacterBase : public ACharacter
 {	
@@ -34,22 +35,24 @@ public:
 	void Look(const FInputActionValue& Value);
 	void StartAction(const FInputActionValue& Value);
 	void CompleteAction( const FInputActionValue& Value );
+	void Dive( const FInputActionValue& Value );
 
 private:
 	void Charge(float DeltaTime);
+	void Uncharge();
 
 private:
-	// Charge Test
+	// Charge
 	UPROPERTY( VisibleInstanceOnly , Category = "State" , Meta = ( AllowPrivateAccess ) )
 	float ChargeValue;
-
-	// State
 	UPROPERTY( VisibleInstanceOnly, Category = "State" , Meta = ( AllowPrivateAccess ) )
 	bool bIsCharging;
 
+	// Action?
 	UPROPERTY(EditDefaultsOnly, Category = "Animation", Meta = (AllowPrivateAccess))
 	UAnimMontage* AttackMontage;
 
+	// Build
 	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
 	UMaterialInstance* CanBuildMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
@@ -65,13 +68,20 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
 	float TraceDistance;
 
+	UPROPERTY( EditDefaultsOnly , Category = "Move" , Meta = ( AllowPrivateAccess ) )
+	float MoveSpeed;
+	UPROPERTY( EditDefaultsOnly , Category = "Move" , Meta = ( AllowPrivateAccess ) )
+	float DiveValue;
+
+	// Component
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Component", Meta = (AllowPrivateAccess))
 	UCameraComponent* CameraComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere , Category = "Component", Meta = (AllowPrivateAccess))
 	USpringArmComponent* SpringArmComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Move", Meta = (AllowPrivateAccess))
-	float MoveSpeed;
-
+	UPROPERTY(VisibleAnywhere, Meta = (AllowPrivateAccess))
+	UPlayerInventoryComponent* InventoryComponent;
+	
+	// Input
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputMappingContext* DefaultIMC;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
@@ -80,4 +90,6 @@ private:
 	UInputAction* InputAction_Look;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Action;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
+	UInputAction* InputAction_Dive;
 };
