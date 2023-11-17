@@ -4,7 +4,47 @@
 
 #include "../MarineCraft.h"
 #include "GameFramework/Actor.h"
+
+#include <Engine/DataTable.h>
+
 #include "ItemBase.generated.h"
+
+class AItemBase;
+USTRUCT(BlueprintType)
+struct FItemData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	FName ItemName;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	int32 MaxStack;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	UTexture2D* ItemImage;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	TSubclassOf<AItemBase> ItemClass;
+
+	FItemData() : ItemName(TEXT("")), MaxStack(1), ItemImage(nullptr)
+	{
+		
+	}
+};
+
+USTRUCT( BlueprintType )
+struct FItemInstanceData
+{
+	GENERATED_BODY()
+
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	FName ItemName;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	int32 CurrentStack;
+
+	FItemInstanceData() : ItemName(TEXT("")), CurrentStack(1)
+	{
+		
+	}
+};
 
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -25,10 +65,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Getter
+	const FItemInstanceData* GetInstanceData() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMeshComponent;
 	UPROPERTY(EditDefaultsOnly)
 	UBoxComponent* BoxComponent;
+	UPROPERTY(EditAnywhere)
+	FItemInstanceData InstanceData;
 };

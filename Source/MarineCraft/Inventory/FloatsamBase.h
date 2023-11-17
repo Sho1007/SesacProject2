@@ -48,4 +48,7 @@ protected:
 
 	UPROPERTY( EditInstanceOnly )
 	bool bIsGrabbed;
+
+	UPROPERTY( EditDefaultsOnly )
+	FName ItemName;
 };

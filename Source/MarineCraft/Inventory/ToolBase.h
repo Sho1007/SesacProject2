@@ -18,4 +18,11 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	// Getter / Setter
+	bool IsChargeable() const;
+
+protected:
+	UPROPERTY(VisibleInstanceOnly)
+	bool bIsChargeable;
 };
