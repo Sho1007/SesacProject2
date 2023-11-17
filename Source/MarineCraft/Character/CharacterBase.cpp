@@ -21,7 +21,8 @@ ACharacterBase::ACharacterBase() : bIsBuildMode(true)
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	check(SpringArmComponent);
-	SpringArmComponent->SetupAttachment(GetMesh(), TEXT("head"));
+	//SpringArmComponent->SetupAttachment(GetMesh(), TEXT("head"));
+	SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "head" ) );
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -145,10 +146,10 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 
 	//LOG(TEXT("VectorValue : %s"), *VectorValue.ToString());
 
-	AddControllerPitchInput(-VectorValue.Y);
-	AddControllerYawInput(VectorValue.X);
 
-	
+
+	AddControllerPitchInput( -VectorValue.Y );
+	AddControllerYawInput( VectorValue.X );
 }
 
 void ACharacterBase::StartAction(const FInputActionValue& Value)
