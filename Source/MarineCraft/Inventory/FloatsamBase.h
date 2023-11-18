@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "ItemBase.h"
 #include "FloatsamBase.generated.h"
 
 class UBoxComponent;
 UCLASS()
-class MARINECRAFT_API AFloatsamBase : public AActor
+class MARINECRAFT_API AFloatsamBase : public AItemBase
 {
 	GENERATED_BODY()
 	
@@ -30,12 +30,7 @@ public:
 private:
 	void Floating( float DeltaTime );
 
-protected:
-	UPROPERTY( EditDefaultsOnly )
-	UStaticMeshComponent* StaticMeshComponent;
-	UPROPERTY( EditDefaultsOnly )
-	UBoxComponent* BoxComponent;
-
+private:
 	// Floating
 	bool	bIsFloatingUp;
 	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
@@ -48,7 +43,4 @@ protected:
 
 	UPROPERTY( EditInstanceOnly )
 	bool bIsGrabbed;
-
-	UPROPERTY( EditDefaultsOnly )
-	FName ItemName;
 };

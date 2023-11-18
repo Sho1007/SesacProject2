@@ -7,6 +7,8 @@
 
 #include <Engine/DataTable.h>
 
+#include "../Interface/InteractInterface.h"
+
 #include "ItemBase.generated.h"
 
 class AItemBase;
@@ -49,7 +51,7 @@ struct FItemInstanceData
 class UBoxComponent;
 class UStaticMeshComponent;
 UCLASS()
-class MARINECRAFT_API AItemBase : public AActor
+class MARINECRAFT_API AItemBase : public AActor, public IInteractInterface
 {
 	GENERATED_BODY()
 	
@@ -67,6 +69,9 @@ public:
 
 	// Getter
 	const FItemInstanceData* GetInstanceData() const;
+
+public:
+	virtual void Interact( ACharacter* InteractCharacter ) override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly)

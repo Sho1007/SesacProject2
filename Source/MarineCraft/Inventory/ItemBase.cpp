@@ -4,6 +4,8 @@
 #include "../Inventory/ItemBase.h"
 
 #include <Components/BoxComponent.h>
+#include <GameFramework/Character.h>
+#include "../Inventory/InventoryComponent.h"
 
 // Sets default values
 AItemBase::AItemBase()
@@ -36,4 +38,17 @@ void AItemBase::Tick(float DeltaTime)
 const FItemInstanceData* AItemBase::GetInstanceData() const
 {
 	return &InstanceData;
+}
+
+
+
+void AItemBase::Interact( ACharacter* InteractCharacter )
+{
+	UInventoryComponent* InventoryComponent = Cast<UInventoryComponent>( InteractCharacter->GetComponentByClass( UInventoryComponent::StaticClass() ) );
+	check( InventoryComponent );
+
+	/*if ( InventoryComponent->AddItem() )
+	{
+		this->Destroy();
+	}*/
 }
