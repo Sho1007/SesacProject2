@@ -14,7 +14,12 @@ class MARINECRAFT_API UPlayerInventoryComponent : public UInventoryComponent
 
 public:
 	UPlayerInventoryComponent();
+
+	virtual bool AddItem(AItemBase* NewItem) override;
 private:
-	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
-	TArray<AItemBase*> QuickSlot;
+	//UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
+	//TArray<AItemBase*> QuickSlot;
+
+	UPROPERTY( EditAnywhere , Meta = ( AllowPrivateAccess ) )
+	UInventoryComponent* QuickSlot;
 };

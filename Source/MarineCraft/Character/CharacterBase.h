@@ -31,17 +31,24 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// InputAction
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StartAction(const FInputActionValue& Value);
 	void CompleteAction( const FInputActionValue& Value );
 	void Dive( const FInputActionValue& Value );
+	void Interact( const FInputActionValue& Value );
 
 private:
 	void Charge(float DeltaTime);
 	void Uncharge();
+	// Todo : Rename (Find Build Component?)
+	void BuildFunc( FHitResult& OutHit );
 
 private:
+	// Interact
+	AActor* InteractActor;
+
 	// Charge
 	UPROPERTY( VisibleInstanceOnly , Category = "State" , Meta = ( AllowPrivateAccess ) )
 	float ChargeValue;
@@ -92,4 +99,6 @@ private:
 	UInputAction* InputAction_Action;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Dive;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
+	UInputAction* InputAction_Interact;
 };

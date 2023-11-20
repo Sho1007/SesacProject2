@@ -9,6 +9,7 @@
 #include <CableComponent.h>
 
 #include "FloatsamBase.h"
+#include "PlayerInventoryComponent.h"
 
 
 // Sets default values
@@ -51,13 +52,13 @@ void AHook::Tick(float DeltaTime)
 void AHook::MoveToPlayer( float DeltaTime )
 {
 	FVector MoveDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
+	MoveDirection = FVector( MoveDirection.X , MoveDirection.Y , 0 );
 	if (MoveDirection.Length() <= CatchDistance)
 	{
 		Catch();
 	}
 	else
 	{
-		MoveDirection = FVector( MoveDirection.X , MoveDirection.Y , 0 );
 		MoveDirection.Normalize();
 
 		AddActorWorldOffset( MoveDirection * DeltaTime * PullSpeed );
@@ -72,10 +73,15 @@ void AHook::Catch()
 	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HookSocket" ) );
 	BoxComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
 
-	for (AActor* Iter : FloatsamSet)
+	UPlayerInventoryComponent* InventoryComponent = Cast<UPlayerInventoryComponent>(PlayerCharacter->GetComponentByClass(UPlayerInventoryComponent::StaticClass()));
+	check( InventoryComponent );
+
+	for ( AFloatsamBase* Iter : FloatsamSet)
 	{
-		LOG( TEXT( "FloatsamName : %s" ) , *Iter->GetName() );
-		Iter->Destroy();
+		if ( Iter && InventoryComponent->AddItem( Iter ) )
+		{
+			Iter->SetState( EItemState::InInventory );
+		}
 	}
 }
 

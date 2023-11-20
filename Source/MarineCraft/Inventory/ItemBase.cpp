@@ -16,6 +16,7 @@ AItemBase::AItemBase()
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>( TEXT( "BoxComponent" ) );
 	SetRootComponent( BoxComponent );
 	BoxComponent->CanCharacterStepUpOn = ECB_No;
+	BoxComponent->SetVisibility( false );
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "StaticMeshComponent" ) );
 	StaticMeshComponent->SetupAttachment( RootComponent );
@@ -35,20 +36,45 @@ void AItemBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-const FItemInstanceData* AItemBase::GetInstanceData() const
+FItemInstanceData* AItemBase::GetInstanceData()
 {
 	return &InstanceData;
 }
 
+void AItemBase::SetState(EItemState NewItemState)
+{
+	State = NewItemState;
 
+	switch ( State )
+	{
+	case EItemState::InWorld:
+		BoxComponent->SetCollisionEnabled( ECollisionEnabled::QueryOnly );
+		StaticMeshComponent->SetVisibility( true );
+		break;
+	case EItemState::InInventory:
+		if ( InstanceData.CurrentStack == 0 )
+		{
+			this->Destroy();
+		}
+		else
+		{
+			//AttachToActor( InventoryComponent->GetOwner() , FAttachmentTransformRules::SnapToTargetNotIncludingScale );
+			BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
+			StaticMeshComponent->SetVisibility( false );
+		}
+		break;
+	case EItemState::InHand:
+		break;
+	}
+}
 
 void AItemBase::Interact( ACharacter* InteractCharacter )
 {
 	UInventoryComponent* InventoryComponent = Cast<UInventoryComponent>( InteractCharacter->GetComponentByClass( UInventoryComponent::StaticClass() ) );
 	check( InventoryComponent );
 
-	/*if ( InventoryComponent->AddItem() )
+	if ( InventoryComponent->AddItem(this) )
 	{
-		this->Destroy();
-	}*/
+		SetState( EItemState::InInventory );
+	}
 }

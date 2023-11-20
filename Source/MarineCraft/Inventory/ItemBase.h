@@ -11,6 +11,16 @@
 
 #include "ItemBase.generated.h"
 
+UENUM()
+enum class EItemState : uint8
+{
+	None,
+	InWorld,
+	InInventory,
+	InHand,
+	Size
+};
+
 class AItemBase;
 USTRUCT(BlueprintType)
 struct FItemData : public FTableRowBase
@@ -68,9 +78,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Getter
-	const FItemInstanceData* GetInstanceData() const;
+	FItemInstanceData* GetInstanceData();
 
+	// Setter
+	void SetState(EItemState NewItemState);
+	
 public:
+	// Interface
 	virtual void Interact( ACharacter* InteractCharacter ) override;
 
 protected:
@@ -80,4 +94,6 @@ protected:
 	UBoxComponent* BoxComponent;
 	UPROPERTY(EditAnywhere)
 	FItemInstanceData InstanceData;
+	UPROPERTY(EditAnywhere)
+	EItemState State;
 };

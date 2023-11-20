@@ -35,7 +35,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+	
+
+public:
+	// Setter
+	void SetInventorySize( int32 NewInventorySize );
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

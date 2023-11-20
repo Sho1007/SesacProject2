@@ -5,5 +5,13 @@
 
 UPlayerInventoryComponent::UPlayerInventoryComponent()
 {
-	QuickSlot.Init( nullptr , 10 );
+	QuickSlot = CreateDefaultSubobject<UInventoryComponent>( TEXT( "QuickSlot" ) );
+	QuickSlot->SetInventorySize( 2 );
+}
+
+bool UPlayerInventoryComponent::AddItem(AItemBase* NewItem)
+{
+	if ( QuickSlot->AddItem( NewItem ) ) return true;
+
+	return Super::AddItem(NewItem);
 }

@@ -27,6 +27,8 @@ public:
 	// Getter / Setter
 	bool IsGrabbed() const;
 	void Grab();
+
+	void SetFloatingDirection( FVector NewFloatingDirection );
 private:
 	void Floating( float DeltaTime );
 

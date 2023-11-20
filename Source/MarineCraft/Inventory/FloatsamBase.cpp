@@ -40,6 +40,11 @@ void AFloatsamBase::Grab()
 	BoxComponent->SetCollisionProfileName( TEXT( "GrabbedFloatsam" ) );
 }
 
+void AFloatsamBase::SetFloatingDirection(FVector NewFloatingDirection)
+{
+	FloatingDirection = NewFloatingDirection;
+}
+
 void AFloatsamBase::Floating( float DeltaTime )
 {
 	// 이동 방향

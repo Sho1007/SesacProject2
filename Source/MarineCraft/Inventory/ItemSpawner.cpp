@@ -3,6 +3,11 @@
 
 #include "../Inventory/ItemSpawner.h"
 
+#include <EngineUtils.h>
+
+#include "FloatsamBase.h"
+#include "../Building/Boat.h"
+
 // Sets default values
 AItemSpawner::AItemSpawner()
 {
@@ -14,6 +19,15 @@ AItemSpawner::AItemSpawner()
 void AItemSpawner::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Find Boat in World
+	UWorld* World = GetWorld();
+	check( World );
+	TActorIterator<AActor> It( World , ABoat::StaticClass() );
+
+	Boat = Cast<ABoat>( *It );
+
+	check( Boat );
 }
 
 // Called every frame
@@ -33,5 +47,18 @@ void AItemSpawner::Tick(float DeltaTime)
 
 void AItemSpawner::SpawnItem()
 {
-	LOG( TEXT( "" ) );
+	//LOG( TEXT( "Floatsam Index : %d" ), );
+
+	FVector SpawnLocation = Boat->GetActorLocation();
+	SpawnLocation -= OceanCurrentsDirection * SpawnDistance;
+
+	FVector RightVector = FRotationMatrix::MakeFromXZ( ( SpawnLocation - Boat->GetActorLocation() ).GetSafeNormal() , GetActorUpVector() ).GetScaledAxis( EAxis::Y );
+
+	FRotator SpawnRotation = FRotationMatrix::MakeFromX( Boat->GetActorLocation() - SpawnLocation ).Rotator();
+
+	AFloatsamBase* Floatsam = GetWorld()->SpawnActor<AFloatsamBase>( FloatsamClassArray[ FMath::RandRange( 0 , FloatsamClassArray.Num() - 1 ) ], SpawnLocation + RightVector * FMath::RandRange( -SpawnOffset , SpawnOffset ) , SpawnRotation);
+	if (Floatsam)
+	{
+		Floatsam->SetFloatingDirection( OceanCurrentsDirection );
+	}
 }

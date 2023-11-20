@@ -14,6 +14,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MarineCraft/PlayerController/InGamePlayerController.h"
 #include "../Inventory/PlayerInventoryComponent.h"
+#include "../Interface/InteractInterface.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase() : bIsBuildMode(true)
@@ -59,58 +60,46 @@ void ACharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsBuildMode)
+	FHitResult OutHit;
+
+	FVector Start = CameraComponent->GetComponentLocation();
+	FVector End = Start + CameraComponent->GetForwardVector() * TraceDistance;
+
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor( this );
+
+	DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
+	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Visibility , CollisionQueryParams ) )
 	{
-		FHitResult OutHit;
+		//LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
 
-		FVector Start = CameraComponent->GetComponentLocation();
-		FVector End = Start + CameraComponent->GetForwardVector() * TraceDistance;
-
-		FCollisionObjectQueryParams Params;
-		Params.AddObjectTypesToQuery(ECC_GameTraceChannel1);
-
-		FCollisionQueryParams CollisionQueryParams;
-		CollisionQueryParams.AddIgnoredActor(this);
-
-		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionQueryParams))
+		if ( IInteractInterface* InteractInterface = Cast<IInteractInterface>( OutHit.GetActor() ))
 		{
-			//LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
-			if (BuildTargetComponent == OutHit.GetComponent()) return;
+			//LOG( TEXT( "Hit Actor : %s Has InteractInterface" ) , *OutHit.GetActor()->GetName() );
 
-			LOG(TEXT("ComponentName : %s"), *OutHit.GetComponent()->GetName());
-
-			if (ABuildingPartsBase* BuildParts = Cast<ABuildingPartsBase>(OutHit.GetComponent()->GetOwner()))
+			// Todo : TurnOn InteractWidget;
+			InteractActor = OutHit.GetActor();
+		}
+		else
+		{
+			if (InteractActor)
 			{
-				FName BuildingPartsName = BuildParts->GetBuildingPartsName(OutHit.GetComponent());
-				if (BuildingPartsName.Compare(TEXT("None")) != 0)
-				{
-					BuildTargetComponent = OutHit.GetComponent();
-
-					UMarineCraftGameInstance* GameInstance = GetGameInstance<UMarineCraftGameInstance>();
-					check(GameInstance);
-					FBuildingPartsData* BuildingPartsData = GameInstance->GetBuildingPartsData(BuildingPartsName);
-					check(BuildingPartsData);
-
-					GhostMeshComponent->SetStaticMesh(BuildingPartsData->Mesh);
-					GhostMeshComponent->SetWorldRotation(BuildTargetComponent->GetComponentRotation());
-					GhostMeshComponent->SetWorldLocation(BuildTargetComponent->GetComponentLocation() + BuildTargetComponent->GetComponentRotation().RotateVector(BuildingPartsData->MeshLocationOffset));
-					GhostMeshComponent->SetWorldScale3D(BuildingPartsData->Scale);
-
-					int MaterialNum = GhostMeshComponent->GetMaterials().Num();
-					for (int i = 0; i < MaterialNum; ++i)
-					{
-						GhostMeshComponent->SetMaterial(i, CanBuildMaterial);
-					}
-					GhostMeshComponent->SetVisibility(true);
-
-					return;
-				}
+				// Todo : TurnOff InteractWidget;
+				InteractActor = nullptr;
 			}
+			//LOG( TEXT( "Hit Actor : %s Has Not InteractInterface" ) , *OutHit.GetActor()->GetName() );
+		}
+
+		if ( bIsBuildMode ) BuildFunc( OutHit );
+	}
+	else
+	{
+		if ( InteractActor )
+		{
+			// Todo : TurnOff InteractWidget;
+			InteractActor = nullptr;
 		}
 	}
-
-	BuildTargetComponent = nullptr;
-	GhostMeshComponent->SetVisibility(false);
 
 	if (bIsCharging)
 	{
@@ -130,6 +119,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Input->BindAction(InputAction_Action, ETriggerEvent::Started, this, &ACharacterBase::StartAction );
 	Input->BindAction(InputAction_Action, ETriggerEvent::Completed, this, &ACharacterBase::CompleteAction );
 	Input->BindAction(InputAction_Dive, ETriggerEvent::Triggered, this, &ACharacterBase::Dive );
+	Input->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ACharacterBase::Interact );
 }
 
 void ACharacterBase::Move(const FInputActionValue& Value)
@@ -197,6 +187,18 @@ void ACharacterBase::Dive(const FInputActionValue& Value)
 	AddMovementInput( GetActorUpVector() , Value.Get<float>() * MoveSpeed );
 }
 
+void ACharacterBase::Interact(const FInputActionValue& Value)
+{
+	if (InteractActor)
+	{
+		LOG( TEXT( "Interact Actor : %s" ) , *InteractActor->GetName() );
+	}
+	else
+	{
+		LOG( TEXT( "No Interact Actor" ));
+	}
+}
+
 void ACharacterBase::Charge(float DeltaTime)
 {
 	ChargeValue += DeltaTime;
@@ -218,4 +220,42 @@ void ACharacterBase::Uncharge()
 	{
 		PC->SetChargePercent( 0.0f );
 	}
+}
+
+void ACharacterBase::BuildFunc(FHitResult& OutHit)
+{
+	if ( BuildTargetComponent == OutHit.GetComponent() ) return;
+
+	LOG( TEXT( "ComponentName : %s" ) , *OutHit.GetComponent()->GetName() );
+
+	if ( ABuildingPartsBase* BuildParts = Cast<ABuildingPartsBase>( OutHit.GetComponent()->GetOwner() ) )
+	{
+		FName BuildingPartsName = BuildParts->GetBuildingPartsName( OutHit.GetComponent() );
+		if ( BuildingPartsName.Compare( TEXT( "None" ) ) != 0 )
+		{
+			BuildTargetComponent = OutHit.GetComponent();
+
+			UMarineCraftGameInstance* GameInstance = GetGameInstance<UMarineCraftGameInstance>();
+			check( GameInstance );
+			FBuildingPartsData* BuildingPartsData = GameInstance->GetBuildingPartsData( BuildingPartsName );
+			check( BuildingPartsData );
+
+			GhostMeshComponent->SetStaticMesh( BuildingPartsData->Mesh );
+			GhostMeshComponent->SetWorldRotation( BuildTargetComponent->GetComponentRotation() );
+			GhostMeshComponent->SetWorldLocation( BuildTargetComponent->GetComponentLocation() + BuildTargetComponent->GetComponentRotation().RotateVector( BuildingPartsData->MeshLocationOffset ) );
+			GhostMeshComponent->SetWorldScale3D( BuildingPartsData->Scale );
+
+			int MaterialNum = GhostMeshComponent->GetMaterials().Num();
+			for ( int i = 0; i < MaterialNum; ++i )
+			{
+				GhostMeshComponent->SetMaterial( i , CanBuildMaterial );
+			}
+			GhostMeshComponent->SetVisibility( true );
+
+			return;
+		}
+	}
+
+	BuildTargetComponent = nullptr;
+	GhostMeshComponent->SetVisibility( false );
 }
