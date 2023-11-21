@@ -12,6 +12,14 @@
 #include "ItemBase.generated.h"
 
 UENUM()
+enum class EItemType : uint8
+{
+	None,
+	Materials,
+
+};
+
+UENUM()
 enum class EItemState : uint8
 {
 	None,
