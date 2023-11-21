@@ -5,7 +5,7 @@
 
 #include <Components/BoxComponent.h>
 #include <GameFramework/Character.h>
-#include "../Inventory/InventoryComponent.h"
+#include "../Inventory/PlayerInventoryComponent.h"
 
 // Sets default values
 AItemBase::AItemBase()
@@ -70,11 +70,16 @@ void AItemBase::SetState(EItemState NewItemState)
 
 void AItemBase::Interact( ACharacter* InteractCharacter )
 {
-	UInventoryComponent* InventoryComponent = Cast<UInventoryComponent>( InteractCharacter->GetComponentByClass( UInventoryComponent::StaticClass() ) );
-	check( InventoryComponent );
+	UPlayerInventoryComponent* PlayerInventoryComponent = Cast<UPlayerInventoryComponent>( InteractCharacter->GetComponentByClass( UPlayerInventoryComponent::StaticClass() ) );
+	check( PlayerInventoryComponent );
 
-	if ( InventoryComponent->AddItem(this) )
+	if ( PlayerInventoryComponent->AddItem(this) )
 	{
 		SetState( EItemState::InInventory );
 	}
+}
+
+FText AItemBase::GetInteractActorName()
+{
+	return FText::FromName( InstanceData.ItemName );
 }

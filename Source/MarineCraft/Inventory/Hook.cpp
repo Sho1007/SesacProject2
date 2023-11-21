@@ -67,11 +67,11 @@ void AHook::MoveToPlayer( float DeltaTime )
 
 void AHook::Catch()
 {
-	bIsThrown = false;
+	//bIsThrown = false;
 	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
 	bShouldMovetoPlayer = false;
 	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HookSocket" ) );
-	BoxComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
+	//BoxComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
 
 	UPlayerInventoryComponent* InventoryComponent = Cast<UPlayerInventoryComponent>(PlayerCharacter->GetComponentByClass(UPlayerInventoryComponent::StaticClass()));
 	check( InventoryComponent );
@@ -88,7 +88,7 @@ void AHook::Catch()
 void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if ( bIsThrown == false ) return;
+	//if ( bIsThrown == false ) return;
 	//LOG( TEXT( "Overlapped Actor : %s" ), *OtherActor->GetName());
 
 	if (AWaterBody* Water = Cast<AWaterBody>(OtherActor))
@@ -109,8 +109,8 @@ void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void AHook::Launch()
 {
-	bIsThrown = true;
-	BoxComponent->SetCollisionEnabled( ECollisionEnabled::QueryAndPhysics );
+	//bIsThrown = true;
+	BoxComponent->SetCollisionProfileName( TEXT( "Hook" ) );
 	BoxComponent->SetSimulatePhysics( true );
 	FVector LaunchDirection = PlayerCharacter->GetActorForwardVector() + PlayerCharacter->GetActorUpVector();
 	LaunchDirection.Normalize();

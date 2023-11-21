@@ -3,7 +3,6 @@
 
 #include "../Inventory/InventoryComponent.h"
 
-#include "GeometryTypes.h"
 #include "ItemBase.h"
 #include "MarineCraft/MarineCraftGameInstance.h"
 
@@ -13,15 +12,12 @@ UInventoryComponent::UInventoryComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	bWantsInitializeComponent = true;
 }
 
-
-// Called when the game starts
-void UInventoryComponent::BeginPlay()
+void UInventoryComponent::InitializeComponent()
 {
-	Super::BeginPlay();
-
-	// ...
+	Super::InitializeComponent();
 
 	ItemArray.Init( FItemArray() , InventorySize );
 }
@@ -83,4 +79,20 @@ bool UInventoryComponent::AddItem(AItemBase* NewItem)
 	}
 
 	return false;
+}
+
+AItemBase* UInventoryComponent::GetItem(int32 ItemIndex)
+{
+	int32 Row = ItemIndex / 5;
+	int32 Col = ItemIndex % 5;
+
+	LOG( TEXT( "Item Row : %d, Col : %d" ) , Row , Col );
+
+	if (Row < 0 || ItemArray.Num() <= Row || Col < 0 || ItemArray[Row].ItemArray.Num() <= Col )
+	{
+		LOG( TEXT( "Invalid Index : Inventory Row : %d, Col : %d" ), ItemArray.Num(), ItemArray.Num() > 0 ? ItemArray[0].ItemArray.Num() : 0); 
+		return nullptr;
+	}
+
+	return ItemArray[Row].ItemArray[Col];
 }

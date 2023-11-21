@@ -86,6 +86,7 @@ public:
 public:
 	// Interface
 	virtual void Interact( ACharacter* InteractCharacter ) override;
+	virtual FText GetInteractActorName() override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly)

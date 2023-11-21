@@ -68,7 +68,7 @@ void ACharacterBase::Tick(float DeltaTime)
 	FCollisionQueryParams CollisionQueryParams;
 	CollisionQueryParams.AddIgnoredActor( this );
 
-	DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
+	//DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
 	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Visibility , CollisionQueryParams ) )
 	{
 		//LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
@@ -78,6 +78,9 @@ void ACharacterBase::Tick(float DeltaTime)
 			//LOG( TEXT( "Hit Actor : %s Has InteractInterface" ) , *OutHit.GetActor()->GetName() );
 
 			// Todo : TurnOn InteractWidget;
+			AInGamePlayerController* PC = GetController<AInGamePlayerController>();
+			check( PC );
+			PC->UpdateInteractActor( InteractInterface );
 			InteractActor = OutHit.GetActor();
 		}
 		else
@@ -85,6 +88,9 @@ void ACharacterBase::Tick(float DeltaTime)
 			if (InteractActor)
 			{
 				// Todo : TurnOff InteractWidget;
+				AInGamePlayerController* PC = GetController<AInGamePlayerController>();
+				check( PC );
+				PC->UpdateInteractActor( nullptr );
 				InteractActor = nullptr;
 			}
 			//LOG( TEXT( "Hit Actor : %s Has Not InteractInterface" ) , *OutHit.GetActor()->GetName() );
@@ -97,6 +103,9 @@ void ACharacterBase::Tick(float DeltaTime)
 		if ( InteractActor )
 		{
 			// Todo : TurnOff InteractWidget;
+			AInGamePlayerController* PC = GetController<AInGamePlayerController>();
+			check( PC );
+			PC->UpdateInteractActor( nullptr );
 			InteractActor = nullptr;
 		}
 	}
@@ -120,6 +129,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Input->BindAction(InputAction_Action, ETriggerEvent::Completed, this, &ACharacterBase::CompleteAction );
 	Input->BindAction(InputAction_Dive, ETriggerEvent::Triggered, this, &ACharacterBase::Dive );
 	Input->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ACharacterBase::Interact );
+	Input->BindAction(InputAction_QuickSlot, ETriggerEvent::Started, this, &ACharacterBase::QuickSlot );
 }
 
 void ACharacterBase::Move(const FInputActionValue& Value)
@@ -189,13 +199,71 @@ void ACharacterBase::Dive(const FInputActionValue& Value)
 
 void ACharacterBase::Interact(const FInputActionValue& Value)
 {
-	if (InteractActor)
+	if (IInteractInterface* Interface = Cast<IInteractInterface>( InteractActor ))
 	{
-		LOG( TEXT( "Interact Actor : %s" ) , *InteractActor->GetName() );
+		//LOG( TEXT( "Interact Actor : %s" ) , *InteractActor->GetName() );
+		Interface->Interact( this );
 	}
-	else
+}
+
+void ACharacterBase::QuickSlot(const FInputActionValue& Value)
+{
+	if ( APlayerController* PlayerController = GetController<APlayerController>() )
 	{
-		LOG( TEXT( "No Interact Actor" ));
+		if ( UEnhancedInputLocalPlayerSubsystem* InputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>( PlayerController->GetLocalPlayer() ) )
+		{
+			FKey PressedKey;
+			TArray<FKey> KeyArray = InputSystem->QueryKeysMappedToAction(InputAction_QuickSlot);
+			for (FKey Key : KeyArray)
+			{
+				if (PlayerController->IsInputKeyDown(Key))
+				{
+					PressedKey = Key;
+					break;
+				}
+			}
+
+			if (PressedKey.GetFName() == TEXT("One"))
+			{
+				InventoryComponent->SetCurrentItem(0);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Two" ) )
+			{
+				InventoryComponent->SetCurrentItem(1);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Three" ) )
+			{
+				InventoryComponent->SetCurrentItem(2);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Four" ) )
+			{
+				InventoryComponent->SetCurrentItem(3);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Five" ) )
+			{
+				InventoryComponent->SetCurrentItem(4);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Six" ) )
+			{
+				InventoryComponent->SetCurrentItem(5);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Seven" ) )
+			{
+				InventoryComponent->SetCurrentItem(6);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Eight" ) )
+			{
+				InventoryComponent->SetCurrentItem(7);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Nine" ) )
+			{
+				InventoryComponent->SetCurrentItem(8);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Zero" ) )
+			{
+				InventoryComponent->SetCurrentItem(9);
+			}
+		}
 	}
 }
 

@@ -5,6 +5,8 @@
 
 #include <Components/BoxComponent.h>
 
+#include "BlueprintActionFilter.h"
+
 // Sets default values
 AFloatsamBase::AFloatsamBase()
 {
@@ -55,7 +57,7 @@ void AFloatsamBase::Floating( float DeltaTime )
 	if ( bIsFloatingUp )
 	{
 		AddActorWorldOffset( FVector( 0 , 0 , FloatingSpeed * DeltaTime ) );
-		if ( GetActorLocation().Z >= FloatingHeight )
+		if ( GetActorLocation().Z >= DefaultHeight + FloatingHeight )
 		{
 			bIsFloatingUp = false;
 		}
@@ -63,7 +65,7 @@ void AFloatsamBase::Floating( float DeltaTime )
 	else
 	{
 		AddActorWorldOffset( FVector( 0 , 0 , -FloatingSpeed * DeltaTime ) );
-		if ( GetActorLocation().Z <= -FloatingHeight )
+		if ( GetActorLocation().Z <= DefaultHeight -FloatingHeight )
 		{
 			bIsFloatingUp = true;
 		}

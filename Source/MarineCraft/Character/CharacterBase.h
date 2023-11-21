@@ -38,6 +38,7 @@ public:
 	void CompleteAction( const FInputActionValue& Value );
 	void Dive( const FInputActionValue& Value );
 	void Interact( const FInputActionValue& Value );
+	void QuickSlot( const FInputActionValue& Value );
 
 private:
 	void Charge(float DeltaTime);
@@ -85,7 +86,7 @@ private:
 	UCameraComponent* CameraComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere , Category = "Component", Meta = (AllowPrivateAccess))
 	USpringArmComponent* SpringArmComponent;
-	UPROPERTY(VisibleAnywhere, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
 	UPlayerInventoryComponent* InventoryComponent;
 	
 	// Input
@@ -101,4 +102,6 @@ private:
 	UInputAction* InputAction_Dive;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Interact;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
+	UInputAction* InputAction_QuickSlot;
 };

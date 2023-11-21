@@ -31,11 +31,7 @@ public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-	
+	virtual void InitializeComponent() override;
 
 public:
 	// Setter
@@ -45,6 +41,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual bool AddItem(AItemBase* NewItem);
+	virtual AItemBase* GetItem( int32 ItemIndex );
 
 protected:
 	UPROPERTY(EditAnywhere)

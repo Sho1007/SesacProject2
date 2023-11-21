@@ -31,12 +31,13 @@ public:
 	void SetFloatingDirection( FVector NewFloatingDirection );
 private:
 	void Floating( float DeltaTime );
-
 private:
 	// Floating
 	bool	bIsFloatingUp;
 	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
 	float	FloatingHeight = 5.0f;
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	float	DefaultHeight = 0.0f;
 	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
 	float	FloatingSpeed = 0.8f;
 	float	FloatingRate;

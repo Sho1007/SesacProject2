@@ -20,3 +20,13 @@ void AInGamePlayerController::SetChargePercent(float NewChargePercent)
 {
 	InGameWidget->SetChargePercent(NewChargePercent);
 }
+
+void AInGamePlayerController::UpdateInteractActor(IInteractInterface* NewInteractActor)
+{
+	InGameWidget->UpdateInteractActor( NewInteractActor );
+}
+
+void AInGamePlayerController::UpdateInventoryWidget(UPlayerInventoryComponent* PlayerInventoryComponent)
+{
+	InGameWidget->UpdateInventory( PlayerInventoryComponent );
+}
