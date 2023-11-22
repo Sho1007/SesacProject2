@@ -12,6 +12,14 @@
 #include "ItemBase.generated.h"
 
 UENUM()
+enum class EItemType : uint8
+{
+	None,
+	Materials,
+	Tools,
+};
+
+UENUM()
 enum class EItemState : uint8
 {
 	None,
@@ -35,10 +43,11 @@ struct FItemData : public FTableRowBase
 	UTexture2D* ItemImage;
 	UPROPERTY( BlueprintReadWrite , EditAnywhere )
 	TSubclassOf<AItemBase> ItemClass;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	EItemType ItemType;
 
-	FItemData() : ItemName(TEXT("")), MaxStack(1), ItemImage(nullptr)
+	FItemData() : ItemName(TEXT("")), MaxStack(1), ItemImage(nullptr), ItemType()
 	{
-		
 	}
 };
 
@@ -48,11 +57,9 @@ struct FItemInstanceData
 	GENERATED_BODY()
 
 	UPROPERTY( BlueprintReadWrite , EditAnywhere )
-	FName ItemName;
-	UPROPERTY( BlueprintReadWrite , EditAnywhere )
 	int32 CurrentStack;
 
-	FItemInstanceData() : ItemName(TEXT("")), CurrentStack(1)
+	FItemInstanceData() : CurrentStack(1)
 	{
 		
 	}
@@ -60,6 +67,7 @@ struct FItemInstanceData
 
 class UBoxComponent;
 class UStaticMeshComponent;
+class UInventoryComponent;
 UCLASS()
 class MARINECRAFT_API AItemBase : public AActor, public IInteractInterface
 {
@@ -74,26 +82,43 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	// Getter
 	FItemInstanceData* GetInstanceData();
+	FItemData* GetItemData();
 
 	// Setter
 	void SetState(EItemState NewItemState);
-	
+	void SetInventoryComponent( UInventoryComponent* NewInventoryComponent , int32 NewInventoryIndex );
 public:
 	// Interface
 	virtual void Interact( ACharacter* InteractCharacter ) override;
+	virtual FText GetInteractActorName() override;
 
 protected:
-	UPROPERTY(EditDefaultsOnly)
-	UStaticMeshComponent* StaticMeshComponent;
-	UPROPERTY(EditDefaultsOnly)
-	UBoxComponent* BoxComponent;
+	// State
+	virtual void SetInWorld();
+	virtual void SetInInventory();
+	virtual void SetInHand();
+
+protected:
+	// Inventory
+	UPROPERTY( VisibleInstanceOnly )
+	UInventoryComponent* InventoryComponent;
+	UPROPERTY( VisibleInstanceOnly )
+	int32 InventoryIndex;
+	
+	// Item Info
+	UPROPERTY(EditAnywhere)
+	FItemData ItemData;
 	UPROPERTY(EditAnywhere)
 	FItemInstanceData InstanceData;
 	UPROPERTY(EditAnywhere)
 	EItemState State;
+
+	// Component
+	UPROPERTY( EditDefaultsOnly )
+	UStaticMeshComponent* StaticMeshComponent;
+	UPROPERTY( EditDefaultsOnly )
+	UBoxComponent* BoxComponent;
 };

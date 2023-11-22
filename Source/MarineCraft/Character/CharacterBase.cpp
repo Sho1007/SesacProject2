@@ -15,6 +15,7 @@
 #include "MarineCraft/PlayerController/InGamePlayerController.h"
 #include "../Inventory/PlayerInventoryComponent.h"
 #include "../Interface/InteractInterface.h"
+#include "MarineCraft/Inventory/ToolBase.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase() : bIsBuildMode(true)
@@ -68,7 +69,7 @@ void ACharacterBase::Tick(float DeltaTime)
 	FCollisionQueryParams CollisionQueryParams;
 	CollisionQueryParams.AddIgnoredActor( this );
 
-	DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
+	//DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
 	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Visibility , CollisionQueryParams ) )
 	{
 		//LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
@@ -78,6 +79,9 @@ void ACharacterBase::Tick(float DeltaTime)
 			//LOG( TEXT( "Hit Actor : %s Has InteractInterface" ) , *OutHit.GetActor()->GetName() );
 
 			// Todo : TurnOn InteractWidget;
+			AInGamePlayerController* PC = GetController<AInGamePlayerController>();
+			check( PC );
+			PC->UpdateInteractActor( InteractInterface );
 			InteractActor = OutHit.GetActor();
 		}
 		else
@@ -85,6 +89,9 @@ void ACharacterBase::Tick(float DeltaTime)
 			if (InteractActor)
 			{
 				// Todo : TurnOff InteractWidget;
+				AInGamePlayerController* PC = GetController<AInGamePlayerController>();
+				check( PC );
+				PC->UpdateInteractActor( nullptr );
 				InteractActor = nullptr;
 			}
 			//LOG( TEXT( "Hit Actor : %s Has Not InteractInterface" ) , *OutHit.GetActor()->GetName() );
@@ -97,13 +104,11 @@ void ACharacterBase::Tick(float DeltaTime)
 		if ( InteractActor )
 		{
 			// Todo : TurnOff InteractWidget;
+			AInGamePlayerController* PC = GetController<AInGamePlayerController>();
+			check( PC );
+			PC->UpdateInteractActor( nullptr );
 			InteractActor = nullptr;
 		}
-	}
-
-	if (bIsCharging)
-	{
-		Charge(DeltaTime);
 	}
 }
 
@@ -118,8 +123,10 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Input->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ACharacterBase::Look);
 	Input->BindAction(InputAction_Action, ETriggerEvent::Started, this, &ACharacterBase::StartAction );
 	Input->BindAction(InputAction_Action, ETriggerEvent::Completed, this, &ACharacterBase::CompleteAction );
+	Input->BindAction(InputAction_CancelAction, ETriggerEvent::Started, this, &ACharacterBase::CancelAction );
 	Input->BindAction(InputAction_Dive, ETriggerEvent::Triggered, this, &ACharacterBase::Dive );
 	Input->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ACharacterBase::Interact );
+	Input->BindAction(InputAction_QuickSlot, ETriggerEvent::Started, this, &ACharacterBase::QuickSlot );
 }
 
 void ACharacterBase::Move(const FInputActionValue& Value)
@@ -149,7 +156,7 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 
 void ACharacterBase::StartAction(const FInputActionValue& Value)
 {
-	LOG( TEXT( "" ) );
+	//LOG( TEXT( "" ) );
 	if (bIsBuildMode && BuildTargetComponent != nullptr)
 	{
 		// Spawn BuildingPartsActor
@@ -170,15 +177,26 @@ void ACharacterBase::StartAction(const FInputActionValue& Value)
 	}
 	// Todo : 내 퀵슬롯의 현재 아이템이 [Charge 가능한] [도구] 라면 bIsCharging을 True 로 한다.
 	// Charge Test
-	bIsCharging = true;
+	if ( AToolBase* ToolBase = Cast<AToolBase>(InventoryComponent->GetCurrentItem()) )
+	{
+		ToolBase->Use();
+	}
 }
 
 void ACharacterBase::CompleteAction(const FInputActionValue& Value)
 {
-	LOG( TEXT( "" ) );
+	if ( AToolBase* ToolBase = Cast<AToolBase>( InventoryComponent->GetCurrentItem() ) )
+	{
+		ToolBase->StopUse();
+	}
+}
 
-	// Charge Test
-	if ( bIsCharging ) Uncharge();
+void ACharacterBase::CancelAction(const FInputActionValue& Value)
+{
+	if ( AToolBase* ToolBase = Cast<AToolBase>( InventoryComponent->GetCurrentItem() ) )
+	{
+		ToolBase->Cancel();
+	}
 }
 
 void ACharacterBase::Dive(const FInputActionValue& Value)
@@ -189,37 +207,77 @@ void ACharacterBase::Dive(const FInputActionValue& Value)
 
 void ACharacterBase::Interact(const FInputActionValue& Value)
 {
-	if (InteractActor)
+	if (IInteractInterface* Interface = Cast<IInteractInterface>( InteractActor ))
 	{
-		LOG( TEXT( "Interact Actor : %s" ) , *InteractActor->GetName() );
-	}
-	else
-	{
-		LOG( TEXT( "No Interact Actor" ));
+		//LOG( TEXT( "Interact Actor : %s" ) , *InteractActor->GetName() );
+		Interface->Interact( this );
 	}
 }
 
-void ACharacterBase::Charge(float DeltaTime)
+void ACharacterBase::QuickSlot(const FInputActionValue& Value)
 {
-	ChargeValue += DeltaTime;
-
-	LOG( TEXT( "Charge Value : %f" ) , ChargeValue );
-
-	if (AInGamePlayerController* PC = GetController<AInGamePlayerController>())
+	if ( APlayerController* PlayerController = GetController<APlayerController>() )
 	{
-		// Todo : Change 1.0f to Tool's MaxChargeTime
-		PC->SetChargePercent(ChargeValue / 1.0f);
+		if ( UEnhancedInputLocalPlayerSubsystem* InputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>( PlayerController->GetLocalPlayer() ) )
+		{
+			FKey PressedKey;
+			TArray<FKey> KeyArray = InputSystem->QueryKeysMappedToAction(InputAction_QuickSlot);
+			for (FKey Key : KeyArray)
+			{
+				if (PlayerController->IsInputKeyDown(Key))
+				{
+					PressedKey = Key;
+					break;
+				}
+			}
+
+			if (PressedKey.GetFName() == TEXT("One"))
+			{
+				InventoryComponent->SetCurrentItem(0);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Two" ) )
+			{
+				InventoryComponent->SetCurrentItem(1);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Three" ) )
+			{
+				InventoryComponent->SetCurrentItem(2);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Four" ) )
+			{
+				InventoryComponent->SetCurrentItem(3);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Five" ) )
+			{
+				InventoryComponent->SetCurrentItem(4);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Six" ) )
+			{
+				InventoryComponent->SetCurrentItem(5);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Seven" ) )
+			{
+				InventoryComponent->SetCurrentItem(6);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Eight" ) )
+			{
+				InventoryComponent->SetCurrentItem(7);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Nine" ) )
+			{
+				InventoryComponent->SetCurrentItem(8);
+			}
+			else if ( PressedKey.GetFName() == TEXT( "Zero" ) )
+			{
+				InventoryComponent->SetCurrentItem(9);
+			}
+		}
 	}
 }
 
-void ACharacterBase::Uncharge()
+void ACharacterBase::UpdateInventoryWidget()
 {
-	ChargeValue = 0.0f;
-	bIsCharging = false;
-	if ( AInGamePlayerController* PC = GetController<AInGamePlayerController>() )
-	{
-		PC->SetChargePercent( 0.0f );
-	}
+	GetController<AInGamePlayerController>()->UpdateInventoryWidget(InventoryComponent);
 }
 
 void ACharacterBase::BuildFunc(FHitResult& OutHit)

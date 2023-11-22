@@ -3,19 +3,31 @@
 
 #include "../Inventory/ToolBase.h"
 
-// Called when the game starts or when spawned
 void AToolBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrentDurability = MaxDurability;
 }
 
-// Called every frame
-void AToolBase::Tick(float DeltaTime)
+void AToolBase::Use()
 {
-	Super::Tick( DeltaTime );
 }
 
-bool AToolBase::IsChargeable() const
+void AToolBase::StopUse()
 {
-	return bIsChargeable;
+}
+
+void AToolBase::Cancel()
+{
+}
+
+float AToolBase::GetCurrentDurability()
+{
+	return CurrentDurability;
+}
+
+float AToolBase::GetMaxDurability()
+{
+	return MaxDurability;
 }

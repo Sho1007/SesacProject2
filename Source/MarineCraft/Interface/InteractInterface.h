@@ -23,4 +23,5 @@ class MARINECRAFT_API IInteractInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void Interact( ACharacter* InteractCharacter ) = 0;
+	virtual FText GetInteractActorName() = 0;
 };

@@ -36,24 +36,22 @@ public:
 	void Look(const FInputActionValue& Value);
 	void StartAction(const FInputActionValue& Value);
 	void CompleteAction( const FInputActionValue& Value );
+
+	void CancelAction( const FInputActionValue& Value );
+
 	void Dive( const FInputActionValue& Value );
 	void Interact( const FInputActionValue& Value );
+	void QuickSlot( const FInputActionValue& Value );
+
+	void UpdateInventoryWidget();
 
 private:
-	void Charge(float DeltaTime);
-	void Uncharge();
 	// Todo : Rename (Find Build Component?)
 	void BuildFunc( FHitResult& OutHit );
 
 private:
 	// Interact
 	AActor* InteractActor;
-
-	// Charge
-	UPROPERTY( VisibleInstanceOnly , Category = "State" , Meta = ( AllowPrivateAccess ) )
-	float ChargeValue;
-	UPROPERTY( VisibleInstanceOnly, Category = "State" , Meta = ( AllowPrivateAccess ) )
-	bool bIsCharging;
 
 	// Action?
 	UPROPERTY(EditDefaultsOnly, Category = "Animation", Meta = (AllowPrivateAccess))
@@ -85,7 +83,7 @@ private:
 	UCameraComponent* CameraComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere , Category = "Component", Meta = (AllowPrivateAccess))
 	USpringArmComponent* SpringArmComponent;
-	UPROPERTY(VisibleAnywhere, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
 	UPlayerInventoryComponent* InventoryComponent;
 	
 	// Input
@@ -98,7 +96,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Action;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
+	UInputAction* InputAction_CancelAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Dive;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Interact;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
+	UInputAction* InputAction_QuickSlot;
 };

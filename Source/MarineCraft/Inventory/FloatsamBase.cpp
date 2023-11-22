@@ -5,6 +5,8 @@
 
 #include <Components/BoxComponent.h>
 
+#include "BlueprintActionFilter.h"
+
 // Sets default values
 AFloatsamBase::AFloatsamBase()
 {
@@ -18,6 +20,8 @@ AFloatsamBase::AFloatsamBase()
 void AFloatsamBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetActorTickEnabled( true );
 }
 
 // Called every frame
@@ -40,6 +44,12 @@ void AFloatsamBase::Grab()
 	BoxComponent->SetCollisionProfileName( TEXT( "GrabbedFloatsam" ) );
 }
 
+void AFloatsamBase::Release()
+{
+	bIsGrabbed = false;
+	BoxComponent->SetCollisionProfileName( TEXT( "Floatsam" ) );
+}
+
 void AFloatsamBase::SetFloatingDirection(FVector NewFloatingDirection)
 {
 	FloatingDirection = NewFloatingDirection;
@@ -55,7 +65,7 @@ void AFloatsamBase::Floating( float DeltaTime )
 	if ( bIsFloatingUp )
 	{
 		AddActorWorldOffset( FVector( 0 , 0 , FloatingSpeed * DeltaTime ) );
-		if ( GetActorLocation().Z >= FloatingHeight )
+		if ( GetActorLocation().Z >= DefaultHeight + FloatingHeight )
 		{
 			bIsFloatingUp = false;
 		}
@@ -63,7 +73,7 @@ void AFloatsamBase::Floating( float DeltaTime )
 	else
 	{
 		AddActorWorldOffset( FVector( 0 , 0 , -FloatingSpeed * DeltaTime ) );
-		if ( GetActorLocation().Z <= -FloatingHeight )
+		if ( GetActorLocation().Z <= DefaultHeight -FloatingHeight )
 		{
 			bIsFloatingUp = true;
 		}

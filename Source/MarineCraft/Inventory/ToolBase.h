@@ -10,19 +10,24 @@ UCLASS()
 class MARINECRAFT_API AToolBase : public AItemBase
 {
 	GENERATED_BODY()
-
-protected:
-	// Called when the game starts or when spawned
+public:	
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void Use();
+	virtual void StopUse();
+	virtual void Cancel();
 
-	// Getter / Setter
-	bool IsChargeable() const;
+	float GetCurrentDurability();
+	float GetMaxDurability();
 
 protected:
-	UPROPERTY(VisibleInstanceOnly)
+	UPROPERTY(EditDefaultsOnly)
 	bool bIsChargeable;
+	bool bIsCharging;
+	UPROPERTY(EditDefaultsOnly)
+	float MaxChargeTime;
+	float CurrentChargeTime;
+	UPROPERTY( EditDefaultsOnly )
+	float MaxDurability;
+	float CurrentDurability;
 };

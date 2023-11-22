@@ -10,6 +10,8 @@
 
 #include "FloatsamBase.h"
 #include "PlayerInventoryComponent.h"
+#include "MarineCraft/PlayerController/InGamePlayerController.h"
+#include "../Character/CharacterBase.h"
 
 
 // Sets default values
@@ -18,13 +20,17 @@ AHook::AHook()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
+	
 	BoxComponent->SetCollisionProfileName( TEXT( "Hook" ) );
 	BoxComponent->CanCharacterStepUpOn = ECB_No;
 
 	CableComponent = CreateDefaultSubobject<UCableComponent>( TEXT( "CableComponent" ) );
 	CableComponent->SetupAttachment( RootComponent );
 	CableComponent->EndLocation = FVector::ZeroVector;
+
+	RopeMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "RopeMeshComponent" ) );
+	RopeMeshComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
+	RopeMeshComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
 }
 
 // Called when the game starts or when spawned
@@ -33,12 +39,12 @@ void AHook::BeginPlay()
 	Super::BeginPlay();
 	BoxComponent->OnComponentBeginOverlap.AddDynamic( this , &AHook::OnBoxComponentBeginOverlap );
 
-	PlayerCharacter = GetWorld()->GetFirstPlayerController()->GetCharacter();
+	PlayerCharacter = Cast<ACharacterBase>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 	check( PlayerCharacter );
 
 	CableComponent->SetAttachEndToComponent( PlayerCharacter->GetMesh() , TEXT( "RopeSocket" ) );
-	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("HookSocket") );
-	
+	RopeMeshComponent->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "RopeSocket" ) );
+	RopeMeshComponent->SetRelativeLocationAndRotation( FVector( 3 , 0 , -12 ) , FRotator( 90 , 0 , 0 ) );
 }
 
 // Called every frame
@@ -46,7 +52,24 @@ void AHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//UE_LOG( LogTemp , Warning , TEXT( "AHook::Tick) Outer : %s" ), *GetOwner()->GetName() );
+
 	if ( bShouldMovetoPlayer ) MoveToPlayer(DeltaTime);
+	if ( bIsCharging )
+	{
+		CurrentChargeTime += DeltaTime;
+		
+		if ( CurrentChargeTime >= MaxChargeTime )
+		{
+			StopUse();
+		}
+		else
+		{
+			AInGamePlayerController* PC = PlayerCharacter->GetController<AInGamePlayerController>();
+			check( PC );
+			PC->SetChargePercent( CurrentChargeTime / MaxChargeTime );
+		}
+	}
 }
 
 void AHook::MoveToPlayer( float DeltaTime )
@@ -67,35 +90,86 @@ void AHook::MoveToPlayer( float DeltaTime )
 
 void AHook::Catch()
 {
-	bIsThrown = false;
 	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
 	bShouldMovetoPlayer = false;
+	bIsLanded = false;
+	bIsThrown = false;
 	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HookSocket" ) );
-	BoxComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
+	//BoxComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
 
-	UPlayerInventoryComponent* InventoryComponent = Cast<UPlayerInventoryComponent>(PlayerCharacter->GetComponentByClass(UPlayerInventoryComponent::StaticClass()));
-	check( InventoryComponent );
+	UPlayerInventoryComponent* PlayerInventoryComponent = Cast<UPlayerInventoryComponent>(PlayerCharacter->GetComponentByClass(UPlayerInventoryComponent::StaticClass()));
+	check( PlayerInventoryComponent );
 
-	for ( AFloatsamBase* Iter : FloatsamSet)
+	int32 FloatsamCount = FloatsamSet.Num();
+
+	if (FloatsamCount > 0)
 	{
-		if ( Iter && InventoryComponent->AddItem( Iter ) )
+		CurrentDurability = FMath::Max(0.0f, CurrentDurability - (float)FloatsamCount);
+
+		for ( AFloatsamBase* Iter : FloatsamSet )
 		{
-			Iter->SetState( EItemState::InInventory );
+			if ( Iter && PlayerInventoryComponent->AddItem( Iter ) )
+			{
+				Iter->SetState( EItemState::InInventory );
+			}
 		}
+
+		FloatsamSet.Empty();
+
+		if (CurrentDurability == 0.0f)
+		{
+			// Todo : Destroy 순서가 여기가 맞을까?
+			PlayerInventoryComponent->SetQuickSlotItemNull( InventoryIndex );
+			Destroy();
+		}
+
+		PlayerCharacter->UpdateInventoryWidget();
 	}
+}
+
+void AHook::SetInHand()
+{
+	Super::SetInHand();
+
+	SetActorTickEnabled( true );
+
+	StaticMeshComponent->SetVisibility( true );
+	CableComponent->SetVisibility( true );
+	RopeMeshComponent->SetVisibility( true );
+	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
+	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HookSocket" ) );
+}
+
+void AHook::SetInInventory()
+{
+	SetActorTickEnabled( false );
+
+	BoxComponent->SetSimulatePhysics( false );
+	
+	CableComponent->SetVisibility( false );
+	RopeMeshComponent->SetVisibility( false );
+	bIsThrown = false;
+	bIsLanded = false;
+	bShouldMovetoPlayer = false;
+
+	// Turn off SimulatePhysics First, and than Turn Off Collision
+	Super::SetInInventory();
 }
 
 void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if ( bIsThrown == false ) return;
-	//LOG( TEXT( "Overlapped Actor : %s" ), *OtherActor->GetName());
-
 	if (AWaterBody* Water = Cast<AWaterBody>(OtherActor))
 	{
 		//LOG( TEXT( "It's a Water!" ) );
+		bIsLanded = true;
 		BoxComponent->SetSimulatePhysics( false );
-		BoxComponent->SetWorldRotation( FRotator( -90 , 0 , -90 ) );
+		AddActorWorldOffset( FVector( 0 , 0 , -10 ) , true );
+
+		FVector Direction = GetActorLocation() - PlayerCharacter->GetActorLocation();
+		Direction.Z = 0;
+
+		SetActorRotation( FRotationMatrix::MakeFromXZ( Direction , PlayerCharacter->GetActorUpVector() ).Rotator() + FRotator(-90, 180, 0));
 	}
 	else if (AFloatsamBase* Floatsam = Cast<AFloatsamBase>(OtherActor))
 	{
@@ -103,16 +177,85 @@ void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		Floatsam->AttachToActor( this , FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
 		FloatsamSet.Add( Floatsam );
 
-		bShouldMovetoPlayer = true;
+		//bShouldMovetoPlayer = true;
 	}
 }
 
 void AHook::Launch()
 {
+	SetActorRotation( FRotationMatrix::MakeFromXZ( PlayerCharacter->GetActorForwardVector(), PlayerCharacter->GetActorUpVector() ).Rotator() + FRotator( -90 , 180 , 0 ) );
 	bIsThrown = true;
 	BoxComponent->SetCollisionEnabled( ECollisionEnabled::QueryAndPhysics );
 	BoxComponent->SetSimulatePhysics( true );
 	FVector LaunchDirection = PlayerCharacter->GetActorForwardVector() + PlayerCharacter->GetActorUpVector();
 	LaunchDirection.Normalize();
-	BoxComponent->AddForce( LaunchDirection * ForceAmount);
+	BoxComponent->AddForce( LaunchDirection * ( ForceAmount + ( ForceAmount * ( CurrentChargeTime / MaxChargeTime ) ) ) );
+
+	
+}
+
+void AHook::Use()
+{
+	Super::Use();
+
+	LOG(TEXT(""));
+
+	if ( bIsThrown == false )
+	{
+		// 던지기 전
+		bIsCharging = true;
+	}
+	else
+	{
+		// 던진 후
+		if (bIsLanded) bShouldMovetoPlayer = true;
+	}
+}
+
+void AHook::StopUse()
+{
+	Super::StopUse();
+
+	LOG( TEXT( "" ) );
+
+	if (bIsThrown == false)
+	{
+		// 던지기 전
+		if ( bIsCharging )
+		{
+			bIsCharging = false;
+			Launch();
+			CurrentChargeTime = 0.0f;
+
+			AInGamePlayerController* PC = PlayerCharacter->GetController<AInGamePlayerController>();
+			check( PC );
+			PC->SetChargePercent( CurrentChargeTime / MaxChargeTime );
+		}
+	}
+	else
+	{
+		// 던진 후
+		bShouldMovetoPlayer = false;
+	}
+}
+
+void AHook::Cancel()
+{
+	Super::Cancel();
+
+	SetInInventory();
+
+	// 갈고리 취소 시 걸린 부유물들이 따라오는 현상 수정
+	for (AFloatsamBase* Floatsam : FloatsamSet)
+	{
+		if (Floatsam)
+		{
+			Floatsam->Release();
+			Floatsam->DetachFromActor( FDetachmentTransformRules::KeepWorldTransform );
+		}
+	}
+
+	FloatsamSet.Empty();
+
+	SetInHand();
 }
