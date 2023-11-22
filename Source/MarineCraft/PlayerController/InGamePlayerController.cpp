@@ -30,3 +30,8 @@ void AInGamePlayerController::UpdateInventoryWidget(UPlayerInventoryComponent* P
 {
 	InGameWidget->UpdateInventory( PlayerInventoryComponent );
 }
+
+void AInGamePlayerController::SetCurrentItem(int32 NewItemIndex)
+{
+	InGameWidget->SetCurrentItem(NewItemIndex);
+}

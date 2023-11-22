@@ -8,6 +8,7 @@
 #include "ItemBase.h"
 #include "../MarineCraft.h"
 #include "../PlayerController/InGamePlayerController.h"
+#include "../MarineCraftGameInstance.h"
 
 UPlayerInventoryComponent::UPlayerInventoryComponent()
 {
@@ -18,6 +19,20 @@ UPlayerInventoryComponent::UPlayerInventoryComponent()
 void UPlayerInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UMarineCraftGameInstance* GameInstance = GetWorld()->GetGameInstance<UMarineCraftGameInstance>();
+
+	check( GameInstance );
+
+	FItemData* ItemData = GameInstance->GetItemData( "Hook" );
+
+	check( ItemData );
+
+	AItemBase* Hook =  GetWorld()->SpawnActor<AItemBase>(ItemData->ItemClass);
+
+	check( Hook );
+
+	AddItem(Hook);
 
 	SetCurrentItem( 0 );
 }
@@ -64,7 +79,22 @@ void UPlayerInventoryComponent::SetCurrentItem(int32 NewItemIndex)
 		LOG( TEXT( "%d Slot is Empty" ) , NewItemIndex);
 	}
 
+	AInGamePlayerController* PC = GetOwner<ACharacter>()->GetController<AInGamePlayerController>();
+	check( PC );
+	PC->SetCurrentItem( NewItemIndex );
+	
+
 	// Todo : Update Inventory Widget;
+}
+
+AItemBase* UPlayerInventoryComponent::GetCurrentItem() const
+{
+	return QuickSlot->GetItem( CurrentItemIndex );
+}
+
+void UPlayerInventoryComponent::SetQuickSlotItemNull(int32 ItemIndex)
+{
+	QuickSlot->SetItem( ItemIndex , nullptr );
 }
 
 UInventoryComponent* UPlayerInventoryComponent::GetQuickSlot() const

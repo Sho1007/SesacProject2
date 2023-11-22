@@ -27,6 +27,7 @@ public:
 	// Getter / Setter
 	bool IsGrabbed() const;
 	void Grab();
+	void Release();
 
 	void SetFloatingDirection( FVector NewFloatingDirection );
 private:

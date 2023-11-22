@@ -31,3 +31,18 @@ void UInventoryWidget::UpdateQuickSlot( UInventoryComponent* InventoryComponent 
 		ItemSlotWidgetArray[ i ]->Init( InventoryComponent->GetItem( i ) );
 	}
 }
+
+void UInventoryWidget::SetCurrentItem(int32 NewItemIndex)
+{
+	for ( int i = 0; i < ItemSlotWidgetArray.Num(); ++i )
+	{
+		if (i == NewItemIndex )
+		{
+			ItemSlotWidgetArray[ i ]->Select();
+		}
+		else
+		{
+			ItemSlotWidgetArray[ i ]->Unselect();
+		}
+	}
+}

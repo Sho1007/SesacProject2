@@ -23,6 +23,7 @@ public:
 	void SetChargePercent( float NewChargePercent );
 	void UpdateInteractActor( IInteractInterface* NewInteractActor );
 	void UpdateInventoryWidget( UPlayerInventoryComponent* PlayerInventoryComponent );
+	void SetCurrentItem(int32 NewItemIndex);
 private:
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	TSubclassOf<UInGameWidget> InGameWidgetClass;

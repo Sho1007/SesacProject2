@@ -22,6 +22,8 @@ public:
 
 	void UpdateQuickSlot( UInventoryComponent* InventoryComponent );
 
+	void SetCurrentItem( int32 NewItemIndex );
+
 private:
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UHorizontalBox* HB_QuickSlot;

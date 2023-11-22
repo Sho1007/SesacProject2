@@ -27,3 +27,8 @@ void UInGameWidget::UpdateInventory(UPlayerInventoryComponent* PlayerInventoryCo
 {
 	InventoryWidget->UpdateQuickSlot( PlayerInventoryComponent->GetQuickSlot() );
 }
+
+void UInGameWidget::SetCurrentItem(int32 NewItemIndex)
+{
+	InventoryWidget->SetCurrentItem( NewItemIndex );
+}

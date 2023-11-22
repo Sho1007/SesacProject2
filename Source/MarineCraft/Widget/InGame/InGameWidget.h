@@ -24,6 +24,7 @@ public:
 	void SetChargePercent(float NewChargePercent);
 	void UpdateInteractActor(IInteractInterface* NewInteractActor);
 	void UpdateInventory(UPlayerInventoryComponent* PlayerInventoryComponent );
+	void SetCurrentItem( int32 NewItemIndex );
 private:
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UChargeWidget* ChargeWidget;

@@ -21,6 +21,9 @@ public:
 
 	void SetCurrentItem(int32 NewItemIndex);
 
+	AItemBase* GetCurrentItem() const;
+	void SetQuickSlotItemNull(int32 ItemIndex);
+
 	UInventoryComponent* GetQuickSlot() const;
 private:
 	UPROPERTY(VisibleInstanceOnly, Meta = ( AllowPrivateAccess ))

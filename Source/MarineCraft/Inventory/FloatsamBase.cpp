@@ -20,6 +20,8 @@ AFloatsamBase::AFloatsamBase()
 void AFloatsamBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetActorTickEnabled( true );
 }
 
 // Called every frame
@@ -40,6 +42,12 @@ void AFloatsamBase::Grab()
 	bIsGrabbed = true;
 
 	BoxComponent->SetCollisionProfileName( TEXT( "GrabbedFloatsam" ) );
+}
+
+void AFloatsamBase::Release()
+{
+	bIsGrabbed = false;
+	BoxComponent->SetCollisionProfileName( TEXT( "Floatsam" ) );
 }
 
 void AFloatsamBase::SetFloatingDirection(FVector NewFloatingDirection)

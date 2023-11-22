@@ -28,17 +28,18 @@ AItemBase::AItemBase()
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-}
 
-// Called every frame
-void AItemBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	SetActorTickEnabled( false );
 }
 
 FItemInstanceData* AItemBase::GetInstanceData()
 {
 	return &InstanceData;
+}
+
+FItemData* AItemBase::GetItemData()
+{
+	return &ItemData;
 }
 
 void AItemBase::SetState(EItemState NewItemState)
@@ -48,24 +49,21 @@ void AItemBase::SetState(EItemState NewItemState)
 	switch ( State )
 	{
 	case EItemState::InWorld:
-		BoxComponent->SetCollisionEnabled( ECollisionEnabled::QueryOnly );
-		StaticMeshComponent->SetVisibility( true );
+		SetInWorld();
 		break;
 	case EItemState::InInventory:
-		if ( InstanceData.CurrentStack == 0 )
-		{
-			this->Destroy();
-		}
-		else
-		{
-			//AttachToActor( InventoryComponent->GetOwner() , FAttachmentTransformRules::SnapToTargetNotIncludingScale );
-			BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
-			StaticMeshComponent->SetVisibility( false );
-		}
+		SetInInventory();
 		break;
 	case EItemState::InHand:
+		SetInHand();
 		break;
 	}
+}
+
+void AItemBase::SetInventoryComponent(UInventoryComponent* NewInventoryComponent, int32 NewInventoryIndex)
+{
+	InventoryComponent = NewInventoryComponent;
+	InventoryIndex = NewInventoryIndex;
 }
 
 void AItemBase::Interact( ACharacter* InteractCharacter )
@@ -81,5 +79,29 @@ void AItemBase::Interact( ACharacter* InteractCharacter )
 
 FText AItemBase::GetInteractActorName()
 {
-	return FText::FromName( InstanceData.ItemName );
+	return FText::FromName( ItemData.ItemName );
+}
+
+void AItemBase::SetInWorld()
+{
+	BoxComponent->SetCollisionEnabled( ECollisionEnabled::QueryOnly );
+	StaticMeshComponent->SetVisibility( true );
+}
+
+void AItemBase::SetInInventory()
+{
+	if ( InstanceData.CurrentStack == 0 )
+	{
+		this->Destroy();
+	}
+	else
+	{
+		//AttachToActor( InventoryComponent->GetOwner() , FAttachmentTransformRules::SnapToTargetNotIncludingScale );
+		BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
+		StaticMeshComponent->SetVisibility( false );
+	}
+}
+
+void AItemBase::SetInHand()
+{
 }

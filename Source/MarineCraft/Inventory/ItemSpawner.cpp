@@ -54,7 +54,9 @@ void AItemSpawner::SpawnItem()
 
 	FVector RightVector = FRotationMatrix::MakeFromXZ( ( SpawnLocation - Boat->GetActorLocation() ).GetSafeNormal() , GetActorUpVector() ).GetScaledAxis( EAxis::Y );
 
-	FRotator SpawnRotation = FRotationMatrix::MakeFromX( Boat->GetActorLocation() - SpawnLocation ).Rotator();
+	//FRotator SpawnRotation = FRotationMatrix::MakeFromX( Boat->GetActorLocation() - SpawnLocation ).Rotator();
+
+	FRotator SpawnRotation = FRotator( 0 , FMath::RandRange( 0.0f , 359.0f ), 0 );
 
 	AFloatsamBase* Floatsam = GetWorld()->SpawnActor<AFloatsamBase>( FloatsamClassArray[ FMath::RandRange( 0 , FloatsamClassArray.Num() - 1 ) ], SpawnLocation + RightVector * FMath::RandRange( -SpawnOffset , SpawnOffset ) , SpawnRotation);
 	if (Floatsam)

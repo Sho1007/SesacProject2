@@ -15,6 +15,7 @@
 #include "MarineCraft/PlayerController/InGamePlayerController.h"
 #include "../Inventory/PlayerInventoryComponent.h"
 #include "../Interface/InteractInterface.h"
+#include "MarineCraft/Inventory/ToolBase.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase() : bIsBuildMode(true)
@@ -109,11 +110,6 @@ void ACharacterBase::Tick(float DeltaTime)
 			InteractActor = nullptr;
 		}
 	}
-
-	if (bIsCharging)
-	{
-		Charge(DeltaTime);
-	}
 }
 
 // Called to bind functionality to input
@@ -127,6 +123,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Input->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ACharacterBase::Look);
 	Input->BindAction(InputAction_Action, ETriggerEvent::Started, this, &ACharacterBase::StartAction );
 	Input->BindAction(InputAction_Action, ETriggerEvent::Completed, this, &ACharacterBase::CompleteAction );
+	Input->BindAction(InputAction_CancelAction, ETriggerEvent::Started, this, &ACharacterBase::CancelAction );
 	Input->BindAction(InputAction_Dive, ETriggerEvent::Triggered, this, &ACharacterBase::Dive );
 	Input->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ACharacterBase::Interact );
 	Input->BindAction(InputAction_QuickSlot, ETriggerEvent::Started, this, &ACharacterBase::QuickSlot );
@@ -159,7 +156,7 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 
 void ACharacterBase::StartAction(const FInputActionValue& Value)
 {
-	LOG( TEXT( "" ) );
+	//LOG( TEXT( "" ) );
 	if (bIsBuildMode && BuildTargetComponent != nullptr)
 	{
 		// Spawn BuildingPartsActor
@@ -180,15 +177,26 @@ void ACharacterBase::StartAction(const FInputActionValue& Value)
 	}
 	// Todo : 내 퀵슬롯의 현재 아이템이 [Charge 가능한] [도구] 라면 bIsCharging을 True 로 한다.
 	// Charge Test
-	bIsCharging = true;
+	if ( AToolBase* ToolBase = Cast<AToolBase>(InventoryComponent->GetCurrentItem()) )
+	{
+		ToolBase->Use();
+	}
 }
 
 void ACharacterBase::CompleteAction(const FInputActionValue& Value)
 {
-	LOG( TEXT( "" ) );
+	if ( AToolBase* ToolBase = Cast<AToolBase>( InventoryComponent->GetCurrentItem() ) )
+	{
+		ToolBase->StopUse();
+	}
+}
 
-	// Charge Test
-	if ( bIsCharging ) Uncharge();
+void ACharacterBase::CancelAction(const FInputActionValue& Value)
+{
+	if ( AToolBase* ToolBase = Cast<AToolBase>( InventoryComponent->GetCurrentItem() ) )
+	{
+		ToolBase->Cancel();
+	}
 }
 
 void ACharacterBase::Dive(const FInputActionValue& Value)
@@ -267,27 +275,9 @@ void ACharacterBase::QuickSlot(const FInputActionValue& Value)
 	}
 }
 
-void ACharacterBase::Charge(float DeltaTime)
+void ACharacterBase::UpdateInventoryWidget()
 {
-	ChargeValue += DeltaTime;
-
-	LOG( TEXT( "Charge Value : %f" ) , ChargeValue );
-
-	if (AInGamePlayerController* PC = GetController<AInGamePlayerController>())
-	{
-		// Todo : Change 1.0f to Tool's MaxChargeTime
-		PC->SetChargePercent(ChargeValue / 1.0f);
-	}
-}
-
-void ACharacterBase::Uncharge()
-{
-	ChargeValue = 0.0f;
-	bIsCharging = false;
-	if ( AInGamePlayerController* PC = GetController<AInGamePlayerController>() )
-	{
-		PC->SetChargePercent( 0.0f );
-	}
+	GetController<AInGamePlayerController>()->UpdateInventoryWidget(InventoryComponent);
 }
 
 void ACharacterBase::BuildFunc(FHitResult& OutHit)

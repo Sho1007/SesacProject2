@@ -6,8 +6,10 @@
 #include "ToolBase.h"
 #include "Hook.generated.h"
 
+class UStaticMeshComponent;
 class UCableComponent;
 class AFloatsamBase;
+class ACharacterBase;
 UCLASS()
 class MARINECRAFT_API AHook : public AToolBase
 {
@@ -31,9 +33,17 @@ public:
 	UFUNCTION(CallInEditor)
 	void Launch();
 
+	virtual void Use() override;
+	virtual void StopUse() override;
+	virtual void Cancel() override;
+
 private:
 	void MoveToPlayer( float DeltaTime );
 	void Catch();
+
+protected:
+	virtual void SetInHand() override;
+	virtual void SetInInventory() override;
 
 private:
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
@@ -44,13 +54,20 @@ private:
 	float PullSpeed;
 	UPROPERTY( EditDefaultsOnly, Meta = ( AllowPrivateAccess ) )
 	float CatchDistance;
-	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
-	bool bShouldMovetoPlayer;
+	
+	UPROPERTY( VisibleInstanceOnly, Meta = ( AllowPrivateAccess ) )
+	ACharacterBase* PlayerCharacter;
+
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
 	bool bIsThrown;
-	UPROPERTY( VisibleInstanceOnly, Meta = ( AllowPrivateAccess ) )
-	ACharacter* PlayerCharacter;
-	
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
+	bool bIsLanded;
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
+	bool bShouldMovetoPlayer;
+
+
 	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
 	UCableComponent* CableComponent;
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	UStaticMeshComponent* RopeMeshComponent;
 };
