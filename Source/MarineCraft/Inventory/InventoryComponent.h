@@ -44,6 +44,9 @@ public:
 	virtual AItemBase* GetItem( int32 ItemIndex );
 	void SetItem( int32 NewItemIndex , AItemBase* NewItem );
 
+	virtual int32 GetItemCount( FName TargetItemName );
+	virtual void RemoveItemCount( FName TargetItemName , int32& RemoveCount );
+
 protected:
 	UPROPERTY(EditAnywhere)
 	TArray<FItemArray> ItemArray;

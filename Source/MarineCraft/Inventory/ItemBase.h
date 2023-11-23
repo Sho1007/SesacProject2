@@ -17,6 +17,11 @@ enum class EItemType : uint8
 	None,
 	Materials,
 	Tools,
+	Foods,
+	Weapons,
+	Placeables,
+	Equipments,
+	Size,
 };
 
 UENUM()
@@ -68,6 +73,7 @@ struct FItemInstanceData
 class UBoxComponent;
 class UStaticMeshComponent;
 class UInventoryComponent;
+class ACharacterBase;
 UCLASS()
 class MARINECRAFT_API AItemBase : public AActor, public IInteractInterface
 {
@@ -103,6 +109,8 @@ protected:
 
 protected:
 	// Inventory
+	UPROPERTY( VisibleInstanceOnly )
+	ACharacterBase* PlayerCharacter;
 	UPROPERTY( VisibleInstanceOnly )
 	UInventoryComponent* InventoryComponent;
 	UPROPERTY( VisibleInstanceOnly )

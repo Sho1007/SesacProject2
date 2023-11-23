@@ -25,6 +25,10 @@ public:
 	void SetQuickSlotItemNull(int32 ItemIndex);
 
 	UInventoryComponent* GetQuickSlot() const;
+
+	virtual int32 GetItemCount(FName TargetItemName) override;
+
+	virtual void RemoveItemCount(FName TargetItemName, int32& RemoveCount) override;
 private:
 	UPROPERTY(VisibleInstanceOnly, Meta = ( AllowPrivateAccess ))
 	int32 CurrentItemIndex = -1;

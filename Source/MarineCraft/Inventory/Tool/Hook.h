@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../MarineCraft.h"
+#include "../../MarineCraft.h"
 #include "ToolBase.h"
 #include "Hook.generated.h"
 
@@ -54,9 +54,6 @@ private:
 	float PullSpeed;
 	UPROPERTY( EditDefaultsOnly, Meta = ( AllowPrivateAccess ) )
 	float CatchDistance;
-	
-	UPROPERTY( VisibleInstanceOnly, Meta = ( AllowPrivateAccess ) )
-	ACharacterBase* PlayerCharacter;
 
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
 	bool bIsThrown;

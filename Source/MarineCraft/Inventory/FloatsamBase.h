@@ -6,7 +6,6 @@
 #include "ItemBase.h"
 #include "FloatsamBase.generated.h"
 
-class UBoxComponent;
 UCLASS()
 class MARINECRAFT_API AFloatsamBase : public AItemBase
 {

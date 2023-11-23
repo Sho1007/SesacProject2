@@ -24,15 +24,31 @@ void UPlayerInventoryComponent::BeginPlay()
 
 	check( GameInstance );
 
-	FItemData* ItemData = GameInstance->GetItemData( "Hook" );
+	// Hook
+	{
+		FItemData* ItemData = GameInstance->GetItemData( "Hook" );
 
-	check( ItemData );
+		check( ItemData );
 
-	AItemBase* Hook =  GetWorld()->SpawnActor<AItemBase>(ItemData->ItemClass);
+		AItemBase* Hook = GetWorld()->SpawnActor<AItemBase>( ItemData->ItemClass );
 
-	check( Hook );
+		check( Hook );
 
-	AddItem(Hook);
+		AddItem( Hook );
+	}
+	// Building Hammer
+	{
+		FItemData* ItemData = GameInstance->GetItemData( "BuildingHammer" );
+
+		check( ItemData );
+
+		AItemBase* BuildingHammer = GetWorld()->SpawnActor<AItemBase>( ItemData->ItemClass );
+
+		check( BuildingHammer );
+
+		AddItem( BuildingHammer );
+	}
+	
 
 	SetCurrentItem( 0 );
 }
@@ -44,12 +60,19 @@ bool UPlayerInventoryComponent::AddItem(AItemBase* NewItem)
 	if ( QuickSlot->AddItem( NewItem ) )
 	{
 		PC->UpdateInventoryWidget( this );
+		NewItem->SetState( EItemState::InInventory );
+
 		return true;
 	}
-	bool Result = Super::AddItem( NewItem );
-	PC->UpdateInventoryWidget( this );
+	if ( Super::AddItem( NewItem ))
+	{
+		PC->UpdateInventoryWidget( this );
+		NewItem->SetState( EItemState::InInventory );
 
-	return Result;
+		return true;
+	}
+
+	return false;
 }
 
 void UPlayerInventoryComponent::SetCurrentItem(int32 NewItemIndex)
@@ -100,4 +123,28 @@ void UPlayerInventoryComponent::SetQuickSlotItemNull(int32 ItemIndex)
 UInventoryComponent* UPlayerInventoryComponent::GetQuickSlot() const
 {
 	return QuickSlot;
+}
+
+int32 UPlayerInventoryComponent::GetItemCount(FName TargetItemName)
+{
+	int32 Sum = 0;
+
+	Sum += QuickSlot->GetItemCount( TargetItemName );
+	Sum += Super::GetItemCount( TargetItemName );
+
+	return Sum;
+}
+
+void UPlayerInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCount)
+{
+	QuickSlot->RemoveItemCount( TargetItemName , RemoveCount);
+
+	if (RemoveCount > 0)
+	{
+		Super::RemoveItemCount( TargetItemName , RemoveCount );
+	}
+
+	AInGamePlayerController* PC = GetOwner<ACharacter>()->GetController<AInGamePlayerController>();
+	check( PC );
+	PC->UpdateInventoryWidget(this);
 }

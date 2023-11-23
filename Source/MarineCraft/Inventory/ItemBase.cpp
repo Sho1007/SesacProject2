@@ -4,7 +4,7 @@
 #include "../Inventory/ItemBase.h"
 
 #include <Components/BoxComponent.h>
-#include <GameFramework/Character.h>
+#include "../Character/CharacterBase.h"
 #include "../Inventory/PlayerInventoryComponent.h"
 
 // Sets default values
@@ -64,6 +64,8 @@ void AItemBase::SetInventoryComponent(UInventoryComponent* NewInventoryComponent
 {
 	InventoryComponent = NewInventoryComponent;
 	InventoryIndex = NewInventoryIndex;
+
+	PlayerCharacter = Cast<ACharacterBase>(InventoryComponent->GetOwner());
 }
 
 void AItemBase::Interact( ACharacter* InteractCharacter )

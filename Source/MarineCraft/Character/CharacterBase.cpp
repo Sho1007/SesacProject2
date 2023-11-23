@@ -15,10 +15,10 @@
 #include "MarineCraft/PlayerController/InGamePlayerController.h"
 #include "../Inventory/PlayerInventoryComponent.h"
 #include "../Interface/InteractInterface.h"
-#include "MarineCraft/Inventory/ToolBase.h"
+#include "MarineCraft/Inventory/Tool/ToolBase.h"
 
 // Sets default values
-ACharacterBase::ACharacterBase() : bIsBuildMode(true)
+ACharacterBase::ACharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -35,7 +35,7 @@ ACharacterBase::ACharacterBase() : bIsBuildMode(true)
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	GhostMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GhostMeshComponent"));
-	GhostMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
+	GhostMeshComponent->SetCollisionProfileName(TEXT("GhostMesh"));
 
 	InventoryComponent = CreateDefaultSubobject<UPlayerInventoryComponent>(TEXT("InventoryComponent"));
 }
@@ -54,6 +54,9 @@ void ACharacterBase::BeginPlay()
 			}
 		}
 	}
+
+	GhostMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ACharacterBase::OnGhostMeshBeginOverlap);
+	GhostMeshComponent->OnComponentEndOverlap.AddDynamic( this , &ACharacterBase::ACharacterBase::OnGhostMeshEndOverlap);
 }
 
 // Called every frame
@@ -96,8 +99,6 @@ void ACharacterBase::Tick(float DeltaTime)
 			}
 			//LOG( TEXT( "Hit Actor : %s Has Not InteractInterface" ) , *OutHit.GetActor()->GetName() );
 		}
-
-		if ( bIsBuildMode ) BuildFunc( OutHit );
 	}
 	else
 	{
@@ -156,27 +157,6 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 
 void ACharacterBase::StartAction(const FInputActionValue& Value)
 {
-	//LOG( TEXT( "" ) );
-	if (bIsBuildMode && BuildTargetComponent != nullptr)
-	{
-		// Spawn BuildingPartsActor
-		if (ABuildingPartsBase* BuildParts = Cast<ABuildingPartsBase>(BuildTargetComponent->GetOwner()))
-		{
-			PlayAnimMontage(AttackMontage);
-			FName BuildingPartsName = BuildParts->GetBuildingPartsName(BuildTargetComponent);
-
-			UMarineCraftGameInstance* GameInstance = GetGameInstance<UMarineCraftGameInstance>();
-			check(GameInstance);
-			FBuildingPartsData* BuildingPartsData = GameInstance->GetBuildingPartsData(BuildingPartsName);
-			check(BuildingPartsData);
-
-			ABuildingPartsBase* NewBuildingParts = GetWorld()->SpawnActor<ABuildingPartsBase>(BuildingPartsData->Class, BuildTargetComponent->GetComponentLocation() + BuildingPartsData->SpawnLocationOffset, BuildTargetComponent->GetComponentRotation());
-			BuildTargetComponent = nullptr;
-			GhostMeshComponent->SetVisibility(false);
-		}
-	}
-	// Todo : 내 퀵슬롯의 현재 아이템이 [Charge 가능한] [도구] 라면 bIsCharging을 True 로 한다.
-	// Charge Test
 	if ( AToolBase* ToolBase = Cast<AToolBase>(InventoryComponent->GetCurrentItem()) )
 	{
 		ToolBase->Use();
@@ -231,6 +211,9 @@ void ACharacterBase::QuickSlot(const FInputActionValue& Value)
 				}
 			}
 
+			GhostMeshOverlappedActorSet.Empty();
+			GhostMeshComponent->SetVisibility( false );
+
 			if (PressedKey.GetFName() == TEXT("One"))
 			{
 				InventoryComponent->SetCurrentItem(0);
@@ -280,40 +263,54 @@ void ACharacterBase::UpdateInventoryWidget()
 	GetController<AInGamePlayerController>()->UpdateInventoryWidget(InventoryComponent);
 }
 
-void ACharacterBase::BuildFunc(FHitResult& OutHit)
+UCameraComponent* ACharacterBase::GetCameraComponent() const
 {
-	if ( BuildTargetComponent == OutHit.GetComponent() ) return;
+	return CameraComponent;
+}
 
-	LOG( TEXT( "ComponentName : %s" ) , *OutHit.GetComponent()->GetName() );
+UStaticMeshComponent* ACharacterBase::GetGhostMeshComponent() const
+{
+	return GhostMeshComponent;
+}
 
-	if ( ABuildingPartsBase* BuildParts = Cast<ABuildingPartsBase>( OutHit.GetComponent()->GetOwner() ) )
+TSet<AActor*>& ACharacterBase::GetGhostMeshOverlappedActorSet()
+{
+	return GhostMeshOverlappedActorSet;
+}
+
+void ACharacterBase::SetGhostMeshMaterail()
+{
+	bool bIsBuildable = GetGhostMeshOverlappedActorSet().Num() == 0;
+
+	int MaterialNum = GhostMeshComponent->GetMaterials().Num();
+	for ( int i = 0; i < MaterialNum; ++i )
 	{
-		FName BuildingPartsName = BuildParts->GetBuildingPartsName( OutHit.GetComponent() );
-		if ( BuildingPartsName.Compare( TEXT( "None" ) ) != 0 )
+		if ( bIsBuildable )
 		{
-			BuildTargetComponent = OutHit.GetComponent();
-
-			UMarineCraftGameInstance* GameInstance = GetGameInstance<UMarineCraftGameInstance>();
-			check( GameInstance );
-			FBuildingPartsData* BuildingPartsData = GameInstance->GetBuildingPartsData( BuildingPartsName );
-			check( BuildingPartsData );
-
-			GhostMeshComponent->SetStaticMesh( BuildingPartsData->Mesh );
-			GhostMeshComponent->SetWorldRotation( BuildTargetComponent->GetComponentRotation() );
-			GhostMeshComponent->SetWorldLocation( BuildTargetComponent->GetComponentLocation() + BuildTargetComponent->GetComponentRotation().RotateVector( BuildingPartsData->MeshLocationOffset ) );
-			GhostMeshComponent->SetWorldScale3D( BuildingPartsData->Scale );
-
-			int MaterialNum = GhostMeshComponent->GetMaterials().Num();
-			for ( int i = 0; i < MaterialNum; ++i )
-			{
-				GhostMeshComponent->SetMaterial( i , CanBuildMaterial );
-			}
-			GhostMeshComponent->SetVisibility( true );
-
-			return;
+			GhostMeshComponent->SetMaterial( i , CanBuildMaterial );
+		}
+		else
+		{
+			GhostMeshComponent->SetMaterial( i , CannotBuildMaterial );
 		}
 	}
+}
 
-	BuildTargetComponent = nullptr;
-	GhostMeshComponent->SetVisibility( false );
+void ACharacterBase::OnGhostMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	GhostMeshOverlappedActorSet.Add( OtherActor );
+
+	SetGhostMeshMaterail();
+}
+
+void ACharacterBase::OnGhostMeshEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (GhostMeshOverlappedActorSet.Contains( OtherActor ))
+	{
+		GhostMeshOverlappedActorSet.Remove(GhostMeshOverlappedActorSet.FindId(OtherActor));
+	}
+
+	SetGhostMeshMaterail();
 }
