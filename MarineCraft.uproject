@@ -29,6 +29,10 @@
 		{
 			"Name": "WaterExtras",
 			"Enabled": true
+		},
+		{
+			"Name": "FieldSystemPlugin",
+			"Enabled": true
 		}
 	]
 }
