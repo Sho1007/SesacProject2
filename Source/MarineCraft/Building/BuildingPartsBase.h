@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -24,6 +24,8 @@ struct FBuildingPartsData : public FTableRowBase
 	FVector Scale;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<ABuildingPartsBase> Class;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	TMap<FName, int32> BuildingMaterialMap;
 };
 
 class UPrimitiveComponent;

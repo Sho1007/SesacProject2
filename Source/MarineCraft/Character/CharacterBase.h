@@ -44,10 +44,16 @@ public:
 	void QuickSlot( const FInputActionValue& Value );
 
 	void UpdateInventoryWidget();
+	UCameraComponent* GetCameraComponent() const;
+	UStaticMeshComponent* GetGhostMeshComponent() const;
+	TSet<AActor*>& GetGhostMeshOverlappedActorSet();
 
-private:
-	// Todo : Rename (Find Build Component?)
-	void BuildFunc( FHitResult& OutHit );
+	void SetGhostMeshMaterail();
+
+	UFUNCTION()
+	void OnGhostMeshBeginOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult );
+	UFUNCTION()
+	void OnGhostMeshEndOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex );
 
 private:
 	// Interact
@@ -59,18 +65,15 @@ private:
 
 	// Build
 	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
-	UMaterialInstance* CanBuildMaterial;
-	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
-	UMaterialInstance* CannotBuildMaterial;
-	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
 	UStaticMeshComponent* GhostMeshComponent;
+	UPROPERTY( VisibleAnywhere, Category = "Build" , Meta = ( AllowPrivateAccess ) )
+	TSet<AActor*> GhostMeshOverlappedActorSet;
+	UPROPERTY( EditDefaultsOnly , Category = "Build" , Meta = ( AllowPrivateAccess ) )
+	UMaterialInstance* CanBuildMaterial;
+	UPROPERTY( EditDefaultsOnly , Category = "Build" , Meta = ( AllowPrivateAccess ) )
+	UMaterialInstance* CannotBuildMaterial;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
-	UPrimitiveComponent* BuildTargetComponent;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
-	bool bIsBuildMode;
-	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category = "Interact", Meta = (AllowPrivateAccess))
 	float TraceDistance;
 
 	UPROPERTY( EditDefaultsOnly , Category = "Move" , Meta = ( AllowPrivateAccess ) )

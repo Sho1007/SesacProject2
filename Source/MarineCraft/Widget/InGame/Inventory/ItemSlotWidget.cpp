@@ -11,7 +11,7 @@
 #include <Components/ProgressBar.h>
 
 #include "../../../Inventory/ItemBase.h"
-#include "MarineCraft/Inventory/ToolBase.h"
+#include "MarineCraft/Inventory/Tool/ToolBase.h"
 
 
 void UItemSlotWidget::Init(AItemBase* NewItem)
@@ -34,15 +34,14 @@ void UItemSlotWidget::Init(AItemBase* NewItem)
 		Img_ItemImage->SetBrushFromTexture(Data->ItemImage);
 
 		
-		if (Data->ItemType == EItemType::Materials)
+		/*if (Data->ItemType == EItemType::Materials)
 		{
-			Txt_ItemStack->SetVisibility( ESlateVisibility::Visible );
-			Txt_ItemStack->SetText( FText::FromString( FString::FromInt( InstanceData->CurrentStack ) ) );
+			
 		}
 		else
 		{
-			Txt_ItemStack->SetVisibility( ESlateVisibility::Collapsed );
-		}
+			
+		}*/
 
 		if ( Data->ItemType == EItemType::Tools )
 		{
@@ -50,10 +49,21 @@ void UItemSlotWidget::Init(AItemBase* NewItem)
 			AToolBase* ToolBase = Cast<AToolBase>(NewItem);
 			check( ToolBase );
 
-			PB_DurabilityBar->SetPercent( ToolBase->GetCurrentDurability() / ToolBase->GetMaxDurability() );
+			if ( ToolBase->GetCurrentDurability() == ToolBase->GetMaxDurability() )
+			{
+				PB_DurabilityBar->SetVisibility( ESlateVisibility::Collapsed );
+			}
+			else
+			{
+				PB_DurabilityBar->SetVisibility( ESlateVisibility::Visible );
+				PB_DurabilityBar->SetPercent( ToolBase->GetCurrentDurability() / ToolBase->GetMaxDurability() );
+			}
+			Txt_ItemStack->SetVisibility( ESlateVisibility::Collapsed );
 		}
 		else
 		{
+			Txt_ItemStack->SetVisibility( ESlateVisibility::Visible );
+			Txt_ItemStack->SetText( FText::FromString( FString::FromInt( InstanceData->CurrentStack ) ) );
 			PB_DurabilityBar->SetVisibility( ESlateVisibility::Collapsed );
 		}
 	}

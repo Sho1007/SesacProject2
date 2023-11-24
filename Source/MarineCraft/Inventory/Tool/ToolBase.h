@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ItemBase.h"
+#include "../ItemBase.h"
 #include "ToolBase.generated.h"
 
 UCLASS()

@@ -40,13 +40,13 @@ bool UInventoryComponent::AddItem(AItemBase* NewItem)
 	FItemInstanceData* NewInstanceData = NewItem->GetInstanceData();
 	FItemData* NewItemData = NewItem->GetItemData();
 
-	// ItemArray의 2차원 배열을 순회하면서
-	for (int i = 0; i < ItemArray.Num(); ++i)
+	// 1차 : Item이 있을 때 먼저 채워넣기
+	for ( int i = 0; i < ItemArray.Num(); ++i )
 	{
-		for (int j = 0; j < ItemArray[i].ItemArray.Num(); ++j)
+		for ( int j = 0; j < ItemArray[ i ].ItemArray.Num(); ++j )
 		{
 			// 해당 칸에 만약 아이템이 있다면
-			if (ItemArray[i].ItemArray[j] != nullptr)
+			if ( ItemArray[ i ].ItemArray[ j ] != nullptr )
 			{
 				FItemInstanceData* ExistInstanceData = ItemArray[ i ].ItemArray[ j ]->GetInstanceData();
 				FItemData* ExistItemData = ItemArray[ i ].ItemArray[ j ]->GetItemData();
@@ -54,19 +54,27 @@ bool UInventoryComponent::AddItem(AItemBase* NewItem)
 				if ( ExistItemData->ItemName == NewItemData->ItemName && ExistInstanceData->CurrentStack < ExistItemData->MaxStack )
 				{
 					// 넣을 수 있는 만큼 넣고
-					int32 AddableItemCount = FMath::Min( ExistItemData->MaxStack - ExistInstanceData->CurrentStack, NewInstanceData->CurrentStack);
+					int32 AddableItemCount = FMath::Min( ExistItemData->MaxStack - ExistInstanceData->CurrentStack , NewInstanceData->CurrentStack );
 					NewInstanceData->CurrentStack -= AddableItemCount;
 					ExistInstanceData->CurrentStack += AddableItemCount;
 
 					// 만약 다 넣었다면 true 반환
-					if ( NewInstanceData->CurrentStack == 0)
+					if ( NewInstanceData->CurrentStack == 0 )
 					{
 						return true;
 					}
 				}
 			}
-			// 해당 칸이 비어있다면
-			else
+		}
+	}
+
+
+	// 2차 빈 곳에 넣기
+	for (int i = 0; i < ItemArray.Num(); ++i)
+	{
+		for (int j = 0; j < ItemArray[i].ItemArray.Num(); ++j)
+		{
+			if ( ItemArray[ i ].ItemArray[ j ] == nullptr )
 			{
 				// 해당 칸에 아이템을 넣고 true 반환
 				ItemArray[ i ].ItemArray[ j ] = NewItem;
@@ -109,4 +117,49 @@ void UInventoryComponent::SetItem(int32 NewItemIndex, AItemBase* NewItem)
 	}
 
 	ItemArray[ Row ].ItemArray[ Col ] = NewItem;
+}
+
+int32 UInventoryComponent::GetItemCount(FName TargetItemName )
+{
+	int32 Sum = 0;
+
+	for (int i = 0; i < ItemArray.Num(); ++i)
+	{
+		for (int j = 0; j < ItemArray[i].ItemArray.Num(); ++j)
+		{
+			if ( ItemArray[ i ].ItemArray[ j ] != nullptr && ItemArray[ i ].ItemArray[ j ]->GetItemData()->ItemName == TargetItemName)
+			{
+				FItemInstanceData* InstanceData = ItemArray[ i ].ItemArray[ j ]->GetInstanceData();
+				Sum += InstanceData->CurrentStack;
+			}
+		}
+	}
+
+	return Sum;
+}
+
+void UInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCount)
+{
+	for ( int i = 0; i < ItemArray.Num(); ++i )
+	{
+		for ( int j = 0; j < ItemArray[ i ].ItemArray.Num(); ++j )
+		{
+			if ( ItemArray[ i ].ItemArray[ j ] != nullptr && ItemArray[ i ].ItemArray[ j ]->GetItemData()->ItemName == TargetItemName )
+			{
+				
+				FItemInstanceData* InstanceData = ItemArray[ i ].ItemArray[ j ]->GetInstanceData();
+				int32 RemovableCount = FMath::Min( RemoveCount , InstanceData->CurrentStack );
+				InstanceData->CurrentStack -= RemovableCount;
+				if (InstanceData->CurrentStack == 0)
+				{
+					ItemArray[ i ].ItemArray[ j ]->Destroy();
+					ItemArray[ i ].ItemArray[ j ] = nullptr;
+				}
+
+				RemoveCount -= RemovableCount;
+
+				if ( RemoveCount == 0 ) return;
+			}
+		}
+	}
 }

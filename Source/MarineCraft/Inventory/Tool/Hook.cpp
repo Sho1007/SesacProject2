@@ -1,17 +1,17 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "../Inventory/Hook.h"
+#include "../Tool/Hook.h"
 
 #include <Components/BoxComponent.h>
 #include <GameFramework/Character.h>
 #include <WaterBodyActor.h>
 #include <CableComponent.h>
 
-#include "FloatsamBase.h"
-#include "PlayerInventoryComponent.h"
+#include "../FloatsamBase.h"
+#include "../PlayerInventoryComponent.h"
 #include "MarineCraft/PlayerController/InGamePlayerController.h"
-#include "../Character/CharacterBase.h"
+#include "../../Character/CharacterBase.h"
 
 
 // Sets default values
@@ -108,9 +108,9 @@ void AHook::Catch()
 
 		for ( AFloatsamBase* Iter : FloatsamSet )
 		{
-			if ( Iter && PlayerInventoryComponent->AddItem( Iter ) )
+			if ( Iter )
 			{
-				Iter->SetState( EItemState::InInventory );
+				Iter->Interact( Cast<ACharacter>(PlayerInventoryComponent->GetOwner()) );
 			}
 		}
 
@@ -197,8 +197,6 @@ void AHook::Launch()
 void AHook::Use()
 {
 	Super::Use();
-
-	LOG(TEXT(""));
 
 	if ( bIsThrown == false )
 	{
