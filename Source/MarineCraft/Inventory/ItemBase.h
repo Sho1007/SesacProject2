@@ -109,6 +109,7 @@ public:
 	FItemData* GetItemData();
 
 	// Setter
+	UFUNCTION(BlueprintCallable)
 	void SetState(EItemState NewItemState);
 	void SetInventoryComponent( UInventoryComponent* NewInventoryComponent , int32 NewInventoryIndex );
 public:
