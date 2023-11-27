@@ -33,4 +33,18 @@ private:
 
 	AFoundation* RootFoundation;
 	TArray<AFoundation*> OutLineFoundationArray;
+
+
+	UPROPERTY(EditAnywhere , Category = "Floating" , Meta = (AllowPrivateAccess))
+	FVector MoveDirection;
+	UPROPERTY( EditAnywhere , Category = "Floating" , Meta = ( AllowPrivateAccess ) )
+	float MoveSpeed;
+	
+	bool bFloatingUp;
+	UPROPERTY( EditAnywhere , Category = "Floating" , Meta = ( AllowPrivateAccess ) )
+	float FloatingHeight;
+	UPROPERTY( EditAnywhere , Category = "Floating", Meta = ( AllowPrivateAccess ) )
+	float BaseHeight;
+	UPROPERTY( EditAnywhere , Category = "Floating", Meta = ( AllowPrivateAccess ) )
+	float FloatingSpeed;
 };

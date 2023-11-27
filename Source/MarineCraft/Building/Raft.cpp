@@ -22,14 +22,18 @@ void ARaft::BeginPlay()
 
 	UWorld* World = GetWorld();
 	AFoundation* Foundation = World->SpawnActor<AFoundation>( FoundationClass , GetActorLocation() , GetActorRotation() );
+	Foundation->AttachToActor( this, FAttachmentTransformRules::SnapToTargetNotIncludingScale );
 	RootFoundation = Foundation;
 	OutLineFoundationArray.Add( Foundation );
 
 	Foundation = World->SpawnActor<AFoundation>( FoundationClass , GetActorLocation() + FVector( FoundationSize , 0, 0) , GetActorRotation());
+	Foundation->AttachToActor( this , FAttachmentTransformRules( EAttachmentRule::KeepWorld , EAttachmentRule::KeepRelative , EAttachmentRule::KeepWorld , false ) );
 	OutLineFoundationArray.Add( Foundation );
 	Foundation = World->SpawnActor<AFoundation>( FoundationClass , GetActorLocation() + FVector( FoundationSize , FoundationSize , 0 ) , GetActorRotation() );
+	Foundation->AttachToActor( this , FAttachmentTransformRules( EAttachmentRule::KeepWorld , EAttachmentRule::KeepRelative , EAttachmentRule::KeepWorld , false ) );
 	OutLineFoundationArray.Add( Foundation );
 	Foundation = World->SpawnActor<AFoundation>( FoundationClass , GetActorLocation() + FVector( 0 , FoundationSize , 0 ) , GetActorRotation() );
+	Foundation->AttachToActor( this , FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, false) );
 	OutLineFoundationArray.Add( Foundation );
 }
 
@@ -37,4 +41,30 @@ void ARaft::BeginPlay()
 void ARaft::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Floating
+	if (bFloatingUp)
+	{
+		if (GetActorLocation().Z >= BaseHeight + FloatingHeight)
+		{
+			bFloatingUp = false;
+		}
+		else
+		{
+			AddActorWorldOffset( FVector( 0 , 0 , DeltaTime * FloatingSpeed ) );
+		}
+	}
+	else
+	{
+		if ( GetActorLocation().Z <= BaseHeight - FloatingHeight )
+		{
+			bFloatingUp = true;
+		}
+		else
+		{
+			AddActorWorldOffset( FVector( 0 , 0 , -DeltaTime * FloatingSpeed ) );
+		}
+	}
+
+	AddActorWorldOffset(MoveDirection * MoveSpeed * DeltaTime);
 }
