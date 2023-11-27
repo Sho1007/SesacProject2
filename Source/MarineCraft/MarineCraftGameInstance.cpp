@@ -19,3 +19,10 @@ FItemData* UMarineCraftGameInstance::GetItemData(FName ItemName) const
 
 	return ItemDataTable->FindRow<FItemData>( ItemName , TEXT( "" ) );
 }
+
+FCraftingData* UMarineCraftGameInstance::GetCraftingData(FName CraftingCategoryName)
+{
+	check( CraftingDataTable );
+
+	return CraftingDataTable->FindRow<FCraftingData>( CraftingCategoryName , TEXT( "" ) );
+}

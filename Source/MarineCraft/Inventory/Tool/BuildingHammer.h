@@ -25,6 +25,8 @@ public:
 
 	virtual void Use() override;
 
+	FBuildingPartsData* GetBuildingPartsData() const;
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Build" , Meta = (AllowPrivateAccess))
 	float TraceDistance = 1000.0f;

@@ -35,3 +35,8 @@ void AInGamePlayerController::SetCurrentItem(int32 NewItemIndex)
 {
 	InGameWidget->SetCurrentItem(NewItemIndex);
 }
+
+void AInGamePlayerController::ToggleInventory()
+{
+	InGameWidget->ToggleInventory();
+}

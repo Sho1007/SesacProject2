@@ -63,7 +63,14 @@ public:
 
 	FName GetBuildingPartsName(UPrimitiveComponent* TargetComponent) const;
 
+	virtual float TakeDamage( float DamageAmount , struct FDamageEvent const& DamageEvent , class AController* EventInstigator , AActor* DamageCauser ) override;
+
 private:
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	float MaxDurability;
+	//UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	float CurrentDurability;
+	
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	UBoxComponent* BoxComponent;
 

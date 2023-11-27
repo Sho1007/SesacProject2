@@ -49,7 +49,7 @@ void ABuildingHammer::Tick(float DeltaSeconds)
 				GhostMeshComponent->SetWorldLocation( BuildTargetComponent->GetComponentLocation() + BuildTargetComponent->GetComponentRotation().RotateVector( BuildingPartsData->MeshLocationOffset ) );
 				GhostMeshComponent->SetWorldScale3D( BuildingPartsData->Scale );
 
-				PlayerCharacter->SetGhostMeshMaterail();
+				PlayerCharacter->SetGhostMeshMaterial();
 
 				GhostMeshComponent->SetVisibility( true );
 				return;
@@ -69,6 +69,8 @@ void ABuildingHammer::SetInHand()
 	SetActorTickEnabled( true );
 	StaticMeshComponent->SetVisibility( true );
 	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HammerSocket" ) );
+
+	PlayerCharacter->GetGhostMeshComponent()->SetCollisionEnabled( ECollisionEnabled::QueryOnly );
 }
 
 void ABuildingHammer::SetInInventory()
@@ -113,4 +115,9 @@ void ABuildingHammer::Use()
 		BuildTargetComponent = nullptr;
 		PlayerCharacter->GetGhostMeshComponent()->SetVisibility( false );
 	}
+}
+
+FBuildingPartsData* ABuildingHammer::GetBuildingPartsData() const
+{
+	return BuildingPartsData;
 }

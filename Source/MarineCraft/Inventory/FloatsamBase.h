@@ -45,5 +45,5 @@ private:
 	FVector FloatingDirection;
 
 	UPROPERTY( EditInstanceOnly )
-	bool bIsGrabbed;
+	bool bIsGrabbed = true;
 };

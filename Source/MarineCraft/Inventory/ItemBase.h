@@ -50,10 +50,25 @@ struct FItemData : public FTableRowBase
 	TSubclassOf<AItemBase> ItemClass;
 	UPROPERTY( BlueprintReadWrite , EditAnywhere )
 	EItemType ItemType;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	FText ItemDiscription;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	TMap<FName, int32> CraftingMaterialMap;
 
 	FItemData() : ItemName(TEXT("")), MaxStack(1), ItemImage(nullptr), ItemType()
 	{
 	}
+};
+
+USTRUCT()
+struct FCraftingData : public FTableRowBase
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY( EditDefaultsOnly , BlueprintReadOnly )
+	UTexture2D* CraftingCategroyImage;
+	UPROPERTY( EditDefaultsOnly , BlueprintReadOnly )
+	TArray<FName> CraftingItemNameArray;
 };
 
 USTRUCT( BlueprintType )

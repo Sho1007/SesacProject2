@@ -12,6 +12,7 @@
 class UDataTable;
 struct FBuildingPartsData;
 struct FItemData;
+struct FCraftingData;
 UCLASS()
 class MARINECRAFT_API UMarineCraftGameInstance : public UGameInstance
 {
@@ -20,10 +21,12 @@ class MARINECRAFT_API UMarineCraftGameInstance : public UGameInstance
 public:
 	FBuildingPartsData* GetBuildingPartsData(FName BuildingPartsName) const;
 	FItemData* GetItemData(FName ItemName) const;
-	
+	FCraftingData* GetCraftingData( FName CraftingCategoryName );
 private:
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	UDataTable* BuildingPartsDataTable;
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	UDataTable* ItemDataTable;
+	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
+	UDataTable* CraftingDataTable;
 };

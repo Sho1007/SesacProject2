@@ -173,6 +173,7 @@ void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	}
 	else if (AFloatsamBase* Floatsam = Cast<AFloatsamBase>(OtherActor))
 	{
+		if ( Floatsam->IsGrabbed() == true ) return;
 		Floatsam->Grab();
 		Floatsam->AttachToActor( this , FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
 		FloatsamSet.Add( Floatsam );

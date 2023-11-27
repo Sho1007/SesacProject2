@@ -47,6 +47,8 @@ public:
 	virtual int32 GetItemCount( FName TargetItemName );
 	virtual void RemoveItemCount( FName TargetItemName , int32& RemoveCount );
 
+	virtual bool HasEmptySpace();
+
 protected:
 	UPROPERTY(EditAnywhere)
 	TArray<FItemArray> ItemArray;

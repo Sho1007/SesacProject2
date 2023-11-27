@@ -6,7 +6,7 @@
 #include <EngineUtils.h>
 
 #include "FloatsamBase.h"
-#include "../Building/Boat.h"
+#include "../Building/Raft.h"
 
 // Sets default values
 AItemSpawner::AItemSpawner()
@@ -23,11 +23,11 @@ void AItemSpawner::BeginPlay()
 	// Find Boat in World
 	UWorld* World = GetWorld();
 	check( World );
-	TActorIterator<AActor> It( World , ABoat::StaticClass() );
+	TActorIterator<AActor> It( World , ARaft::StaticClass() );
 
-	Boat = Cast<ABoat>( *It );
+	Raft = Cast<ARaft>( *It );
 
-	check( Boat );
+	check( Raft );
 }
 
 // Called every frame
@@ -49,10 +49,10 @@ void AItemSpawner::SpawnItem()
 {
 	//LOG( TEXT( "Floatsam Index : %d" ), );
 
-	FVector SpawnLocation = Boat->GetActorLocation();
+	FVector SpawnLocation = Raft->GetActorLocation();
 	SpawnLocation -= OceanCurrentsDirection * SpawnDistance;
 
-	FVector RightVector = FRotationMatrix::MakeFromXZ( ( SpawnLocation - Boat->GetActorLocation() ).GetSafeNormal() , GetActorUpVector() ).GetScaledAxis( EAxis::Y );
+	FVector RightVector = FRotationMatrix::MakeFromXZ( ( SpawnLocation - Raft->GetActorLocation() ).GetSafeNormal() , GetActorUpVector() ).GetScaledAxis( EAxis::Y );
 
 	//FRotator SpawnRotation = FRotationMatrix::MakeFromX( Boat->GetActorLocation() - SpawnLocation ).Rotator();
 
@@ -62,5 +62,6 @@ void AItemSpawner::SpawnItem()
 	if (Floatsam)
 	{
 		Floatsam->SetFloatingDirection( OceanCurrentsDirection );
+		Floatsam->Release();
 	}
 }
