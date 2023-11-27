@@ -42,13 +42,14 @@ public:
 	void Dive( const FInputActionValue& Value );
 	void Interact( const FInputActionValue& Value );
 	void QuickSlot( const FInputActionValue& Value );
+	void ToggleInventory( const FInputActionValue& Value );
 
 	void UpdateInventoryWidget();
 	UCameraComponent* GetCameraComponent() const;
 	UStaticMeshComponent* GetGhostMeshComponent() const;
 	TSet<AActor*>& GetGhostMeshOverlappedActorSet();
 
-	void SetGhostMeshMaterail();
+	void SetGhostMeshMaterial();
 
 	UFUNCTION()
 	void OnGhostMeshBeginOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult );
@@ -106,4 +107,6 @@ private:
 	UInputAction* InputAction_Interact;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_QuickSlot;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
+	UInputAction* InputAction_ToggleInventory;
 };

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "../Building/BuildingPartsBase.h"
@@ -25,6 +25,8 @@ ABuildingPartsBase::ABuildingPartsBase()
 void ABuildingPartsBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrentDurability = MaxDurability;
 }
 
 // Called every frame
@@ -44,4 +46,18 @@ FName ABuildingPartsBase::GetBuildingPartsName(UPrimitiveComponent* TargetCompon
 		}
 	}
 	return TEXT("None");
+}
+
+float ABuildingPartsBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	//UE_LOG( LogTemp , Warning , TEXT( "ABuildingPartsBase::TakeDamage) DamageAmount : %f" ), DamageAmount );
+
+	CurrentDurability -= DamageAmount;
+	if (CurrentDurability <= 0.0f )
+	{
+		Destroy();
+	}
+
+	return Super::TakeDamage(DamageAmount , DamageEvent , EventInstigator , DamageCauser);
 }

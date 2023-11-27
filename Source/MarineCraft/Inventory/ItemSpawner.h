@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ItemSpawner.generated.h"
 
-class ABoat;
+class ARaft;
 class AFloatsamBase;
 UCLASS()
 class MARINECRAFT_API AItemSpawner : public AActor
@@ -29,9 +29,9 @@ private:
 	void SpawnItem();
 
 private:
-	// Boat
+	// Raft
 	UPROPERTY( VisibleInstanceOnly, Meta = ( AllowPrivateAccess ) )
-	ABoat* Boat;
+	ARaft* Raft;
 	// SpawnTime
 	UPROPERTY(EditDefaultsOnly, Category = "Spawn Item", Meta = (AllowPrivateAccess))
 	float ItemSpawnTime;

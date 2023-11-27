@@ -148,3 +148,33 @@ void UPlayerInventoryComponent::RemoveItemCount(FName TargetItemName, int32& Rem
 	check( PC );
 	PC->UpdateInventoryWidget(this);
 }
+
+bool UPlayerInventoryComponent::CanRemovableItems(TMap<FName, int32>& ItemMap)
+{
+	for (auto Iter : ItemMap)
+	{
+		if ( GetItemCount( Iter.Key ) < Iter.Value ) return false;
+	}
+
+	return true;
+}
+
+void UPlayerInventoryComponent::RemoveItems(TMap<FName, int32>& ItemMap)
+{
+	for ( auto Iter : ItemMap )
+	{
+		int ItemCount = Iter.Value;
+		QuickSlot->RemoveItemCount( Iter.Key , ItemCount );
+		if (ItemCount > 0)
+		{
+			Super::RemoveItemCount( Iter.Key , ItemCount );
+		}
+	}
+}
+
+bool UPlayerInventoryComponent::HasEmptySpace()
+{
+	if ( QuickSlot->HasEmptySpace() ) return true;
+
+	return Super::HasEmptySpace();
+}

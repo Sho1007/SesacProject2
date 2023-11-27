@@ -25,6 +25,7 @@ public:
 	void UpdateInteractActor(IInteractInterface* NewInteractActor);
 	void UpdateInventory(UPlayerInventoryComponent* PlayerInventoryComponent );
 	void SetCurrentItem( int32 NewItemIndex );
+	void ToggleInventory();
 private:
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UChargeWidget* ChargeWidget;

@@ -15,6 +15,7 @@
 #include "MarineCraft/PlayerController/InGamePlayerController.h"
 #include "../Inventory/PlayerInventoryComponent.h"
 #include "../Interface/InteractInterface.h"
+#include "MarineCraft/Inventory/Tool/BuildingHammer.h"
 #include "MarineCraft/Inventory/Tool/ToolBase.h"
 
 // Sets default values
@@ -75,7 +76,7 @@ void ACharacterBase::Tick(float DeltaTime)
 	//DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
 	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Visibility , CollisionQueryParams ) )
 	{
-		//LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
+		LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
 
 		if ( IInteractInterface* InteractInterface = Cast<IInteractInterface>( OutHit.GetActor() ))
 		{
@@ -86,6 +87,8 @@ void ACharacterBase::Tick(float DeltaTime)
 			check( PC );
 			PC->UpdateInteractActor( InteractInterface );
 			InteractActor = OutHit.GetActor();
+
+			//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Interact Actor Name : %s" ) , *InteractActor->GetName() );
 		}
 		else
 		{
@@ -128,6 +131,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Input->BindAction(InputAction_Dive, ETriggerEvent::Triggered, this, &ACharacterBase::Dive );
 	Input->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ACharacterBase::Interact );
 	Input->BindAction(InputAction_QuickSlot, ETriggerEvent::Started, this, &ACharacterBase::QuickSlot );
+	Input->BindAction(InputAction_ToggleInventory, ETriggerEvent::Started, this, &ACharacterBase::ToggleInventory );
 }
 
 void ACharacterBase::Move(const FInputActionValue& Value)
@@ -213,6 +217,7 @@ void ACharacterBase::QuickSlot(const FInputActionValue& Value)
 
 			GhostMeshOverlappedActorSet.Empty();
 			GhostMeshComponent->SetVisibility( false );
+			GhostMeshComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
 
 			if (PressedKey.GetFName() == TEXT("One"))
 			{
@@ -258,6 +263,12 @@ void ACharacterBase::QuickSlot(const FInputActionValue& Value)
 	}
 }
 
+void ACharacterBase::ToggleInventory(const FInputActionValue& Value)
+{
+	UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::ToggleInventory" ) );
+	GetController<AInGamePlayerController>()->ToggleInventory();
+}
+
 void ACharacterBase::UpdateInventoryWidget()
 {
 	GetController<AInGamePlayerController>()->UpdateInventoryWidget(InventoryComponent);
@@ -278,9 +289,11 @@ TSet<AActor*>& ACharacterBase::GetGhostMeshOverlappedActorSet()
 	return GhostMeshOverlappedActorSet;
 }
 
-void ACharacterBase::SetGhostMeshMaterail()
+void ACharacterBase::SetGhostMeshMaterial()
 {
-	bool bIsBuildable = GetGhostMeshOverlappedActorSet().Num() == 0;
+	FBuildingPartsData* BuildingPartsData = Cast<ABuildingHammer>( InventoryComponent->GetCurrentItem() )->GetBuildingPartsData();
+	if ( BuildingPartsData == nullptr ) return;
+	bool bIsBuildable = (GetGhostMeshOverlappedActorSet().Num() == 0) && InventoryComponent->CanRemovableItems( BuildingPartsData->BuildingMaterialMap );
 
 	int MaterialNum = GhostMeshComponent->GetMaterials().Num();
 	for ( int i = 0; i < MaterialNum; ++i )
@@ -301,7 +314,7 @@ void ACharacterBase::OnGhostMeshBeginOverlap(UPrimitiveComponent* OverlappedComp
 {
 	GhostMeshOverlappedActorSet.Add( OtherActor );
 
-	SetGhostMeshMaterail();
+	SetGhostMeshMaterial();
 }
 
 void ACharacterBase::OnGhostMeshEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -312,5 +325,5 @@ void ACharacterBase::OnGhostMeshEndOverlap(UPrimitiveComponent* OverlappedCompon
 		GhostMeshOverlappedActorSet.Remove(GhostMeshOverlappedActorSet.FindId(OtherActor));
 	}
 
-	SetGhostMeshMaterail();
+	SetGhostMeshMaterial();
 }

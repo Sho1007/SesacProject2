@@ -163,3 +163,16 @@ void UInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCou
 		}
 	}
 }
+
+bool UInventoryComponent::HasEmptySpace()
+{
+	for ( int i = 0; i < ItemArray.Num(); ++i )
+	{
+		for ( int j = 0; j < ItemArray[ i ].ItemArray.Num(); ++j )
+		{
+			if ( ItemArray[ i ].ItemArray[ j ] == nullptr ) return true;
+		}
+	}
+
+	return false;
+}

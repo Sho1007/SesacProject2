@@ -33,31 +33,15 @@ void UItemSlotWidget::Init(AItemBase* NewItem)
 
 		Img_ItemImage->SetBrushFromTexture(Data->ItemImage);
 
-		
-		/*if (Data->ItemType == EItemType::Materials)
-		{
-			
-		}
-		else
-		{
-			
-		}*/
-
 		if ( Data->ItemType == EItemType::Tools )
 		{
 			PB_DurabilityBar->SetVisibility(ESlateVisibility::Visible);
 			AToolBase* ToolBase = Cast<AToolBase>(NewItem);
 			check( ToolBase );
 
-			if ( ToolBase->GetCurrentDurability() == ToolBase->GetMaxDurability() )
-			{
-				PB_DurabilityBar->SetVisibility( ESlateVisibility::Collapsed );
-			}
-			else
-			{
-				PB_DurabilityBar->SetVisibility( ESlateVisibility::Visible );
-				PB_DurabilityBar->SetPercent( ToolBase->GetCurrentDurability() / ToolBase->GetMaxDurability() );
-			}
+			PB_DurabilityBar->SetVisibility( ESlateVisibility::Visible );
+			PB_DurabilityBar->SetPercent( ToolBase->GetCurrentDurability() / ToolBase->GetMaxDurability() );
+
 			Txt_ItemStack->SetVisibility( ESlateVisibility::Collapsed );
 		}
 		else
@@ -73,7 +57,7 @@ void UItemSlotWidget::Select()
 {
 	if ( UBorderSlot* BorderSlot = Cast<UBorderSlot>( Brd_OutLine->GetContentSlot() ))
 	{
-		BorderSlot->SetPadding( FMargin( 5.0f ) );
+		BorderSlot->SetPadding( FMargin( 2.0f ) );
 		//LOG( TEXT( "BorderSlot Content Name : %s" ), *BorderSlot->Content->GetName() );
 	}
 }
