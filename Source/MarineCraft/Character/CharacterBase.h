@@ -87,7 +87,7 @@ private:
 	UCameraComponent* CameraComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere , Category = "Component", Meta = (AllowPrivateAccess))
 	USpringArmComponent* SpringArmComponent;
-	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (AllowPrivateAccess))
 	UPlayerInventoryComponent* InventoryComponent;
 	
 	// Input
