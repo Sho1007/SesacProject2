@@ -94,8 +94,7 @@ void AHook::Catch()
 	bShouldMovetoPlayer = false;
 	bIsLanded = false;
 	bIsThrown = false;
-	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HookSocket" ) );
-	//BoxComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
+	SetInHand();
 
 	UPlayerInventoryComponent* PlayerInventoryComponent = Cast<UPlayerInventoryComponent>(PlayerCharacter->GetComponentByClass(UPlayerInventoryComponent::StaticClass()));
 	check( PlayerInventoryComponent );
@@ -137,7 +136,9 @@ void AHook::SetInHand()
 	CableComponent->SetVisibility( true );
 	RopeMeshComponent->SetVisibility( true );
 	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
-	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HookSocket" ) );
+	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "ToolSocket" ) );
+	this->SetActorRelativeLocation( FVector(-2, 0, -18) );
+	this->SetActorRelativeRotation( FRotator(0, 180, 0) );
 }
 
 void AHook::SetInInventory()
@@ -184,6 +185,8 @@ void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void AHook::Launch()
 {
+	check( UseMontage );
+	PlayerCharacter->PlayAnimMontage( UseMontage );
 	SetActorRotation( FRotationMatrix::MakeFromXZ( PlayerCharacter->GetActorForwardVector(), PlayerCharacter->GetActorUpVector() ).Rotator() + FRotator( -90 , 180 , 0 ) );
 	bIsThrown = true;
 	BoxComponent->SetCollisionEnabled( ECollisionEnabled::QueryAndPhysics );

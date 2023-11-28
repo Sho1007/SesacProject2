@@ -33,7 +33,7 @@ void UItemSlotWidget::Init(AItemBase* NewItem)
 
 		Img_ItemImage->SetBrushFromTexture(Data->ItemImage);
 
-		if ( Data->ItemType == EItemType::Tools )
+		if ( Data->ItemType == EItemType::Tools  || Data->ItemType == EItemType::Weapons )
 		{
 			PB_DurabilityBar->SetVisibility(ESlateVisibility::Visible);
 			AToolBase* ToolBase = Cast<AToolBase>(NewItem);

@@ -48,6 +48,18 @@ void UPlayerInventoryComponent::BeginPlay()
 
 		AddItem( BuildingHammer );
 	}
+	// Spear
+	{
+		FItemData* ItemData = GameInstance->GetItemData( "Spear" );
+
+		check( ItemData );
+
+		AItemBase* Spear = GetWorld()->SpawnActor<AItemBase>( ItemData->ItemClass );
+
+		check( Spear );
+
+		AddItem( Spear );
+	}
 	
 
 	SetCurrentItem( 0 );

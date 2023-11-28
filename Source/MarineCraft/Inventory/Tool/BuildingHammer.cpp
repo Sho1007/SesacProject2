@@ -9,6 +9,7 @@
 #include "../../Building/BuildingPartsBase.h"
 #include "MarineCraft/MarineCraftGameInstance.h"
 #include "MarineCraft/Inventory/PlayerInventoryComponent.h"
+#include "../../Building/Raft.h"
 
 
 void ABuildingHammer::Tick(float DeltaSeconds)
@@ -28,7 +29,9 @@ void ABuildingHammer::Tick(float DeltaSeconds)
 	DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
 	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Visibility , CollisionQueryParams ) )
 	{
-		if ( BuildTargetComponent == OutHit.GetComponent() ) return;
+		LOG( TEXT( "Hit Actor : %s" ) , *OutHit.GetActor()->GetName() );
+
+		//if ( BuildTargetComponent == OutHit.GetComponent() ) return;
 
 		LOG( TEXT( "ComponentName : %s" ) , *OutHit.GetComponent()->GetName() );
 
@@ -112,6 +115,7 @@ void ABuildingHammer::Use()
 		PlayerCharacter->PlayAnimMontage( BuildMontage );
 
 		ABuildingPartsBase* NewBuildingParts = GetWorld()->SpawnActor<ABuildingPartsBase>( BuildingPartsData->Class , BuildTargetComponent->GetComponentLocation() + BuildingPartsData->SpawnLocationOffset , BuildTargetComponent->GetComponentRotation() );
+		NewBuildingParts->AttachToActor( PlayerCharacter->GetRaft() , FAttachmentTransformRules( EAttachmentRule::KeepWorld , EAttachmentRule::KeepRelative , EAttachmentRule::KeepWorld , false ) );
 		BuildTargetComponent = nullptr;
 		PlayerCharacter->GetGhostMeshComponent()->SetVisibility( false );
 	}

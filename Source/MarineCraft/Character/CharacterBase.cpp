@@ -7,7 +7,7 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
-#include <Kismet/KismetMathLibrary.h>
+#include <EngineUtils.h>
 
 #include "../Building/BuildingPartsBase.h"
 #include "../MarineCraftGameInstance.h"
@@ -17,6 +17,7 @@
 #include "../Interface/InteractInterface.h"
 #include "MarineCraft/Inventory/Tool/BuildingHammer.h"
 #include "MarineCraft/Inventory/Tool/ToolBase.h"
+#include "../Building/Raft.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -28,7 +29,7 @@ ACharacterBase::ACharacterBase()
 	check(SpringArmComponent);
 	//SpringArmComponent->SetupAttachment(GetMesh(), TEXT("head"));
 	//SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules( EAttachmentRule::SnapToTarget , EAttachmentRule::KeepWorld , EAttachmentRule::KeepWorld , false ) , TEXT( "head" ) );
-	SpringArmComponent->SetupAttachment( RootComponent );
+	SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "Head" ) );
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -58,6 +59,11 @@ void ACharacterBase::BeginPlay()
 
 	GhostMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ACharacterBase::OnGhostMeshBeginOverlap);
 	GhostMeshComponent->OnComponentEndOverlap.AddDynamic( this , &ACharacterBase::ACharacterBase::OnGhostMeshEndOverlap);
+
+	// Get Raft Actor
+	TActorIterator<AActor> It( GetWorld() , ARaft::StaticClass() );
+	Raft = Cast<ARaft>( *It );
+	check( Raft );
 }
 
 // Called every frame
@@ -287,6 +293,11 @@ UStaticMeshComponent* ACharacterBase::GetGhostMeshComponent() const
 TSet<AActor*>& ACharacterBase::GetGhostMeshOverlappedActorSet()
 {
 	return GhostMeshOverlappedActorSet;
+}
+
+ARaft* ACharacterBase::GetRaft() const
+{
+	return Raft;
 }
 
 void ACharacterBase::SetGhostMeshMaterial()

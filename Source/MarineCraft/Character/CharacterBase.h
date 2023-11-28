@@ -13,6 +13,7 @@ class UInputMappingContext;
 class USpringArmComponent;
 struct FBuildingPartsData;
 class UPlayerInventoryComponent;
+class ARaft;
 UCLASS()
 class MARINECRAFT_API ACharacterBase : public ACharacter
 {	
@@ -49,6 +50,8 @@ public:
 	UStaticMeshComponent* GetGhostMeshComponent() const;
 	TSet<AActor*>& GetGhostMeshOverlappedActorSet();
 
+	ARaft* GetRaft() const;
+
 	void SetGhostMeshMaterial();
 
 	UFUNCTION()
@@ -65,6 +68,7 @@ private:
 	UAnimMontage* AttackMontage;
 
 	// Build
+	ARaft* Raft;
 	UPROPERTY(EditDefaultsOnly, Category = "Build", Meta = (AllowPrivateAccess))
 	UStaticMeshComponent* GhostMeshComponent;
 	UPROPERTY( VisibleAnywhere, Category = "Build" , Meta = ( AllowPrivateAccess ) )

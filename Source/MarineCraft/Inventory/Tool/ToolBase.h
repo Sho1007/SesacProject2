@@ -30,4 +30,7 @@ protected:
 	UPROPERTY( EditDefaultsOnly )
 	float MaxDurability;
 	float CurrentDurability;
+
+	UPROPERTY( EditDefaultsOnly )
+	UAnimMontage* UseMontage;
 };
