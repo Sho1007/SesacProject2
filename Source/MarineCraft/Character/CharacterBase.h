@@ -67,7 +67,10 @@ public:
 
 	bool IsOverSeaLevel() const;
 
+	UFUNCTION(BlueprintCallable)
 	bool IsSwim() const;
+	UFUNCTION( BlueprintCallable )
+	bool IsOnRaft();
 
 private:
 	void StartSwim();

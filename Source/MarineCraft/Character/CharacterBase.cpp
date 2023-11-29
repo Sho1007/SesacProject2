@@ -457,6 +457,11 @@ bool ACharacterBase::IsSwim() const
 	return GetCharacterMovement()->MovementMode == MOVE_Swimming;
 }
 
+bool ACharacterBase::IsOnRaft()
+{
+	return bIsOnRaft;
+}
+
 void ACharacterBase::StartSwim()
 {
 	UE_LOG( LogTemp , Warning , TEXT( "Start Swim" ) );
