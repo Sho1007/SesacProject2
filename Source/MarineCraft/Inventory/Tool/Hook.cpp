@@ -12,6 +12,7 @@
 #include "../PlayerInventoryComponent.h"
 #include "MarineCraft/PlayerController/InGamePlayerController.h"
 #include "../../Character/CharacterBase.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 // Sets default values
@@ -204,6 +205,10 @@ void AHook::Use()
 
 	if ( bIsThrown == false )
 	{
+		if (PlayerCharacter->GetCharacterMovement()->MovementMode == MOVE_Swimming && PlayerCharacter->IsOverSeaLevel() == false)
+		{
+			return;
+		}
 		// 던지기 전
 		bIsCharging = true;
 	}

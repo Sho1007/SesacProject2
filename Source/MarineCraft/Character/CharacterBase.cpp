@@ -124,7 +124,6 @@ void ACharacterBase::Tick(float DeltaTime)
 	}
 
 	// Swim
-
 	if (GetCharacterMovement()->MovementMode == MOVE_Swimming)
 	{
 		// Swim	
@@ -138,9 +137,44 @@ void ACharacterBase::Tick(float DeltaTime)
 	{
 		// Not Swim (Walk or Jump or etc)
 
+		TArray<FHitResult> OutHitArray;
+
 		if ( GetActorLocation().Z <= SwimmingHeight )
 		{
 			StartSwim();
+		}
+		else
+		{
+			Start = GetActorLocation();
+			End = Start + GetActorUpVector() * -CheckRaftDistance;
+			if ( GetWorld()->LineTraceMultiByChannel( OutHitArray , Start , End , ECC_Visibility , CollisionQueryParams ) )
+			{
+				bool bFoundRaft = false;
+				for (FHitResult& CurrentOutHit : OutHitArray )
+				{
+					// UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Ground Hit Actor : %s" ), *CurrentOutHit.GetActor()->GetName() );
+					if (Cast<ABuildingPartsBase>(CurrentOutHit.GetActor()))
+					{
+						bFoundRaft = true;
+						//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Check On Raft True  : %s" ) , *CurrentOutHit.GetActor()->GetName() );
+						break;
+					}
+				}
+
+				if ( bFoundRaft )
+				{
+					bIsOnRaft = true;
+				}
+				else
+				{
+					//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Check On Raft False" ) );
+				}
+			}
+			else
+			{
+				//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Check On Raft False" ));
+				bIsOnRaft = false;
+			}
 		}
 	}
 }
@@ -411,6 +445,16 @@ void ACharacterBase::OnGhostMeshEndOverlap(UPrimitiveComponent* OverlappedCompon
 	}
 
 	SetGhostMeshMaterial();
+}
+
+bool ACharacterBase::IsOverSeaLevel() const
+{
+	return GetActorLocation().Z >= SwimmingHeight;
+}
+
+bool ACharacterBase::IsSwim() const
+{
+	return GetCharacterMovement()->MovementMode == MOVE_Swimming;
 }
 
 void ACharacterBase::StartSwim()

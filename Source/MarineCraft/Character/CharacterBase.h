@@ -65,6 +65,10 @@ public:
 	UFUNCTION()
 	void OnGhostMeshEndOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex );
 
+	bool IsOverSeaLevel() const;
+
+	bool IsSwim() const;
+
 private:
 	void StartSwim();
 	void EndSwim();
@@ -80,6 +84,12 @@ private:
 	// Action?
 	UPROPERTY(EditDefaultsOnly, Category = "Animation", Meta = (AllowPrivateAccess))
 	UAnimMontage* AttackMontage;
+
+	// Check On Raft
+	UPROPERTY( EditDefaultsOnly, Meta = ( AllowPrivateAccess ) )
+	float CheckRaftDistance;
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
+	bool bIsOnRaft;
 
 	// Build
 	ARaft* Raft;
