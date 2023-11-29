@@ -2,3 +2,11 @@
 
 
 #include "../Weapon/WeaponBase.h"
+
+void AWeaponBase::CheckAttackHit()
+{
+}
+
+void AWeaponBase::EndAttack()
+{
+}

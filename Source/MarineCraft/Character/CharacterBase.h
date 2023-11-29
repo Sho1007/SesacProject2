@@ -33,6 +33,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// InputAction
+	void DoJump( const FInputActionValue& Value );
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StartAction(const FInputActionValue& Value);
@@ -44,6 +45,11 @@ public:
 	void Interact( const FInputActionValue& Value );
 	void QuickSlot( const FInputActionValue& Value );
 	void ToggleInventory( const FInputActionValue& Value );
+
+	UFUNCTION(BlueprintCallable)
+	void EndAttack();
+	UFUNCTION(BlueprintCallable)
+	void CheckAttackHit();
 
 	void UpdateInventoryWidget();
 	UCameraComponent* GetCameraComponent() const;
@@ -60,6 +66,14 @@ public:
 	void OnGhostMeshEndOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex );
 
 private:
+	void StartSwim();
+	void EndSwim();
+
+private:
+	// Swim
+	UPROPERTY( BlueprintReadOnly, EditDefaultsOnly , Category = "Swim" , Meta = ( AllowPrivateAccess ) )
+	float SwimmingHeight;
+
 	// Interact
 	AActor* InteractActor;
 
@@ -113,4 +127,6 @@ private:
 	UInputAction* InputAction_QuickSlot;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_ToggleInventory;
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
+	UInputAction* InputAction_Jump;
 };

@@ -17,6 +17,15 @@ class MARINECRAFT_API ASpear : public AWeaponBase
 public:
 	virtual void Use() override;
 
+	virtual void CheckAttackHit() override;
+	virtual void EndAttack() override;
+
 protected :
 	virtual void SetInHand() override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
+	float AttackRadius;
+	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
+	UAnimMontage* MiddleAttackMontage;
 };
