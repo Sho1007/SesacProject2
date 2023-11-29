@@ -71,6 +71,8 @@ public:
 	bool IsSwim() const;
 	UFUNCTION( BlueprintCallable )
 	bool IsOnRaft();
+	UFUNCTION( BlueprintCallable )
+	bool IsDead();
 
 private:
 	void StartSwim();
