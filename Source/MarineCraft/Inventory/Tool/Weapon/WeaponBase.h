@@ -10,6 +10,10 @@ UCLASS()
 class MARINECRAFT_API AWeaponBase : public AToolBase
 {
 	GENERATED_BODY()
+
+public:
+	virtual void CheckAttackHit();
+	virtual void EndAttack();
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

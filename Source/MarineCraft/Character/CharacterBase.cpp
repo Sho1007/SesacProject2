@@ -18,6 +18,8 @@
 #include "MarineCraft/Inventory/Tool/BuildingHammer.h"
 #include "MarineCraft/Inventory/Tool/ToolBase.h"
 #include "../Building/Raft.h"
+#include "GameFramework/PhysicsVolume.h"
+#include "MarineCraft/Inventory/Tool/Weapon/WeaponBase.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -82,7 +84,7 @@ void ACharacterBase::Tick(float DeltaTime)
 	//DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
 	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Visibility , CollisionQueryParams ) )
 	{
-		LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
+		//LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
 
 		if ( IInteractInterface* InteractInterface = Cast<IInteractInterface>( OutHit.GetActor() ))
 		{
@@ -120,6 +122,27 @@ void ACharacterBase::Tick(float DeltaTime)
 			InteractActor = nullptr;
 		}
 	}
+
+	// Swim
+
+	if (GetCharacterMovement()->MovementMode == MOVE_Swimming)
+	{
+		// Swim	
+
+		if ( GetActorLocation().Z > SwimmingHeight )
+		{
+			EndSwim();
+		}
+	}
+	else
+	{
+		// Not Swim (Walk or Jump or etc)
+
+		if ( GetActorLocation().Z <= SwimmingHeight )
+		{
+			StartSwim();
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -138,6 +161,26 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Input->BindAction(InputAction_Interact, ETriggerEvent::Started, this, &ACharacterBase::Interact );
 	Input->BindAction(InputAction_QuickSlot, ETriggerEvent::Started, this, &ACharacterBase::QuickSlot );
 	Input->BindAction(InputAction_ToggleInventory, ETriggerEvent::Started, this, &ACharacterBase::ToggleInventory );
+	Input->BindAction(InputAction_Jump, ETriggerEvent::Started, this, &ACharacterBase::DoJump );
+}
+
+void ACharacterBase::DoJump(const FInputActionValue& Value)
+{
+	if (GetCharacterMovement()->MovementMode == MOVE_Swimming)
+	{
+		if ( GetActorLocation().Z >= SwimmingHeight )
+		{
+			GetCharacterMovement()->JumpZVelocity = 550.0f;
+			EndSwim();
+			Jump();
+		}
+	}
+	else
+	{
+		GetCharacterMovement()->JumpZVelocity = 420.0f;
+		Jump();
+	}
+	
 }
 
 void ACharacterBase::Move(const FInputActionValue& Value)
@@ -191,8 +234,21 @@ void ACharacterBase::CancelAction(const FInputActionValue& Value)
 
 void ACharacterBase::Dive(const FInputActionValue& Value)
 {
-	LOG( TEXT( "DiveValue : %f" ) , Value.Get<float>() );
-	AddMovementInput( GetActorUpVector() , Value.Get<float>() * MoveSpeed );
+	//LOG( TEXT( "DiveValue : %f" ) , Value.Get<float>() );
+	if ( GetCharacterMovement()->MovementMode == MOVE_Swimming )
+	{
+		if (GetActorLocation().Z + Value.Get<float>() * MoveSpeed * GetWorld()->GetDeltaSeconds() >= SwimmingHeight )
+		{
+			FVector Destination = GetActorLocation();
+			Destination.Z = SwimmingHeight;
+			SetActorLocation( Destination );
+			GetCharacterMovement()->Velocity.Z = 0.0f;
+		}
+		else
+		{
+			AddMovementInput( GetActorUpVector() , Value.Get<float>() * MoveSpeed );
+		}
+	}
 }
 
 void ACharacterBase::Interact(const FInputActionValue& Value)
@@ -220,6 +276,8 @@ void ACharacterBase::QuickSlot(const FInputActionValue& Value)
 					break;
 				}
 			}
+
+			StopAnimMontage();
 
 			GhostMeshOverlappedActorSet.Empty();
 			GhostMeshComponent->SetVisibility( false );
@@ -273,6 +331,22 @@ void ACharacterBase::ToggleInventory(const FInputActionValue& Value)
 {
 	UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::ToggleInventory" ) );
 	GetController<AInGamePlayerController>()->ToggleInventory();
+}
+
+void ACharacterBase::EndAttack()
+{
+	if ( AWeaponBase* Weapon = Cast<AWeaponBase>( InventoryComponent->GetCurrentItem() ) )
+	{
+		Weapon->EndAttack();
+	}
+}
+
+void ACharacterBase::CheckAttackHit()
+{
+	if ( AWeaponBase* Weapon = Cast<AWeaponBase>( InventoryComponent->GetCurrentItem() ) )
+	{
+		Weapon->CheckAttackHit();
+	}
 }
 
 void ACharacterBase::UpdateInventoryWidget()
@@ -337,4 +411,19 @@ void ACharacterBase::OnGhostMeshEndOverlap(UPrimitiveComponent* OverlappedCompon
 	}
 
 	SetGhostMeshMaterial();
+}
+
+void ACharacterBase::StartSwim()
+{
+	UE_LOG( LogTemp , Warning , TEXT( "Start Swim" ) );
+	GetCharacterMovement()->SetMovementMode( MOVE_Swimming );
+	GetCharacterMovement()->GravityScale = 0.0f;
+	GetCharacterMovement()->GetPhysicsVolume()->bWaterVolume = true;
+}
+void ACharacterBase::EndSwim()
+{
+	UE_LOG( LogTemp , Warning , TEXT( "End Swim" ) );
+	GetCharacterMovement()->SetMovementMode( MOVE_Walking );
+	GetCharacterMovement()->GravityScale = 1.0f;
+	GetCharacterMovement()->GetPhysicsVolume()->bWaterVolume = false;
 }
