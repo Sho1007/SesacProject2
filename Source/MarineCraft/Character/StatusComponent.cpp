@@ -3,6 +3,8 @@
 
 #include "../Character/StatusComponent.h"
 
+#include "CharacterBase.h"
+
 // Sets default values for this component's properties
 UStatusComponent::UStatusComponent()
 {
@@ -47,6 +49,8 @@ void UStatusComponent::AddDamage(float DamageAmount)
 		CurrentHP = 0.0f;
 		bIsDead = true;
 		// Todo : Call Death Function Of Owner Character
+
+		GetOwner<ACharacterBase>()->Die();
 	}
 }
 

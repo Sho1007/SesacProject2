@@ -11,6 +11,7 @@ class IInteractInterface;
 class UInteractWidget;
 class UChargeWidget;
 class UInventoryWidget;
+class UImpactWidget;
 /**
  * 
  */
@@ -26,6 +27,7 @@ public:
 	void UpdateInventory(UPlayerInventoryComponent* PlayerInventoryComponent );
 	void SetCurrentItem( int32 NewItemIndex );
 	void ToggleInventory();
+	void Impact();
 private:
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UChargeWidget* ChargeWidget;
@@ -33,4 +35,6 @@ private:
 	UInteractWidget* InteractWidget;
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UInventoryWidget* InventoryWidget;
+	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
+	UImpactWidget* ImpactWidget;
 };

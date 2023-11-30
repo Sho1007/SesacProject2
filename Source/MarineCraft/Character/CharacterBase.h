@@ -41,35 +41,36 @@ public:
 	void Look(const FInputActionValue& Value);
 	void StartAction(const FInputActionValue& Value);
 	void CompleteAction( const FInputActionValue& Value );
-
 	void CancelAction( const FInputActionValue& Value );
-
 	void Dive( const FInputActionValue& Value );
 	void Interact( const FInputActionValue& Value );
 	void QuickSlot( const FInputActionValue& Value );
 	void ToggleInventory( const FInputActionValue& Value );
 
+	// Attack
 	UFUNCTION(BlueprintCallable)
 	void EndAttack();
 	UFUNCTION(BlueprintCallable)
 	void CheckAttackHit();
 
+	// Building
 	void UpdateInventoryWidget();
 	UCameraComponent* GetCameraComponent() const;
 	UStaticMeshComponent* GetGhostMeshComponent() const;
 	TSet<AActor*>& GetGhostMeshOverlappedActorSet();
-
-	ARaft* GetRaft() const;
-
 	void SetGhostMeshMaterial();
-
-	// Inventory
-	void SetQuickSlotItemNull( int32 QuickSlotIndex );
-
 	UFUNCTION()
 	void OnGhostMeshBeginOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult );
 	UFUNCTION()
 	void OnGhostMeshEndOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex );
+
+	ARaft* GetRaft() const;
+
+	// Inventory
+	void SetQuickSlotItemNull( int32 QuickSlotIndex );
+
+	// State
+	void Die();
 
 	bool IsOverSeaLevel() const;
 
