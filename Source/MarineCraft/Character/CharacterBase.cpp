@@ -20,6 +20,7 @@
 #include "../Building/Raft.h"
 #include "GameFramework/PhysicsVolume.h"
 #include "MarineCraft/Inventory/Tool/Weapon/WeaponBase.h"
+#include "StatusComponent.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -42,6 +43,8 @@ ACharacterBase::ACharacterBase()
 	GhostMeshComponent->SetCollisionProfileName(TEXT("GhostMesh"));
 
 	InventoryComponent = CreateDefaultSubobject<UPlayerInventoryComponent>(TEXT("InventoryComponent"));
+
+	StatusComponent = CreateDefaultSubobject<UStatusComponent>( TEXT( "StatusComponent" ) );
 }
 
 // Called when the game starts or when spawned
@@ -196,6 +199,18 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Input->BindAction(InputAction_QuickSlot, ETriggerEvent::Started, this, &ACharacterBase::QuickSlot );
 	Input->BindAction(InputAction_ToggleInventory, ETriggerEvent::Started, this, &ACharacterBase::ToggleInventory );
 	Input->BindAction(InputAction_Jump, ETriggerEvent::Started, this, &ACharacterBase::DoJump );
+}
+
+float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	// LOG( TEXT( "DamageCauser : %s" ) , *DamageCauser->GetName() );
+
+	GetController<AInGamePlayerController>()->Impact();
+
+	StatusComponent->AddDamage( DamageAmount );
+
+	return Super::TakeDamage(DamageAmount , DamageEvent , EventInstigator , DamageCauser);
 }
 
 void ACharacterBase::DoJump(const FInputActionValue& Value)
@@ -428,6 +443,11 @@ void ACharacterBase::SetGhostMeshMaterial()
 	}
 }
 
+void ACharacterBase::SetQuickSlotItemNull(int32 QuickSlotIndex)
+{
+	InventoryComponent->SetQuickSlotItemNull( QuickSlotIndex );
+}
+
 void ACharacterBase::OnGhostMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -447,6 +467,11 @@ void ACharacterBase::OnGhostMeshEndOverlap(UPrimitiveComponent* OverlappedCompon
 	SetGhostMeshMaterial();
 }
 
+void ACharacterBase::Die()
+{
+	GetController<AInGamePlayerController>()->Die();
+}
+
 bool ACharacterBase::IsOverSeaLevel() const
 {
 	return GetActorLocation().Z >= SwimmingHeight;
@@ -464,7 +489,7 @@ bool ACharacterBase::IsOnRaft()
 
 bool ACharacterBase::IsDead()
 {
-	return false;
+	return StatusComponent->IsDead();
 }
 
 void ACharacterBase::StartSwim()

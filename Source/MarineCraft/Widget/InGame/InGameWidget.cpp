@@ -6,6 +6,7 @@
 #include "ChargeWidget.h"
 #include "InteractWidget.h"
 #include "InventoryWidget.h"
+#include "ImpactWidget.h"
 #include "MarineCraft/Inventory/PlayerInventoryComponent.h"
 
 void UInGameWidget::Setup()
@@ -37,4 +38,9 @@ void UInGameWidget::SetCurrentItem(int32 NewItemIndex)
 void UInGameWidget::ToggleInventory()
 {
 	InventoryWidget->ToggleInventory();
+}
+
+void UInGameWidget::Impact()
+{
+	ImpactWidget->Impact();
 }

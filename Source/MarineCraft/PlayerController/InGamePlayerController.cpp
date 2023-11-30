@@ -4,6 +4,7 @@
 #include "../PlayerController/InGamePlayerController.h"
 
 #include "../Widget/InGame/InGameWidget.h"
+#include "../Widget/GameOverWidget.h"
 
 void AInGamePlayerController::BeginPlay()
 {
@@ -39,4 +40,22 @@ void AInGamePlayerController::SetCurrentItem(int32 NewItemIndex)
 void AInGamePlayerController::ToggleInventory()
 {
 	InGameWidget->ToggleInventory();
+}
+
+void AInGamePlayerController::Impact()
+{
+	InGameWidget->Impact();
+}
+
+void AInGamePlayerController::Die()
+{
+	check( GameOverWidgetClass );
+
+	SetInputMode( FInputModeUIOnly() );
+	SetShowMouseCursor( true );
+
+	UGameOverWidget* GameOverWidget =  CreateWidget<UGameOverWidget>( this , GameOverWidgetClass );
+	GameOverWidget->AddToViewport();
+
+	SetPause( true );
 }

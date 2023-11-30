@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+class UStatusComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
@@ -32,38 +33,44 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual float TakeDamage( float DamageAmount , struct FDamageEvent const& DamageEvent , class AController* EventInstigator , AActor* DamageCauser ) override;
+
 	// InputAction
 	void DoJump( const FInputActionValue& Value );
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StartAction(const FInputActionValue& Value);
 	void CompleteAction( const FInputActionValue& Value );
-
 	void CancelAction( const FInputActionValue& Value );
-
 	void Dive( const FInputActionValue& Value );
 	void Interact( const FInputActionValue& Value );
 	void QuickSlot( const FInputActionValue& Value );
 	void ToggleInventory( const FInputActionValue& Value );
 
+	// Attack
 	UFUNCTION(BlueprintCallable)
 	void EndAttack();
 	UFUNCTION(BlueprintCallable)
 	void CheckAttackHit();
 
+	// Building
 	void UpdateInventoryWidget();
 	UCameraComponent* GetCameraComponent() const;
 	UStaticMeshComponent* GetGhostMeshComponent() const;
 	TSet<AActor*>& GetGhostMeshOverlappedActorSet();
-
-	ARaft* GetRaft() const;
-
 	void SetGhostMeshMaterial();
-
 	UFUNCTION()
 	void OnGhostMeshBeginOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult );
 	UFUNCTION()
 	void OnGhostMeshEndOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex );
+
+	ARaft* GetRaft() const;
+
+	// Inventory
+	void SetQuickSlotItemNull( int32 QuickSlotIndex );
+
+	// State
+	void Die();
 
 	bool IsOverSeaLevel() const;
 
@@ -122,6 +129,8 @@ private:
 	USpringArmComponent* SpringArmComponent;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (AllowPrivateAccess))
 	UPlayerInventoryComponent* InventoryComponent;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (AllowPrivateAccess))
+	UStatusComponent* StatusComponent;
 	
 	// Input
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))

@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "InGamePlayerController.generated.h"
 
+class UGameOverWidget;
 class IInteractInterface;
 /**
  * 
@@ -25,7 +26,13 @@ public:
 	void UpdateInventoryWidget( UPlayerInventoryComponent* PlayerInventoryComponent );
 	void SetCurrentItem(int32 NewItemIndex);
 	void ToggleInventory();
+	void Impact();
+	void Die();
+
 private:
+	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
+	TSubclassOf<UGameOverWidget> GameOverWidgetClass;
+
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	TSubclassOf<UInGameWidget> InGameWidgetClass;
 	UPROPERTY(Meta = ( AllowPrivateAccess ) )
