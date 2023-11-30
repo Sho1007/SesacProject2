@@ -462,6 +462,11 @@ bool ACharacterBase::IsOnRaft()
 	return bIsOnRaft;
 }
 
+bool ACharacterBase::IsDead()
+{
+	return false;
+}
+
 void ACharacterBase::StartSwim()
 {
 	UE_LOG( LogTemp , Warning , TEXT( "Start Swim" ) );
