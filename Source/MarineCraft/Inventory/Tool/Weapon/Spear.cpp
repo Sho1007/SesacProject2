@@ -45,9 +45,19 @@ void ASpear::CheckAttackHit()
 			{
 				UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit) Hit Actor : %s" ) , *OutHit.GetActor()->GetName() );
 				Character->TakeDamage( WeaponDamage , FDamageEvent(UDamageType::StaticClass()) , PlayerCharacter->GetController() , PlayerCharacter);
+				CurrentDurability--;
 			}
 		}
 	}
+
+	if ( CurrentDurability == 0.0f )
+	{
+		// Todo : Destroy 순서가 여기가 맞을까?
+		PlayerCharacter->SetQuickSlotItemNull( InventoryIndex );
+		Destroy();
+	}
+
+	PlayerCharacter->UpdateInventoryWidget();
 }
 
 void ASpear::EndAttack()

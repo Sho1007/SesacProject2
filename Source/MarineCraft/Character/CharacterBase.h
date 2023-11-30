@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+class UStatusComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
@@ -31,6 +32,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual float TakeDamage( float DamageAmount , struct FDamageEvent const& DamageEvent , class AController* EventInstigator , AActor* DamageCauser ) override;
 
 	// InputAction
 	void DoJump( const FInputActionValue& Value );
@@ -59,6 +62,9 @@ public:
 	ARaft* GetRaft() const;
 
 	void SetGhostMeshMaterial();
+
+	// Inventory
+	void SetQuickSlotItemNull( int32 QuickSlotIndex );
 
 	UFUNCTION()
 	void OnGhostMeshBeginOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult );
@@ -122,6 +128,8 @@ private:
 	USpringArmComponent* SpringArmComponent;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (AllowPrivateAccess))
 	UPlayerInventoryComponent* InventoryComponent;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (AllowPrivateAccess))
+	UStatusComponent* StatusComponent;
 	
 	// Input
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
