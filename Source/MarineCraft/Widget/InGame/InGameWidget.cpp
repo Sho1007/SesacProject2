@@ -44,3 +44,8 @@ void UInGameWidget::Impact()
 {
 	ImpactWidget->Impact();
 }
+
+void UInGameWidget::ImpactOnDeath()
+{
+	ImpactWidget->ImpactOnDeath();
+}

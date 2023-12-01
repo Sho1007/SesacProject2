@@ -20,6 +20,8 @@ public:
 
 	void Impact();
 
+	void ImpactOnDeath();
+
 private:
 	UPROPERTY(Meta = ( AllowPrivateAccess, BindWidget) )
 	UImage* Img_Blood;
@@ -27,4 +29,6 @@ private:
 	float DisapearSpeed;
 	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
 	float OpacityIncreaseAmount;
+
+	bool bIsDead;
 };

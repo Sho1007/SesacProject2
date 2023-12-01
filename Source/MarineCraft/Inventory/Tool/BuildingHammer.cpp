@@ -71,7 +71,9 @@ void ABuildingHammer::SetInHand()
 	BuildTargetComponent = nullptr;
 	SetActorTickEnabled( true );
 	StaticMeshComponent->SetVisibility( true );
-	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "HammerSocket" ) );
+	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "ToolSocket" ) );
+	this->SetActorRelativeRotation( FRotator(0, 90, 180.0f) );
+	this->SetActorRelativeLocation( FVector(0, 0, -25.0f) );
 
 	PlayerCharacter->GetGhostMeshComponent()->SetCollisionEnabled( ECollisionEnabled::QueryOnly );
 }

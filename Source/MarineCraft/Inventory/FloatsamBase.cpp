@@ -29,7 +29,10 @@ void AFloatsamBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if ( bIsGrabbed == false ) Floating( DeltaTime );
+	if ( bIsGrabbed == false )
+	{
+		Floating( DeltaTime );
+	}
 }
 
 bool AFloatsamBase::IsGrabbed() const
@@ -48,6 +51,11 @@ void AFloatsamBase::Release()
 {
 	bIsGrabbed = false;
 	BoxComponent->SetCollisionProfileName( TEXT( "Floatsam" ) );
+}
+
+void AFloatsamBase::SetRaft( AActor* NewRaft )
+{
+	Raft = NewRaft;
 }
 
 void AFloatsamBase::SetFloatingDirection(FVector NewFloatingDirection)
@@ -78,4 +86,12 @@ void AFloatsamBase::Floating( float DeltaTime )
 			bIsFloatingUp = true;
 		}
 	}
+
+	if ( Raft )
+	{
+		// Calculate Raft Distance
+		float CurrentRaftDistance = (Raft->GetActorLocation() - GetActorLocation()).Length();
+		if ( CurrentRaftDistance >= MaxRaftDistance ) Destroy();
+	}
 }
+

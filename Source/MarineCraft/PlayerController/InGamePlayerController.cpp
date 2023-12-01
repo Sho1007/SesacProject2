@@ -5,6 +5,7 @@
 
 #include "../Widget/InGame/InGameWidget.h"
 #include "../Widget/GameOverWidget.h"
+#include "MarineCraft/Character/CharacterBase.h"
 
 void AInGamePlayerController::BeginPlay()
 {
@@ -15,6 +16,9 @@ void AInGamePlayerController::BeginPlay()
 	InGameWidget = CreateWidget<UInGameWidget>( this , InGameWidgetClass, TEXT("InGameWidget"));
 	InGameWidget->AddToViewport();
 	//InGameWidget->Setup();
+
+	SetInputMode(FInputModeGameOnly());
+	SetShowMouseCursor( false );
 }
 
 void AInGamePlayerController::SetChargePercent(float NewChargePercent)
@@ -44,7 +48,18 @@ void AInGamePlayerController::ToggleInventory()
 
 void AInGamePlayerController::Impact()
 {
-	InGameWidget->Impact();
+
+	ACharacterBase* CharacterBase = Cast<ACharacterBase>( GetPawn() );
+	
+
+	if (CharacterBase->IsDead())
+	{
+		InGameWidget->ImpactOnDeath();
+	}
+	else
+	{
+		InGameWidget->Impact();
+	}
 }
 
 void AInGamePlayerController::Die()
@@ -57,5 +72,5 @@ void AInGamePlayerController::Die()
 	UGameOverWidget* GameOverWidget =  CreateWidget<UGameOverWidget>( this , GameOverWidgetClass );
 	GameOverWidget->AddToViewport();
 
-	SetPause( true );
+	//SetPause( true );
 }

@@ -206,9 +206,12 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	// LOG( TEXT( "DamageCauser : %s" ) , *DamageCauser->GetName() );
 
-	GetController<AInGamePlayerController>()->Impact();
+	if ( StatusComponent->IsDead() == false)
+	{
+		StatusComponent->AddDamage( DamageAmount );
 
-	StatusComponent->AddDamage( DamageAmount );
+		GetController<AInGamePlayerController>()->Impact();
+	}
 
 	return Super::TakeDamage(DamageAmount , DamageEvent , EventInstigator , DamageCauser);
 }
@@ -470,6 +473,9 @@ void ACharacterBase::OnGhostMeshEndOverlap(UPrimitiveComponent* OverlappedCompon
 void ACharacterBase::Die()
 {
 	GetController<AInGamePlayerController>()->Die();
+
+	GetMesh()->SetCollisionEnabled( ECollisionEnabled::QueryAndPhysics );
+	GetMesh()->SetSimulatePhysics( true );
 }
 
 bool ACharacterBase::IsOverSeaLevel() const

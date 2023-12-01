@@ -32,7 +32,7 @@ void ASpear::Use()
 void ASpear::CheckAttackHit()
 {
 	Super::CheckAttackHit();
-	UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit" ) );
+	//UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit" ) );
 
 	TArray<FHitResult> OutHitArray;
 
@@ -43,9 +43,12 @@ void ASpear::CheckAttackHit()
 		{
 			if ( ACharacter* Character = Cast<ACharacter>(OutHit.GetActor()))
 			{
+				
 				UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit) Hit Actor : %s" ) , *OutHit.GetActor()->GetName() );
+				UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit) Hit Component : %s" ) , *OutHit.Component->GetName() );
 				Character->TakeDamage( WeaponDamage , FDamageEvent(UDamageType::StaticClass()) , PlayerCharacter->GetController() , PlayerCharacter);
 				CurrentDurability--;
+				break;
 			}
 		}
 	}
@@ -64,7 +67,7 @@ void ASpear::EndAttack()
 {
 	Super::EndAttack();
 
-	UE_LOG( LogTemp , Warning , TEXT( "ASpear::EndAttack" ) );
+	//UE_LOG( LogTemp , Warning , TEXT( "ASpear::EndAttack" ) );
 	this->SetActorRelativeLocation( FVector( 0 , -7 , 21 ) );
 	this->SetActorRelativeRotation( FRotator( 0 , 0 , -90 ) );
 }
