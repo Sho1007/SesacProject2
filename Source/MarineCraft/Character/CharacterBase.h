@@ -163,17 +163,28 @@ private:
 	UInputAction* InputAction_Jump;
 
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* InteractSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* BGMSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	USoundBase* OceanSound;
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	USoundBase* ScreamSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* DeathSound;
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	USoundBase* StartSwimSound;
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	USoundBase* SwimmingSound;
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	USoundBase* EndSwimSound;
+
+
+
 	UPROPERTY( VisibleInstanceOnly, Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	UAudioComponent* OceanSoundComponent;
 	UPROPERTY( VisibleInstanceOnly, Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	UAudioComponent* SwimmingSoundComponent;
+	UPROPERTY( VisibleInstanceOnly, Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	UAudioComponent* BGMSoundComponent;
 };
