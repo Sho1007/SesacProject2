@@ -98,6 +98,7 @@ void AItemBase::SetInInventory()
 	}
 	else
 	{
+		SetActorTickEnabled( false );
 		//AttachToActor( InventoryComponent->GetOwner() , FAttachmentTransformRules::SnapToTargetNotIncludingScale );
 		BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
 		StaticMeshComponent->SetVisibility( false );

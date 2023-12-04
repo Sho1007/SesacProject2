@@ -65,18 +65,20 @@ public:
 
 	virtual float TakeDamage( float DamageAmount , struct FDamageEvent const& DamageEvent , class AController* EventInstigator , AActor* DamageCauser ) override;
 
-private:
-	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+protected:
+	UPROPERTY( EditDefaultsOnly)
 	float MaxDurability;
 	//UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
 	float CurrentDurability;
 	
-	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly)
 	UBoxComponent* BoxComponent;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Meta = (AllowPrivateAccess))
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TArray<FBuildBox> BuildBoxArray;
 
-	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMeshComponent;
+
+
 };

@@ -61,6 +61,7 @@ void AItemSpawner::SpawnItem()
 	AFloatsamBase* Floatsam = GetWorld()->SpawnActor<AFloatsamBase>( FloatsamClassArray[ FMath::RandRange( 0 , FloatsamClassArray.Num() - 1 ) ], SpawnLocation + RightVector * FMath::RandRange( -SpawnOffset , SpawnOffset ) , SpawnRotation);
 	if (Floatsam)
 	{
+		Floatsam->SetRaft( Raft );
 		Floatsam->SetFloatingDirection( OceanCurrentsDirection );
 		Floatsam->Release();
 	}

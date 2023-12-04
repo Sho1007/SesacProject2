@@ -15,6 +15,8 @@ void ASpear::Use()
 
 	if ( PlayerCharacter->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage() ) return;
 
+	UGameplayStatics::PlaySoundAtLocation( GetWorld() , StabSound , GetActorLocation() , GetActorRotation() );
+
 	switch ( PlayerCharacter->GetCharacterMovement()->MovementMode )
 	{
 	case EMovementMode::MOVE_Walking:
@@ -32,7 +34,7 @@ void ASpear::Use()
 void ASpear::CheckAttackHit()
 {
 	Super::CheckAttackHit();
-	UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit" ) );
+	//UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit" ) );
 
 	TArray<FHitResult> OutHitArray;
 
@@ -43,9 +45,14 @@ void ASpear::CheckAttackHit()
 		{
 			if ( ACharacter* Character = Cast<ACharacter>(OutHit.GetActor()))
 			{
+				
 				UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit) Hit Actor : %s" ) , *OutHit.GetActor()->GetName() );
+				UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit) Hit Component : %s" ) , *OutHit.Component->GetName() );
 				Character->TakeDamage( WeaponDamage , FDamageEvent(UDamageType::StaticClass()) , PlayerCharacter->GetController() , PlayerCharacter);
 				CurrentDurability--;
+
+				UGameplayStatics::PlaySoundAtLocation( GetWorld() , AttackSound , OutHit.Location , GetActorRotation() );
+				break;
 			}
 		}
 	}
@@ -64,7 +71,7 @@ void ASpear::EndAttack()
 {
 	Super::EndAttack();
 
-	UE_LOG( LogTemp , Warning , TEXT( "ASpear::EndAttack" ) );
+	//UE_LOG( LogTemp , Warning , TEXT( "ASpear::EndAttack" ) );
 	this->SetActorRelativeLocation( FVector( 0 , -7 , 21 ) );
 	this->SetActorRelativeRotation( FRotator( 0 , 0 , -90 ) );
 }
@@ -74,6 +81,20 @@ void ASpear::SetInHand()
 	Super::SetInHand();
 
 	StaticMeshComponent->SetVisibility( true );
+
+	FString Log;
+
+	if ( StaticMeshComponent->GetVisibleFlag() )
+	{
+		Log = TEXT( "Visible" );
+	}
+	else
+	{
+		Log = TEXT( "Hide" );
+	}
+
+	PlayerCharacter->MyPrintLog(Log);
+
 	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "ToolSocket" ) );
 	this->SetActorRelativeLocation( FVector(0, -7, 21) );
 	this->SetActorRelativeRotation( FRotator(0, 0, -90) );

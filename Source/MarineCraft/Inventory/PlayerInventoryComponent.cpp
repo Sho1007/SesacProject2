@@ -69,10 +69,25 @@ bool UPlayerInventoryComponent::AddItem(AItemBase* NewItem)
 {
 	AInGamePlayerController* PC = GetOwner<ACharacter>()->GetController<AInGamePlayerController>();
 	check( PC );
+
+	bool bIsHandEmpty = false;
+	if ( QuickSlot->GetItem( CurrentItemIndex ) == nullptr)
+	{
+		bIsHandEmpty = true;
+	}
+
+	UE_LOG( LogTemp , Warning , TEXT( "UPlayerInventoryComponent::AddItem) IsHandEmpty : %d" ), bIsHandEmpty );
+
 	if ( QuickSlot->AddItem( NewItem ) )
 	{
 		PC->UpdateInventoryWidget( this );
 		NewItem->SetState( EItemState::InInventory );
+
+		if (bIsHandEmpty == true && QuickSlot->GetItem(CurrentItemIndex) != nullptr )
+		{
+			UE_LOG( LogTemp , Warning , TEXT( "UPlayerInventoryComponent::AddItem) IsHandEmpty : %d" ) , bIsHandEmpty );
+			SetCurrentItem( CurrentItemIndex );
+		}
 
 		return true;
 	}
@@ -89,8 +104,6 @@ bool UPlayerInventoryComponent::AddItem(AItemBase* NewItem)
 
 void UPlayerInventoryComponent::SetCurrentItem(int32 NewItemIndex)
 {
-	if ( CurrentItemIndex == NewItemIndex ) return;
-
 	if ( NewItemIndex < 0 || 10 <= NewItemIndex ) return;
 
 	//LOG( TEXT( " %d " ) , NewItemIndex );

@@ -76,7 +76,7 @@ void UInventoryWidget::NativeConstruct()
 
 void UInventoryWidget::UpdateQuickSlot( UInventoryComponent* InventoryComponent )
 {
-	UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::UpdateQuickSlot" ) );
+	//UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::UpdateQuickSlot" ) );
 	for (int i = 0; i < QuickSlotWidgetArray.Num(); ++i)
 	{
 		QuickSlotWidgetArray[ i ]->Init( InventoryComponent->GetItem( i ) );
@@ -85,7 +85,7 @@ void UInventoryWidget::UpdateQuickSlot( UInventoryComponent* InventoryComponent 
 
 void UInventoryWidget::UpdateInventory(UInventoryComponent* InventoryComponent)
 {
-	UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::UpdateQuickSlot" ) );
+	//UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::UpdateInventory" ) );
 	for ( int i = 0; i < InventoryWidgetArray.Num(); ++i )
 	{
 		InventoryWidgetArray[ i ]->Init( InventoryComponent->GetItem( i ) );
@@ -234,11 +234,14 @@ void UInventoryWidget::OnCraftingButtonClicked()
 		AItemBase* ItemBase = GetWorld()->SpawnActor<AItemBase>( CurrentCraftingItemData->ItemClass , GetOwningPlayerPawn()->GetActorLocation(), FRotator::ZeroRotator );
 		check( ItemBase );
 
-		ItemBase->Interact( Cast<ACharacter>(GetOwningPlayerPawn()) );
+		PlayerInventoryComponent->AddItem( ItemBase );
+
+		//ItemBase->Interact( Cast<ACharacter>(GetOwningPlayerPawn()) );
 
 		//UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::OnCraftingButtonClicked) Valid" ) );
 
 		//  Todo : Update Inventory Not Only QuickSlot
+		UpdateInventory( PlayerInventoryComponent );
 		UpdateQuickSlot( PlayerInventoryComponent->GetQuickSlot() );
 
 		UpdateCraftingButton();

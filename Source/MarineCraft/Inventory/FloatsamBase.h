@@ -6,6 +6,7 @@
 #include "ItemBase.h"
 #include "FloatsamBase.generated.h"
 
+
 UCLASS()
 class MARINECRAFT_API AFloatsamBase : public AItemBase
 {
@@ -27,6 +28,7 @@ public:
 	bool IsGrabbed() const;
 	void Grab();
 	void Release();
+	void SetRaft( AActor* NewRaft );
 
 	void SetFloatingDirection( FVector NewFloatingDirection );
 private:
@@ -44,6 +46,11 @@ private:
 	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
 	FVector FloatingDirection;
 
-	UPROPERTY( EditInstanceOnly )
+	UPROPERTY( EditInstanceOnly, Meta = ( AllowPrivateAccess ) )
 	bool bIsGrabbed = true;
+
+	// Disapear Floatsam
+	AActor* Raft;
+	UPROPERTY( EditInstanceOnly, Meta = ( AllowPrivateAccess ) )
+	float MaxRaftDistance = 30000.0f;
 };

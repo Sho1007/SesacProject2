@@ -28,6 +28,7 @@ public:
 	void SetCurrentItem( int32 NewItemIndex );
 	void ToggleInventory();
 	void Impact();
+	void ImpactOnDeath();
 private:
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UChargeWidget* ChargeWidget;

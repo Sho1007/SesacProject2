@@ -8,6 +8,7 @@
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 #include <EngineUtils.h>
+#include <Kismet/GameplayStatics.h>
 
 #include "../Building/BuildingPartsBase.h"
 #include "../MarineCraftGameInstance.h"
@@ -21,6 +22,8 @@
 #include "GameFramework/PhysicsVolume.h"
 #include "MarineCraft/Inventory/Tool/Weapon/WeaponBase.h"
 #include "StatusComponent.h"
+#include "Components/AudioComponent.h"
+#include "MarineCraft/Building/Foundation.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -69,12 +72,18 @@ void ACharacterBase::BeginPlay()
 	TActorIterator<AActor> It( GetWorld() , ARaft::StaticClass() );
 	Raft = Cast<ARaft>( *It );
 	check( Raft );
+
+	UGameplayStatics::SpawnSoundAttached( OceanSound , GetRootComponent() );
 }
 
 // Called every frame
 void ACharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (GhostMeshComponent->GetVisibleFlag() == true) MyPrintLog(TEXT("Visible"));
+	else MyPrintLog( TEXT( "Hidden" ) );
+	
 
 	FHitResult OutHit;
 
@@ -155,11 +164,9 @@ void ACharacterBase::Tick(float DeltaTime)
 				bool bFoundRaft = false;
 				for (FHitResult& CurrentOutHit : OutHitArray )
 				{
-					// UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Ground Hit Actor : %s" ), *CurrentOutHit.GetActor()->GetName() );
 					if (Cast<ABuildingPartsBase>(CurrentOutHit.GetActor()))
 					{
 						bFoundRaft = true;
-						//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Check On Raft True  : %s" ) , *CurrentOutHit.GetActor()->GetName() );
 						break;
 					}
 				}
@@ -168,14 +175,9 @@ void ACharacterBase::Tick(float DeltaTime)
 				{
 					bIsOnRaft = true;
 				}
-				else
-				{
-					//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Check On Raft False" ) );
-				}
 			}
 			else
 			{
-				//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Check On Raft False" ));
 				bIsOnRaft = false;
 			}
 		}
@@ -190,6 +192,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	check(Input);
 	Input->BindAction(InputAction_Move, ETriggerEvent::Triggered, this, &ACharacterBase::Move);
+	Input->BindAction(InputAction_Move, ETriggerEvent::Completed, this, &ACharacterBase::EndMove);
 	Input->BindAction(InputAction_Look, ETriggerEvent::Triggered, this, &ACharacterBase::Look);
 	Input->BindAction(InputAction_Action, ETriggerEvent::Started, this, &ACharacterBase::StartAction );
 	Input->BindAction(InputAction_Action, ETriggerEvent::Completed, this, &ACharacterBase::CompleteAction );
@@ -206,9 +209,14 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	// LOG( TEXT( "DamageCauser : %s" ) , *DamageCauser->GetName() );
 
-	GetController<AInGamePlayerController>()->Impact();
+	if ( StatusComponent->IsDead() == false)
+	{
+		UGameplayStatics::PlaySoundAtLocation( GetWorld() , ScreamSound , GetActorLocation() , GetActorRotation() );
 
-	StatusComponent->AddDamage( DamageAmount );
+		StatusComponent->AddDamage( DamageAmount );
+
+		GetController<AInGamePlayerController>()->Impact();
+	}
 
 	return Super::TakeDamage(DamageAmount , DamageEvent , EventInstigator , DamageCauser);
 }
@@ -240,11 +248,30 @@ void ACharacterBase::Move(const FInputActionValue& Value)
 	MoveDirection.Normalize();
 	AddMovementInput(MoveDirection, MoveSpeed);*/
 
+	if ( GetCharacterMovement()->MovementMode == MOVE_Swimming )
+	{
+		if ( SwimmingSoundComponent )
+		{
+			if ( SwimmingSoundComponent->IsPlaying() == false )
+			{
+				SwimmingSoundComponent->Play();
+			}
+		}
+		else
+		{
+			SwimmingSoundComponent = UGameplayStatics::SpawnSoundAttached( SwimmingSound , GetRootComponent() );
+		}
+	}
 	
 	//AddMovementInput( UKismetMathLibrary::GetForwardVector( GetControlRotation() ) , VectorValue.Y * MoveSpeed );
 	AddMovementInput( GetActorForwardVector() , VectorValue.Y * MoveSpeed );
 	//AddMovementInput( UKismetMathLibrary::GetRightVector( GetControlRotation() ) , VectorValue.X * MoveSpeed );
 	AddMovementInput( GetActorRightVector() , VectorValue.X * MoveSpeed );
+}
+
+void ACharacterBase::EndMove(const FInputActionValue& Value)
+{
+	if ( SwimmingSoundComponent && SwimmingSoundComponent->IsPlaying() ) SwimmingSoundComponent->Stop();
 }
 
 void ACharacterBase::Look(const FInputActionValue& Value)
@@ -398,6 +425,14 @@ void ACharacterBase::CheckAttackHit()
 	}
 }
 
+void ACharacterBase::StopUse()
+{
+	if ( AToolBase* Tool = Cast<AToolBase>( InventoryComponent->GetCurrentItem() ) )
+	{
+		Tool->StopUse();
+	}
+}
+
 void ACharacterBase::UpdateInventoryWidget()
 {
 	GetController<AInGamePlayerController>()->UpdateInventoryWidget(InventoryComponent);
@@ -427,6 +462,7 @@ void ACharacterBase::SetGhostMeshMaterial()
 {
 	FBuildingPartsData* BuildingPartsData = Cast<ABuildingHammer>( InventoryComponent->GetCurrentItem() )->GetBuildingPartsData();
 	if ( BuildingPartsData == nullptr ) return;
+
 	bool bIsBuildable = (GetGhostMeshOverlappedActorSet().Num() == 0) && InventoryComponent->CanRemovableItems( BuildingPartsData->BuildingMaterialMap );
 
 	int MaterialNum = GhostMeshComponent->GetMaterials().Num();
@@ -451,6 +487,8 @@ void ACharacterBase::SetQuickSlotItemNull(int32 QuickSlotIndex)
 void ACharacterBase::OnGhostMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if ( Cast<AFoundation>( OtherActor ) ) return;
+
 	GhostMeshOverlappedActorSet.Add( OtherActor );
 
 	SetGhostMeshMaterial();
@@ -470,6 +508,9 @@ void ACharacterBase::OnGhostMeshEndOverlap(UPrimitiveComponent* OverlappedCompon
 void ACharacterBase::Die()
 {
 	GetController<AInGamePlayerController>()->Die();
+
+	GetMesh()->SetCollisionEnabled( ECollisionEnabled::QueryAndPhysics );
+	GetMesh()->SetSimulatePhysics( true );
 }
 
 bool ACharacterBase::IsOverSeaLevel() const
@@ -495,6 +536,7 @@ bool ACharacterBase::IsDead()
 void ACharacterBase::StartSwim()
 {
 	UE_LOG( LogTemp , Warning , TEXT( "Start Swim" ) );
+	UGameplayStatics::PlaySoundAtLocation( GetWorld() , StartSwimSound , GetActorLocation() , FRotator::ZeroRotator );
 	GetCharacterMovement()->SetMovementMode( MOVE_Swimming );
 	GetCharacterMovement()->GravityScale = 0.0f;
 	GetCharacterMovement()->GetPhysicsVolume()->bWaterVolume = true;
@@ -502,6 +544,7 @@ void ACharacterBase::StartSwim()
 void ACharacterBase::EndSwim()
 {
 	UE_LOG( LogTemp , Warning , TEXT( "End Swim" ) );
+	UGameplayStatics::PlaySoundAtLocation( GetWorld() , EndSwimSound , GetActorLocation() , FRotator::ZeroRotator );
 	GetCharacterMovement()->SetMovementMode( MOVE_Walking );
 	GetCharacterMovement()->GravityScale = 1.0f;
 	GetCharacterMovement()->GetPhysicsVolume()->bWaterVolume = false;
