@@ -24,8 +24,11 @@ public:
 	virtual void SetInWorld() override;
 
 	virtual void Use() override;
+	virtual void StopUse() override;
 
 	FBuildingPartsData* GetBuildingPartsData() const;
+
+	void TraceBuildParts();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Build" , Meta = (AllowPrivateAccess))
@@ -37,4 +40,9 @@ private:
 
 	UPROPERTY( EditDefaultsOnly , Category = "Animation" , Meta = ( AllowPrivateAccess ) )
 	UAnimMontage* BuildMontage;
+
+	bool bIsReadyToBuild;
+
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* BuildSound;
 };

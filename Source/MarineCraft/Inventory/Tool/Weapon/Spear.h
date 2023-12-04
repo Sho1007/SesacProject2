@@ -28,4 +28,9 @@ private:
 	float AttackRadius;
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	UAnimMontage* MiddleAttackMontage;
+
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = (AllowPrivateAccess) )
+	USoundBase* AttackSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = (AllowPrivateAccess) )
+	USoundBase* StabSound;
 };

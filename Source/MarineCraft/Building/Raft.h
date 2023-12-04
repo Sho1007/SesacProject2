@@ -25,21 +25,34 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void AddFoundtaion(AFoundation* NewFoundation);
+	void RemoveFoundation(AFoundation* NewFoundation);
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetRootLocation() const;
+
 private:
+	// Spawn Raft Setting
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
 	TSubclassOf<AFoundation> FoundationClass;
 	UPROPERTY( EditAnywhere , Meta = ( AllowPrivateAccess ) )
 	float FoundationSize;
 
+	// Raft Graph
 	AFoundation* RootFoundation;
-	TArray<AFoundation*> OutLineFoundationArray;
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
+	TMap<FString, AFoundation*> FoundationMap;
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
+	FVector RootLocation = FVector::ZeroVector;
 
-
+	// Move
 	UPROPERTY(EditAnywhere , Category = "Floating" , Meta = (AllowPrivateAccess))
 	FVector MoveDirection;
 	UPROPERTY( EditAnywhere , Category = "Floating" , Meta = ( AllowPrivateAccess ) )
 	float MoveSpeed;
-	
+
+
+	// Floating
 	bool bFloatingUp;
 	UPROPERTY( EditAnywhere , Category = "Floating" , Meta = ( AllowPrivateAccess ) )
 	float FloatingHeight;

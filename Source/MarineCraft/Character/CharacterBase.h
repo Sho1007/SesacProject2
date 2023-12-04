@@ -38,6 +38,7 @@ public:
 	// InputAction
 	void DoJump( const FInputActionValue& Value );
 	void Move(const FInputActionValue& Value);
+	void EndMove(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StartAction(const FInputActionValue& Value);
 	void CompleteAction( const FInputActionValue& Value );
@@ -52,6 +53,13 @@ public:
 	void EndAttack();
 	UFUNCTION(BlueprintCallable)
 	void CheckAttackHit();
+
+	// Tool
+	UFUNCTION( BlueprintCallable )
+	void StopUse();
+
+	UFUNCTION( BlueprintImplementableEvent )
+	void MyPrintLog(const FString& message );
 
 	// Building
 	void UpdateInventoryWidget();
@@ -153,4 +161,19 @@ private:
 	UInputAction* InputAction_ToggleInventory;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Jump;
+
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* OceanSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* ScreamSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* StartSwimSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* SwimmingSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* EndSwimSound;
+	UPROPERTY( VisibleInstanceOnly, Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	UAudioComponent* OceanSoundComponent;
+	UPROPERTY( VisibleInstanceOnly, Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	UAudioComponent* SwimmingSoundComponent;
 };

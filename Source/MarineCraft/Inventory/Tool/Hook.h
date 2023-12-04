@@ -67,4 +67,9 @@ private:
 	UCableComponent* CableComponent;
 	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
 	UStaticMeshComponent* RopeMeshComponent;
+
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
+	USoundBase* FallInWaterSound;
+	UPROPERTY( EditDefaultsOnly , Category = "SFX" )
+	USoundBase* ThrowSound;
 };

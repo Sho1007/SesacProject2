@@ -7,6 +7,7 @@
 #include <GameFramework/Character.h>
 #include <WaterBodyActor.h>
 #include <CableComponent.h>
+#include <Kismet/GameplayStatics.h>
 
 #include "../FloatsamBase.h"
 #include "../PlayerInventoryComponent.h"
@@ -118,7 +119,6 @@ void AHook::Catch()
 
 		if (CurrentDurability == 0.0f)
 		{
-			// Todo : Destroy 순서가 여기가 맞을까?
 			PlayerInventoryComponent->SetQuickSlotItemNull( InventoryIndex );
 			Destroy();
 		}
@@ -163,6 +163,7 @@ void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 {
 	if (AWaterBody* Water = Cast<AWaterBody>(OtherActor))
 	{
+		UGameplayStatics::PlaySoundAtLocation( GetWorld() , FallInWaterSound , GetActorLocation() , FRotator::ZeroRotator );
 		//LOG( TEXT( "It's a Water!" ) );
 		bIsLanded = true;
 		BoxComponent->SetSimulatePhysics( false );
@@ -196,6 +197,7 @@ void AHook::Launch()
 	LaunchDirection.Normalize();
 	BoxComponent->AddForce( LaunchDirection * ( ForceAmount + ( ForceAmount * ( CurrentChargeTime / MaxChargeTime ) ) ) );
 
+	UGameplayStatics::PlaySoundAtLocation( GetWorld() , ThrowSound , GetActorLocation() , GetActorRotation() );
 	
 }
 

@@ -3,6 +3,10 @@
 
 #include "../Building/Foundation.h"
 
+#include <Kismet/GameplayStatics.h>
+
+#include "Raft.h"
+
 void AFoundation::FindAdjacencyFoundation()
 {
 	UWorld* World = GetWorld();
@@ -24,4 +28,28 @@ void AFoundation::FindAdjacencyFoundation()
 	{
 		UE_LOG( LogTemp , Warning , TEXT( "AFoundation::FindAdjacencyFoundation) Forward : %s" ) , *OutHit.GetActor()->GetActorLabel() );
 	}
+}
+
+ARaft* AFoundation::GetRaft() const
+{
+	return Raft;
+}
+
+void AFoundation::SetRaft(ARaft* NewRaft)
+{
+	Raft = NewRaft;
+}
+
+float AFoundation::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	CurrentDurability -= DamageAmount;
+	if ( CurrentDurability <= 0.0f )
+	{
+		Raft->RemoveFoundation(this);
+		UGameplayStatics::PlaySoundAtLocation( GetWorld() , AttackSound , GetActorLocation() , GetActorRotation() );
+		Destroy();
+	}
+
+	return Super::TakeDamage(DamageAmount , DamageEvent , EventInstigator , DamageCauser);
 }

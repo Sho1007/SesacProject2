@@ -234,11 +234,14 @@ void UInventoryWidget::OnCraftingButtonClicked()
 		AItemBase* ItemBase = GetWorld()->SpawnActor<AItemBase>( CurrentCraftingItemData->ItemClass , GetOwningPlayerPawn()->GetActorLocation(), FRotator::ZeroRotator );
 		check( ItemBase );
 
-		ItemBase->Interact( Cast<ACharacter>(GetOwningPlayerPawn()) );
+		PlayerInventoryComponent->AddItem( ItemBase );
+
+		//ItemBase->Interact( Cast<ACharacter>(GetOwningPlayerPawn()) );
 
 		//UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::OnCraftingButtonClicked) Valid" ) );
 
 		//  Todo : Update Inventory Not Only QuickSlot
+		UpdateInventory( PlayerInventoryComponent );
 		UpdateQuickSlot( PlayerInventoryComponent->GetQuickSlot() );
 
 		UpdateCraftingButton();
