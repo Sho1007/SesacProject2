@@ -31,6 +31,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetRootLocation() const;
 
+	UFUNCTION(BlueprintCallable)
+	FVector GetMaxDistance() const;
+
+private:
+	void SetRootFoundation();
+	void RemoveSeparatedFoundation();
 private:
 	// Spawn Raft Setting
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
@@ -39,9 +45,10 @@ private:
 	float FoundationSize;
 
 	// Raft Graph
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
 	AFoundation* RootFoundation;
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
-	TMap<FString, AFoundation*> FoundationMap;
+	TArray<AFoundation*> FoundationArray;
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
 	FVector RootLocation = FVector::ZeroVector;
 

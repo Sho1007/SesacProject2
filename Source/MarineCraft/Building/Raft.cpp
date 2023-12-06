@@ -3,6 +3,8 @@
 
 #include "../Building/Raft.h"
 
+#include <Kismet/KismetSystemLibrary.h>
+
 #include "Foundation.h"
 
 // Sets default values
@@ -21,9 +23,8 @@ void ARaft::BeginPlay()
 
 	UWorld* World = GetWorld();
 	AFoundation* Foundation = World->SpawnActor<AFoundation>( FoundationClass , GetActorLocation() , GetActorRotation() );
-	RootFoundation = Foundation;
 	//UE_LOG( LogTemp , Warning , TEXT( "ARaft::BeginPlay) Root Foundation Name : %s, Root Foundation Label : %s" ), *RootFoundation->GetName(), *RootFoundation->GetActorLabel() );
-	AddFoundtaion( RootFoundation );
+	AddFoundtaion( Foundation );
 
 	Foundation = World->SpawnActor<AFoundation>( FoundationClass , GetActorLocation() + FVector( FoundationSize , 0, 0) , GetActorRotation());
 	AddFoundtaion( Foundation );
@@ -33,8 +34,6 @@ void ARaft::BeginPlay()
 
 	Foundation = World->SpawnActor<AFoundation>( FoundationClass , GetActorLocation() + FVector( 0 , FoundationSize , 0 ) , GetActorRotation() );
 	AddFoundtaion( Foundation );
-
-	//FoundationMap.Remove( Foundation->GetActorLabel() );
 }
 
 // Called every frame
@@ -42,25 +41,13 @@ void ARaft::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Calculate RootLocation
-	RootLocation = FVector::ZeroVector;
-
-	int32 FoundationCount = 0;
-
-	for (auto Iter : FoundationMap)
-	{
-		if (Iter.Value && Iter.Value->GetRootComponent())
-		{
-			FoundationCount++;
-			RootLocation += Iter.Value->GetRootComponent()->GetRelativeLocation();
-		}
-	}
-
-	RootLocation /= FoundationCount;
-
 	//UE_LOG( LogTemp , Warning , TEXT( "ARaft::Tick) RootLocation : %s" ), *RootLocation.ToString() );
 
-	DrawDebugSphere( GetWorld() , GetActorLocation() +  RootLocation , 30.0f , 10 , FColor::Red);
+	if ( RootFoundation )
+	{
+		DrawDebugSphere( GetWorld() , RootFoundation->GetActorLocation() , 30.0f , 10 , FColor::Red );
+		DrawDebugSphere( GetWorld() , GetActorLocation() +RootLocation , 30.0f , 10 , FColor::Yellow );
+	}
 
 	// Floating
 	if (bFloatingUp)
@@ -91,34 +78,139 @@ void ARaft::Tick(float DeltaTime)
 
 void ARaft::AddFoundtaion(AFoundation* NewFoundation)
 {
-	if ( NewFoundation == false || NewFoundation->GetRootComponent() == false ) return;
+	if ( NewFoundation == nullptr || NewFoundation->GetRootComponent() == nullptr ) return;
 
-	RootLocation *= FoundationMap.Num();
-
+	RootLocation *= FoundationArray.Num();
 	NewFoundation->SetRaft( this );
 	NewFoundation->FindAdjacencyFoundation();
 	NewFoundation->AttachToActor( this , FAttachmentTransformRules( EAttachmentRule::KeepWorld , EAttachmentRule::KeepRelative , EAttachmentRule::KeepWorld , false ) );
-	FoundationMap.Add( NewFoundation->GetActorLabel() , NewFoundation );
+	FoundationArray.Add( NewFoundation );
 
 	RootLocation += NewFoundation->GetRootComponent()->GetRelativeLocation();
 
-	RootLocation /= FoundationMap.Num();
+	RootLocation /= FoundationArray.Num();
+
+	SetRootFoundation();
+	RemoveSeparatedFoundation();
 }
 
 void ARaft::RemoveFoundation(AFoundation* NewFoundation)
 {
-	if ( NewFoundation == false || NewFoundation->GetRootComponent() == false ) return;
+	if ( NewFoundation == nullptr || NewFoundation->GetRootComponent() == nullptr ) return;
 
-	RootLocation *= FoundationMap.Num();
+	RootLocation *= FoundationArray.Num();
 
 	RootLocation -= NewFoundation->GetRootComponent()->GetRelativeLocation();
 
-	FoundationMap.Remove( NewFoundation->GetActorLabel() );
+	FoundationArray.Remove( NewFoundation );
 
-	RootLocation /= FoundationMap.Num();
+	RootLocation /= FoundationArray.Num();
+
+	SetRootFoundation();
+	RemoveSeparatedFoundation();
 }
 
 FVector ARaft::GetRootLocation() const
 {
 	return RootLocation;
+}
+
+FVector ARaft::GetMaxDistance() const
+{
+	return FVector::Zero();
+}
+
+void ARaft::SetRootFoundation()
+{
+	// Raft의 기반이 완전히 사라진 경우
+	if ( FoundationArray.Num() == 0 )
+	{
+		RootFoundation = nullptr;
+		Destroy();
+		return;
+	}
+
+	// 처음 기반이 생긴 경우
+	if (RootFoundation == nullptr)
+	{
+		RootFoundation = FoundationArray[ 0 ];
+		return;
+	}
+
+	float MinDistance = ( RootFoundation->GetActorLocation() - ( GetActorLocation() + RootLocation ) ).Length();
+
+	for (AFoundation* Foundation : FoundationArray )
+	{
+		float CurrentDistance = ( Foundation->GetActorLocation() - ( GetActorLocation() + RootLocation ) ).Length();
+
+		//UE_LOG( LogTemp , Warning , TEXT( "ARaft::SetRootFoundation) MinDistance : %f, %s's Distance : %f" ) , MinDistance, *Foundation->GetActorLabel(), CurrentDistance );
+		if (CurrentDistance < MinDistance)
+		{
+			RootFoundation = Foundation;
+			MinDistance = CurrentDistance;
+		}
+	}
+	//UE_LOG( LogTemp , Warning , TEXT( "\nARaft::SetRootFoundation) MinDistance : RootFoundation : %s" ), *RootFoundation->GetActorLabel());
+}
+
+void ARaft::RemoveSeparatedFoundation()
+{
+	TArray<bool> Visited;
+	Visited.Init( false , FoundationArray.Num() );
+
+	int32 RootIndex = FoundationArray.Find( RootFoundation );
+
+	TQueue<int32> Queue;
+	Visited[ RootIndex ] = true;
+	Queue.Enqueue(RootIndex);
+
+	int FoundationCount = 1;
+	while (Queue.IsEmpty() == false)
+	{
+		int32 CurrentIndex = *Queue.Peek(); Queue.Pop();
+
+		TArray<AFoundation*> OutArray;
+
+		FoundationArray[ CurrentIndex ]->GetAdjacencyFoundation( OutArray );
+
+		for (AFoundation* Foundation : OutArray)
+		{
+			if (IsValid(Foundation))
+			{
+				int32 FoundationIndex = FoundationArray.Find( Foundation );
+				if ( FoundationIndex == -1 || Visited[ FoundationIndex ] ) continue;
+
+				FoundationCount++;
+				Visited[ FoundationIndex ] = true;
+				Queue.Enqueue( FoundationIndex );
+			}
+		}
+
+		//UE_LOG( LogTemp , Warning , TEXT( "ARaft::SetRootFoundation) Peek Result : %d" ), CurrentIndex);
+	}
+
+	if ( FoundationCount == FoundationArray.Num() ) return;
+
+	UE_LOG( LogTemp , Warning , TEXT( "ARaft::RemoveSeparatedFoundation) Print Seperated Foundation Name" ) );
+	for (int32 i = Visited.Num() - 1; i >= 0 ; --i)
+	{
+		if ( Visited[ i ] == false )
+		{
+			AFoundation* DeleteFoundation = FoundationArray[ i ];
+			FoundationArray.Remove( DeleteFoundation );
+			DeleteFoundation->DestroyOnSeperated();
+			//UE_LOG( LogTemp , Warning , TEXT( "ARaft::RemoveSeparatedFoundation) %s" ), *FoundationArray[ i ]->GetActorLabel() );
+		}
+	}
+
+	// Calculate RootLocation & RootFoundation
+	RootLocation = FVector::Zero();
+
+	for ( AFoundation* Foundation : FoundationArray )
+	{
+		RootLocation += Foundation->GetRootComponent()->GetRelativeLocation();
+	}
+	RootLocation /= FoundationArray.Num();
+
+	SetRootFoundation();
 }

@@ -183,6 +183,9 @@ void ACharacterBase::Tick(float DeltaTime)
 			}
 		}
 	}
+
+	if (bIsOnRaft) MyPrintLog( TEXT( "IsOnRaft" ) );
+	else MyPrintLog( TEXT( "IsNotOnRaft" ) );
 }
 
 // Called to bind functionality to input
