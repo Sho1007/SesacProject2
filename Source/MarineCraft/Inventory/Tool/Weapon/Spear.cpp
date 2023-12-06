@@ -39,13 +39,12 @@ void ASpear::CheckAttackHit()
 	TArray<FHitResult> OutHitArray;
 
 	if (UKismetSystemLibrary::SphereTraceMulti(GetWorld(), StaticMeshComponent->GetSocketLocation( TEXT( "AttackPoint" ) ), StaticMeshComponent->GetSocketLocation( TEXT( "AttackPoint"		) ), AttackRadius,
-		UEngineTypes::ConvertToTraceType( ECC_Visibility ), false, {}, EDrawDebugTrace::ForDuration, OutHitArray, true))
+		UEngineTypes::ConvertToTraceType( ECC_Visibility ), false, {}, EDrawDebugTrace::None, OutHitArray, true))
 	{
 		for (FHitResult& OutHit : OutHitArray)
 		{
 			if ( ACharacter* Character = Cast<ACharacter>(OutHit.GetActor()))
 			{
-				
 				UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit) Hit Actor : %s" ) , *OutHit.GetActor()->GetName() );
 				UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit) Hit Component : %s" ) , *OutHit.Component->GetName() );
 				Character->TakeDamage( WeaponDamage , FDamageEvent(UDamageType::StaticClass()) , PlayerCharacter->GetController() , PlayerCharacter);

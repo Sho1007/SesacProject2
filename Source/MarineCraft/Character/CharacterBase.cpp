@@ -73,7 +73,8 @@ void ACharacterBase::BeginPlay()
 	Raft = Cast<ARaft>( *It );
 	check( Raft );
 
-	UGameplayStatics::SpawnSoundAttached( OceanSound , GetRootComponent() );
+	OceanSoundComponent = UGameplayStatics::SpawnSoundAttached( OceanSound , GetRootComponent() );
+	BGMSoundComponent = UGameplayStatics::SpawnSound2D( GetWorld() , BGMSound );
 }
 
 // Called every frame
@@ -209,11 +210,18 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	// LOG( TEXT( "DamageCauser : %s" ) , *DamageCauser->GetName() );
 
-	if ( StatusComponent->IsDead() == false)
+	if ( StatusComponent->IsDead() == false )
 	{
-		UGameplayStatics::PlaySoundAtLocation( GetWorld() , ScreamSound , GetActorLocation() , GetActorRotation() );
-
 		StatusComponent->AddDamage( DamageAmount );
+
+		if ( StatusComponent->IsDead() == false  )
+		{
+			UGameplayStatics::PlaySoundAtLocation( GetWorld() , ScreamSound , GetActorLocation() , GetActorRotation() );
+		}
+		else
+		{
+			UGameplayStatics::PlaySoundAtLocation( GetWorld() , DeathSound , GetActorLocation() , GetActorRotation() );
+		}
 
 		GetController<AInGamePlayerController>()->Impact();
 	}
@@ -332,6 +340,9 @@ void ACharacterBase::Interact(const FInputActionValue& Value)
 	if (IInteractInterface* Interface = Cast<IInteractInterface>( InteractActor ))
 	{
 		//LOG( TEXT( "Interact Actor : %s" ) , *InteractActor->GetName() );
+
+		UGameplayStatics::PlaySoundAtLocation( GetWorld() , InteractSound , InteractActor->GetActorLocation() );
+
 		Interface->Interact( this );
 	}
 }
