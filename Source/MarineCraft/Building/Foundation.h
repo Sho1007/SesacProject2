@@ -46,7 +46,9 @@ public:
 	void GetAdjacencyFoundation( OUT TArray<AFoundation*>& OutArray) const;
 
 	void DestroyOnSeperated();
-	
+
+	bool CheckIsCorner() const;
+
 protected:
 	UPROPERTY(EditInstanceOnly)
 	ARaft* Raft;
@@ -59,6 +61,9 @@ protected:
 	AFoundation* ForwardFoundation;
 	UPROPERTY(VisibleInstanceOnly)
 	AFoundation* BackwardFoundation;
+
+	UPROPERTY( VisibleInstanceOnly )
+	bool bIsCorner;
 
 	UPROPERTY( EditDefaultsOnly)
 	float LineTraceDistance;

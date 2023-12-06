@@ -76,7 +76,7 @@ bool UPlayerInventoryComponent::AddItem(AItemBase* NewItem)
 		bIsHandEmpty = true;
 	}
 
-	UE_LOG( LogTemp , Warning , TEXT( "UPlayerInventoryComponent::AddItem) IsHandEmpty : %d" ), bIsHandEmpty );
+	// UE_LOG( LogTemp , Warning , TEXT( "UPlayerInventoryComponent::AddItem) IsHandEmpty : %d" ), bIsHandEmpty );
 
 	if ( QuickSlot->AddItem( NewItem ) )
 	{
@@ -85,7 +85,7 @@ bool UPlayerInventoryComponent::AddItem(AItemBase* NewItem)
 
 		if (bIsHandEmpty == true && QuickSlot->GetItem(CurrentItemIndex) != nullptr )
 		{
-			UE_LOG( LogTemp , Warning , TEXT( "UPlayerInventoryComponent::AddItem) IsHandEmpty : %d" ) , bIsHandEmpty );
+			// UE_LOG( LogTemp , Warning , TEXT( "UPlayerInventoryComponent::AddItem) IsHandEmpty : %d" ) , bIsHandEmpty );
 			SetCurrentItem( CurrentItemIndex );
 		}
 

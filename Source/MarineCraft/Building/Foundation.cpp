@@ -81,6 +81,13 @@ void AFoundation::FindAdjacencyFoundation()
 			}
 		}
 	}
+
+	if ( CheckIsCorner() )
+	{
+		bIsCorner = true;
+		Raft->AddCorner( this );
+	}
+	else Raft->RemoveCorner( this );
 }
 
 int32 AFoundation::GetAdjacencyFoundationCount() const
@@ -121,9 +128,13 @@ void AFoundation::Destroyed()
 {
 	// 사방의 기반에 내가 부서진다는 것을 알리기
 
-	UE_LOG( LogTemp , Warning , TEXT( "AFoundation::BeginDestroy" ) );
+	//UE_LOG( LogTemp , Warning , TEXT( "AFoundation::BeginDestroy" ) );
 
-	if ( Raft ) Raft->RemoveFoundation( this );
+	if ( Raft )
+	{
+		if ( bIsCorner ) Raft->RemoveCorner( this );
+		Raft->RemoveFoundation( this );
+	}
 	UGameplayStatics::PlaySoundAtLocation( GetWorld() , AttackSound , GetActorLocation() , GetActorRotation() );
 
 	if ( IsValid( ForwardFoundation ) ) ForwardFoundation->SetAdjacencyFoundation( EDirection::Backward , nullptr );
@@ -136,6 +147,8 @@ void AFoundation::Destroyed()
 
 void AFoundation::SetAdjacencyFoundation(EDirection Direction, AFoundation* Foundation)
 {
+	//UE_LOG( LogTemp , Warning , TEXT( "AFoundation::SetAdjacencyFoundation) this : %s, Direction : %s, Foundation : %s" ), *GetActorLabel(),  *UEnum::GetValueAsString(Direction), *Foundation->GetActorLabel() );
+
 	switch (Direction)
 	{
 	case EDirection::Forward:
@@ -144,7 +157,7 @@ void AFoundation::SetAdjacencyFoundation(EDirection Direction, AFoundation* Foun
 	case EDirection::Backward:
 		BackwardFoundation = Foundation;
 		break;
-	case EDirection::Left:
+	case EDirection::Left:	
 		LeftFoundation = Foundation;
 		break;
 	case EDirection::Right:
@@ -152,7 +165,16 @@ void AFoundation::SetAdjacencyFoundation(EDirection Direction, AFoundation* Foun
 		break;
 	}
 
-	int32  AdjacencyFoundationCount = GetAdjacencyFoundationCount();
+	// 최적화 : Corner값이 바뀔때만 Update
+	bool NewCorner = CheckIsCorner();
+
+	if (NewCorner != bIsCorner)
+	{
+		bIsCorner = NewCorner;
+
+		if ( bIsCorner ) Raft->AddCorner(this);
+		else Raft->RemoveCorner(this);
+	}
 }
 
 void AFoundation::GetAdjacencyFoundation(TArray<AFoundation*>& OutArray) const
@@ -165,6 +187,24 @@ void AFoundation::GetAdjacencyFoundation(TArray<AFoundation*>& OutArray) const
 
 void AFoundation::DestroyOnSeperated()
 {
+	if ( bIsCorner ) Raft->RemoveCorner( this );
 	Raft = nullptr;
 	Destroy();
+}
+
+bool AFoundation::CheckIsCorner() const
+{
+	int32  AdjacencyFoundationCount = GetAdjacencyFoundationCount();
+
+	if ( AdjacencyFoundationCount > 2 )
+	{
+		return false;
+	}
+	if ( AdjacencyFoundationCount == 2 )
+	{
+		if ( ForwardFoundation != nullptr && BackwardFoundation != nullptr ) return false;
+		if ( LeftFoundation != nullptr && RightFoundation != nullptr ) return false;
+	}
+
+	return true;
 }

@@ -28,12 +28,23 @@ public:
 	void AddFoundtaion(AFoundation* NewFoundation);
 	void RemoveFoundation(AFoundation* NewFoundation);
 
+	void AddCorner( AFoundation* NewCorner );
+	void RemoveCorner( AFoundation* OldCorner );
+
+	UFUNCTION(BlueprintCallable)
+	float GetRaftSize() const;
+
+	UFUNCTION(CallInEditor)
+	void PrintRaftSize();
+
 	UFUNCTION(BlueprintCallable)
 	FVector GetRootLocation() const;
 
 	UFUNCTION(BlueprintCallable)
 	FVector GetMaxDistance() const;
 
+	UFUNCTION( BlueprintCallable )
+	TArray<AFoundation*> GetCornerArray() const;
 private:
 	void SetRootFoundation();
 	void RemoveSeparatedFoundation();
@@ -51,6 +62,10 @@ private:
 	TArray<AFoundation*> FoundationArray;
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
 	FVector RootLocation = FVector::ZeroVector;
+
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
+	TSet<AFoundation*> CornerSet;
+
 
 	// Move
 	UPROPERTY(EditAnywhere , Category = "Floating" , Meta = (AllowPrivateAccess))

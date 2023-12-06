@@ -106,8 +106,50 @@ void ARaft::RemoveFoundation(AFoundation* NewFoundation)
 
 	RootLocation /= FoundationArray.Num();
 
-	SetRootFoundation();
-	RemoveSeparatedFoundation();
+	if ( FoundationArray.Num() == 0 )
+	{
+		Destroy();
+	}
+	else
+	{
+		SetRootFoundation();
+		RemoveSeparatedFoundation();
+	}
+}
+
+void ARaft::AddCorner(AFoundation* NewCorner)
+{
+	CornerSet.Add( NewCorner );
+}
+
+void ARaft::RemoveCorner(AFoundation* OldCorner)
+{
+	//UE_LOG( LogTemp , Warning , TEXT( "ARaft::RemoveCorner) OldCorner : %s" ) , *OldCorner->GetActorLabel() );
+	CornerSet.Remove( OldCorner );
+}
+
+float ARaft::GetRaftSize() const
+{
+	if ( CornerSet.Num() == 0 ) return 0.0f;
+
+	float RaftSize = 0.0f;
+
+	for ( AFoundation* Foundation : CornerSet )
+	{
+		float CurrentSize = ( Foundation->GetActorLocation() - ( GetActorLocation() + RootLocation ) ).Length();
+
+		if ( CurrentSize > RaftSize )
+		{
+			RaftSize = CurrentSize;
+		}
+	}
+
+	return RaftSize;
+}
+
+void ARaft::PrintRaftSize()
+{
+	UE_LOG( LogTemp , Warning , TEXT( "ARaft::PrintRaftSize) Raft Size : %f" ), GetRaftSize() );
 }
 
 FVector ARaft::GetRootLocation() const
@@ -120,23 +162,14 @@ FVector ARaft::GetMaxDistance() const
 	return FVector::Zero();
 }
 
+TArray<AFoundation*> ARaft::GetCornerArray() const
+{
+	return CornerSet.Array();
+}
+
 void ARaft::SetRootFoundation()
 {
-	// Raft의 기반이 완전히 사라진 경우
-	if ( FoundationArray.Num() == 0 )
-	{
-		RootFoundation = nullptr;
-		Destroy();
-		return;
-	}
-
-	// 처음 기반이 생긴 경우
-	if (RootFoundation == nullptr)
-	{
-		RootFoundation = FoundationArray[ 0 ];
-		return;
-	}
-
+	RootFoundation = FoundationArray[ 0 ];
 	float MinDistance = ( RootFoundation->GetActorLocation() - ( GetActorLocation() + RootLocation ) ).Length();
 
 	for (AFoundation* Foundation : FoundationArray )
@@ -191,7 +224,8 @@ void ARaft::RemoveSeparatedFoundation()
 
 	if ( FoundationCount == FoundationArray.Num() ) return;
 
-	UE_LOG( LogTemp , Warning , TEXT( "ARaft::RemoveSeparatedFoundation) Print Seperated Foundation Name" ) );
+	//UE_LOG( LogTemp , Warning , TEXT( "ARaft::RemoveSeparatedFoundation) Print Seperated Foundation Name" ) );
+
 	for (int32 i = Visited.Num() - 1; i >= 0 ; --i)
 	{
 		if ( Visited[ i ] == false )
