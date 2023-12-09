@@ -60,7 +60,18 @@ void UPlayerInventoryComponent::BeginPlay()
 
 		AddItem( Spear );
 	}
-	
+	// Test : Purifier
+	{
+		FItemData* ItemData = GameInstance->GetItemData( "Purifier" );
+
+		check( ItemData );
+
+		AItemBase* Purifier = GetWorld()->SpawnActor<AItemBase>( ItemData->ItemClass );
+
+		check( Purifier );
+
+		AddItem( Purifier );
+	}
 
 	SetCurrentItem( 0 );
 }

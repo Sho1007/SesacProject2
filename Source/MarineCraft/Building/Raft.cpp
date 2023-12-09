@@ -154,7 +154,7 @@ void ARaft::PrintRaftSize()
 
 FVector ARaft::GetRootLocation() const
 {
-	return RootLocation;
+	return RootLocation + GetActorLocation();
 }
 
 FVector ARaft::GetMaxDistance() const

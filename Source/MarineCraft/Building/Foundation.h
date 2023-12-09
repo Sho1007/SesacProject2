@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Building/BuildingPartsBase.h"
+#include "../Building/FloorBase.h"
 #include "Foundation.generated.h"
 
 /**
@@ -22,7 +22,7 @@ enum class EDirection : uint8
 
 class ARaft;
 UCLASS()
-class MARINECRAFT_API AFoundation : public ABuildingPartsBase
+class MARINECRAFT_API AFoundation : public AFloorBase
 {
 	GENERATED_BODY()
 

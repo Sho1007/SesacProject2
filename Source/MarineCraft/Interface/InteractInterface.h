@@ -16,6 +16,7 @@ class UInteractInterface : public UInterface
 /**
  * 
  */
+class APlayerController;
 class MARINECRAFT_API IInteractInterface
 {
 	GENERATED_BODY()
@@ -23,5 +24,5 @@ class MARINECRAFT_API IInteractInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void Interact( ACharacter* InteractCharacter ) = 0;
-	virtual FText GetInteractActorName() = 0;
+	virtual FText GetInteractActorName(APlayerController* InteractPlayerController) = 0;
 };

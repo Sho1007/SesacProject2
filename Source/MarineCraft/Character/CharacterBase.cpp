@@ -24,6 +24,7 @@
 #include "StatusComponent.h"
 #include "Components/AudioComponent.h"
 #include "MarineCraft/Building/Foundation.h"
+#include "MarineCraft/Inventory/Placeable/PlaceableBase.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -97,19 +98,14 @@ void ACharacterBase::Tick(float DeltaTime)
 	//DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
 	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Visibility , CollisionQueryParams ) )
 	{
-		//LOG(TEXT("Hit Actor : %s"), *OutHit.GetActor()->GetName());
-
-		if ( IInteractInterface* InteractInterface = Cast<IInteractInterface>( OutHit.GetActor() ))
+		if ( IInteractInterface* InteractInterface = Cast<IInteractInterface>( OutHit.GetActor() ) )
 		{
-			//LOG( TEXT( "Hit Actor : %s Has InteractInterface" ) , *OutHit.GetActor()->GetName() );
-
 			// Todo : TurnOn InteractWidget;
 			AInGamePlayerController* PC = GetController<AInGamePlayerController>();
 			check( PC );
 			PC->UpdateInteractActor( InteractInterface );
 			InteractActor = OutHit.GetActor();
-
-			//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Interact Actor Name : %s" ) , *InteractActor->GetName() );
+			UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick ) Interact Actor : %s" ) , *InteractActor->GetActorLabel() );
 		}
 		else
 		{
@@ -121,7 +117,15 @@ void ACharacterBase::Tick(float DeltaTime)
 				PC->UpdateInteractActor( nullptr );
 				InteractActor = nullptr;
 			}
-			//LOG( TEXT( "Hit Actor : %s Has Not InteractInterface" ) , *OutHit.GetActor()->GetName() );
+
+			//// Placeable
+			//if ( AFoundation* Foundation = Cast<AFoundation>(OutHit.GetActor()) )
+			//{
+			//	if ( APlaceableBase* Placeable =  Cast<APlaceableBase>(InventoryComponent->GetCurrentItem() ) )
+			//	{
+			//		UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Find Placeable Place!" ) );
+			//	}
+			//}
 		}
 	}
 	else
@@ -309,6 +313,10 @@ void ACharacterBase::CompleteAction(const FInputActionValue& Value)
 	{
 		ToolBase->StopUse();
 	}
+	else if ( APlaceableBase* Placeable = Cast<APlaceableBase>(InventoryComponent->GetCurrentItem()) )
+	{
+		Placeable->Place();
+	}
 }
 
 void ACharacterBase::CancelAction(const FInputActionValue& Value)
@@ -474,10 +482,20 @@ ARaft* ACharacterBase::GetRaft() const
 
 void ACharacterBase::SetGhostMeshMaterial()
 {
-	FBuildingPartsData* BuildingPartsData = Cast<ABuildingHammer>( InventoryComponent->GetCurrentItem() )->GetBuildingPartsData();
-	if ( BuildingPartsData == nullptr ) return;
+	bool bIsBuildable;
 
-	bool bIsBuildable = (GetGhostMeshOverlappedActorSet().Num() == 0) && InventoryComponent->CanRemovableItems( BuildingPartsData->BuildingMaterialMap );
+	if ( ABuildingHammer* BuildingHammer = Cast<ABuildingHammer>( InventoryComponent->GetCurrentItem() ))
+	{
+		// 손에 들고 있는 것이 건설 망치라면 건축물의 재료를 체크
+		FBuildingPartsData* BuildingPartsData = BuildingHammer->GetBuildingPartsData();
+		if ( BuildingPartsData == nullptr ) return;
+		bIsBuildable = ( GetGhostMeshOverlappedActorSet().Num() == 0 ) && InventoryComponent->CanRemovableItems( BuildingPartsData->BuildingMaterialMap );
+	}
+	else
+	{
+		// 아니라면 단순히 충돌체가 없는지만 체크
+		bIsBuildable = GetGhostMeshOverlappedActorSet().Num() == 0;
+	}
 
 	int MaterialNum = GhostMeshComponent->GetMaterials().Num();
 	for ( int i = 0; i < MaterialNum; ++i )
@@ -502,6 +520,8 @@ void ACharacterBase::OnGhostMeshBeginOverlap(UPrimitiveComponent* OverlappedComp
                                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if ( Cast<AFoundation>( OtherActor ) ) return;
+
+	//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::OnGhostMeshBeginOverlap) Overlapped Actor : %s" ), *OtherActor->GetActorLabel());
 
 	GhostMeshOverlappedActorSet.Add( OtherActor );
 
