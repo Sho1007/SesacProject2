@@ -35,19 +35,24 @@ void UItemSlotWidget::Init(AItemBase* NewItem)
 
 		if ( Data->ItemType == EItemType::Tools  || Data->ItemType == EItemType::Weapons )
 		{
-			PB_DurabilityBar->SetVisibility(ESlateVisibility::Visible);
-			AToolBase* ToolBase = Cast<AToolBase>(NewItem);
-			check( ToolBase );
-
-			PB_DurabilityBar->SetVisibility( ESlateVisibility::Visible );
-			PB_DurabilityBar->SetPercent( ToolBase->GetCurrentDurability() / ToolBase->GetMaxDurability() );
-
 			Txt_ItemStack->SetVisibility( ESlateVisibility::Collapsed );
 		}
 		else
 		{
 			Txt_ItemStack->SetVisibility( ESlateVisibility::Visible );
-			Txt_ItemStack->SetText( FText::FromString( FString::FromInt( InstanceData->CurrentStack ) ) );
+			Txt_ItemStack->SetText( FText::FromString( FString::FromInt( InstanceData->CurrentStack ) ) );	
+		}
+
+		if ( Data->bUseDurability )
+		{
+			AToolBase* ToolBase = Cast<AToolBase>( NewItem );
+			check( ToolBase );
+
+			PB_DurabilityBar->SetVisibility( ESlateVisibility::Visible );
+			PB_DurabilityBar->SetPercent( ToolBase->GetCurrentDurability() / ToolBase->GetMaxDurability() );
+		}
+		else
+		{
 			PB_DurabilityBar->SetVisibility( ESlateVisibility::Collapsed );
 		}
 	}

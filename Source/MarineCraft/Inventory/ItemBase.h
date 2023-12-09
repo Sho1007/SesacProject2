@@ -54,6 +54,8 @@ struct FItemData : public FTableRowBase
 	FText ItemDiscription;
 	UPROPERTY( BlueprintReadWrite , EditAnywhere )
 	TMap<FName, int32> CraftingMaterialMap;
+	UPROPERTY( BlueprintReadWrite , EditAnywhere )
+	bool bUseDurability;
 
 	FItemData() : ItemName(TEXT("")), MaxStack(1), ItemImage(nullptr), ItemType()
 	{

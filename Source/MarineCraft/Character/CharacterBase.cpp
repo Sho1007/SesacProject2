@@ -98,6 +98,10 @@ void ACharacterBase::Tick(float DeltaTime)
 	//DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
 	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Visibility , CollisionQueryParams ) )
 	{
+		LookingAtActor = OutHit.GetActor();
+
+		UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) LookingAtActor : %s" ), *LookingAtActor->GetActorLabel() );
+
 		if ( IInteractInterface* InteractInterface = Cast<IInteractInterface>( OutHit.GetActor() ) )
 		{
 			// Todo : TurnOn InteractWidget;
@@ -117,19 +121,12 @@ void ACharacterBase::Tick(float DeltaTime)
 				PC->UpdateInteractActor( nullptr );
 				InteractActor = nullptr;
 			}
-
-			//// Placeable
-			//if ( AFoundation* Foundation = Cast<AFoundation>(OutHit.GetActor()) )
-			//{
-			//	if ( APlaceableBase* Placeable =  Cast<APlaceableBase>(InventoryComponent->GetCurrentItem() ) )
-			//	{
-			//		UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) Find Placeable Place!" ) );
-			//	}
-			//}
 		}
 	}
 	else
 	{
+		LookingAtActor = nullptr;
+
 		if ( InteractActor )
 		{
 			// Todo : TurnOff InteractWidget;
@@ -565,6 +562,11 @@ bool ACharacterBase::IsOnRaft()
 bool ACharacterBase::IsDead()
 {
 	return StatusComponent->IsDead();
+}
+
+AActor* ACharacterBase::GetLookingAtActor() const
+{
+	return LookingAtActor;
 }
 
 void ACharacterBase::StartSwim()

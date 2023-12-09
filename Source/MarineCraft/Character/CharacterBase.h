@@ -79,9 +79,7 @@ public:
 
 	// State
 	void Die();
-
 	bool IsOverSeaLevel() const;
-
 	UFUNCTION(BlueprintCallable)
 	bool IsSwim() const;
 	UFUNCTION( BlueprintCallable )
@@ -89,18 +87,14 @@ public:
 	UFUNCTION( BlueprintCallable )
 	bool IsDead();
 
+	// Look At
+	AActor* GetLookingAtActor() const;
+
 private:
 	void StartSwim();
 	void EndSwim();
 
 private:
-	// Swim
-	UPROPERTY( BlueprintReadOnly, EditDefaultsOnly , Category = "Swim" , Meta = ( AllowPrivateAccess ) )
-	float SwimmingHeight;
-
-	// Interact
-	AActor* InteractActor;
-
 	// Action?
 	UPROPERTY(EditDefaultsOnly, Category = "Animation", Meta = (AllowPrivateAccess))
 	UAnimMontage* AttackMontage;
@@ -122,11 +116,22 @@ private:
 	UPROPERTY( EditDefaultsOnly , Category = "Build" , Meta = ( AllowPrivateAccess ) )
 	UMaterialInstance* CannotBuildMaterial;
 
+	// Trace
 	UPROPERTY(EditDefaultsOnly, Category = "Interact", Meta = (AllowPrivateAccess))
 	float TraceDistance;
 
+	// Trace - What Player currently look at
+	AActor* LookingAtActor;
+
+	// Trace - Interact
+	AActor* InteractActor;
+
+	// Move
 	UPROPERTY( EditDefaultsOnly , Category = "Move" , Meta = ( AllowPrivateAccess ) )
 	float MoveSpeed;
+	// Move - Swim
+	UPROPERTY( BlueprintReadOnly , EditDefaultsOnly , Category = "Swim" , Meta = ( AllowPrivateAccess ) )
+	float SwimmingHeight;
 	UPROPERTY( EditDefaultsOnly , Category = "Move" , Meta = ( AllowPrivateAccess ) )
 	float DiveValue;
 
@@ -162,6 +167,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputAction* InputAction_Jump;
 
+	// Sound
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	USoundBase* InteractSound;
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
@@ -179,8 +185,7 @@ private:
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	USoundBase* EndSwimSound;
 
-
-
+	// Sound Component
 	UPROPERTY( VisibleInstanceOnly, Category = "SFX" , Meta = ( AllowPrivateAccess ) )
 	UAudioComponent* OceanSoundComponent;
 	UPROPERTY( VisibleInstanceOnly, Category = "SFX" , Meta = ( AllowPrivateAccess ) )
