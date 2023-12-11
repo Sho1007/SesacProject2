@@ -47,9 +47,14 @@ void AItemSpawner::Tick(float DeltaTime)
 
 void AItemSpawner::SpawnItem()
 {
+	if (IsValid(Raft) == false)
+	{
+		SetActorTickEnabled( false );
+		return;
+	}
 	//LOG( TEXT( "Floatsam Index : %d" ), );
 
-	FVector SpawnLocation = Raft->GetActorLocation();
+	FVector SpawnLocation = Raft->GetRootLocation();
 	SpawnLocation -= OceanCurrentsDirection * SpawnDistance;
 
 	FVector RightVector = FRotationMatrix::MakeFromXZ( ( SpawnLocation - Raft->GetActorLocation() ).GetSafeNormal() , GetActorUpVector() ).GetScaledAxis( EAxis::Y );

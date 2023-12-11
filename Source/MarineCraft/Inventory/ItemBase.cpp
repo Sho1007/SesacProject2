@@ -79,7 +79,7 @@ void AItemBase::Interact( ACharacter* InteractCharacter )
 	}
 }
 
-FText AItemBase::GetInteractActorName()
+FText AItemBase::GetInteractActorName( APlayerController* InteractPlayerController )
 {
 	return FText::FromName( ItemData.ItemName );
 }

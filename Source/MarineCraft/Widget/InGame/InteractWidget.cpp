@@ -13,7 +13,7 @@ void UInteractWidget::UpdateInteractActor( IInteractInterface* NewInteractActor 
 	if (NewInteractActor)
 	{
 		VB_InteractBox->SetVisibility( ESlateVisibility::Visible );
-		Txt_InteractActorName->SetText( NewInteractActor->GetInteractActorName() );
+		Txt_InteractActorName->SetText( NewInteractActor->GetInteractActorName( GetOwningPlayer() ) );
 	}
 	else
 	{

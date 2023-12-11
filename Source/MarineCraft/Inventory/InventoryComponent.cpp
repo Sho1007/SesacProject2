@@ -98,7 +98,7 @@ AItemBase* UInventoryComponent::GetItem(int32 ItemIndex)
 
 	if (Row < 0 || ItemArray.Num() <= Row || Col < 0 || ItemArray[Row].ItemArray.Num() <= Col )
 	{
-		LOG( TEXT( "Invalid Index : Inventory Row : %d, Col : %d" ), ItemArray.Num(), ItemArray.Num() > 0 ? ItemArray[0].ItemArray.Num() : 0); 
+		//LOG( TEXT( "Invalid Index : Inventory Row : %d, Col : %d" ), ItemArray.Num(), ItemArray.Num() > 0 ? ItemArray[0].ItemArray.Num() : 0); 
 		return nullptr;
 	}
 
@@ -112,7 +112,7 @@ void UInventoryComponent::SetItem(int32 NewItemIndex, AItemBase* NewItem)
 
 	if ( Row < 0 || ItemArray.Num() <= Row || Col < 0 || ItemArray[ Row ].ItemArray.Num() <= Col )
 	{
-		LOG( TEXT( "Invalid Index : Inventory Row : %d, Col : %d" ) , ItemArray.Num() , ItemArray.Num() > 0 ? ItemArray[ 0 ].ItemArray.Num() : 0 );
+		//LOG( TEXT( "Invalid Index : Inventory Row : %d, Col : %d" ) , ItemArray.Num() , ItemArray.Num() > 0 ? ItemArray[ 0 ].ItemArray.Num() : 0 );
 		return;
 	}
 

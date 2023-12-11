@@ -89,6 +89,7 @@ class UBoxComponent;
 class UStaticMeshComponent;
 class UInventoryComponent;
 class ACharacterBase;
+class APlayerController;
 UCLASS()
 class MARINECRAFT_API AItemBase : public AActor, public IInteractInterface
 {
@@ -115,7 +116,7 @@ public:
 public:
 	// Interface
 	virtual void Interact( ACharacter* InteractCharacter ) override;
-	virtual FText GetInteractActorName() override;
+	virtual FText GetInteractActorName( APlayerController* InteractPlayerController ) override;
 
 protected:
 	// State

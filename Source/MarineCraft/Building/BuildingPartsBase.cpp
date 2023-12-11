@@ -53,7 +53,5 @@ float ABuildingPartsBase::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	//UE_LOG( LogTemp , Warning , TEXT( "ABuildingPartsBase::TakeDamage) DamageAmount : %f" ), DamageAmount );
 
-	
-
 	return Super::TakeDamage(DamageAmount , DamageEvent , EventInstigator , DamageCauser);
 }
