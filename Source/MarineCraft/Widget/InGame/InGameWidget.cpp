@@ -8,10 +8,15 @@
 #include "InventoryWidget.h"
 #include "ImpactWidget.h"
 #include "MarineCraft/Inventory/PlayerInventoryComponent.h"
+#include "MarineCraft/Character/StatusComponent.h"
+#include "StatusWidget.h"
 
-void UInGameWidget::Setup()
+void UInGameWidget::InitWidget()
 {
+	UStatusComponent* StatusComponent = Cast<UStatusComponent>(GetOwningPlayerPawn()->GetComponentByClass(UStatusComponent::StaticClass()));
+	check(StatusComponent);
 
+	StatusWidget->InitWidget(StatusComponent);
 }
 
 void UInGameWidget::SetChargePercent(float NewChargePercent)
@@ -40,9 +45,9 @@ void UInGameWidget::ToggleInventory()
 	InventoryWidget->ToggleInventory();
 }
 
-void UInGameWidget::Impact()
+void UInGameWidget::Impact( float DamageAmount )
 {
-	ImpactWidget->Impact();
+	ImpactWidget->Impact( DamageAmount );
 }
 
 void UInGameWidget::ImpactOnDeath()

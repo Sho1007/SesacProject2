@@ -142,9 +142,12 @@ private:
 	USpringArmComponent* SpringArmComponent;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (AllowPrivateAccess))
 	UPlayerInventoryComponent* InventoryComponent;
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (AllowPrivateAccess))
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (AllowPrivateAccess))
 	UStatusComponent* StatusComponent;
-	
+
+private:
 	// Input
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess))
 	UInputMappingContext* DefaultIMC;

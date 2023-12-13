@@ -15,7 +15,7 @@ void AInGamePlayerController::BeginPlay()
 
 	InGameWidget = CreateWidget<UInGameWidget>( this , InGameWidgetClass, TEXT("InGameWidget"));
 	InGameWidget->AddToViewport();
-	//InGameWidget->Setup();
+	InGameWidget->InitWidget();
 
 	SetInputMode(FInputModeGameOnly());
 	SetShowMouseCursor( false );
@@ -46,7 +46,7 @@ void AInGamePlayerController::ToggleInventory()
 	InGameWidget->ToggleInventory();
 }
 
-void AInGamePlayerController::Impact()
+void AInGamePlayerController::Impact( float DamageAmount )
 {
 
 	ACharacterBase* CharacterBase = Cast<ACharacterBase>( GetPawn() );
@@ -58,7 +58,7 @@ void AInGamePlayerController::Impact()
 	}
 	else
 	{
-		InGameWidget->Impact();
+		InGameWidget->Impact( DamageAmount );
 	}
 }
 

@@ -35,6 +35,8 @@ protected:
 	FVector PlaceOffset;
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
 	FVector GhostMeshOffset;
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess))
+	FRotator GhostMeshRotation;
 
 	// Trace 할 때는, Place 할 Floor, Place 할 때는, Placed 된 Floor
 	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )

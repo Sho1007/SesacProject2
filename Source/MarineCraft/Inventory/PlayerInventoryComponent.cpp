@@ -9,6 +9,7 @@
 #include "../MarineCraft.h"
 #include "../PlayerController/InGamePlayerController.h"
 #include "../MarineCraftGameInstance.h"
+#include "MarineCraft/Character/CharacterBase.h"
 
 UPlayerInventoryComponent::UPlayerInventoryComponent()
 {
@@ -23,6 +24,9 @@ void UPlayerInventoryComponent::BeginPlay()
 	UMarineCraftGameInstance* GameInstance = GetWorld()->GetGameInstance<UMarineCraftGameInstance>();
 
 	check( GameInstance );
+
+	OwningPlayerCharacter = Cast<ACharacterBase>( GetOwner() );
+	check( OwningPlayerCharacter );
 
 	// Hook
 	{
@@ -72,6 +76,18 @@ void UPlayerInventoryComponent::BeginPlay()
 
 		AddItem( Purifier );
 	}
+	// Test : Purifier
+	{
+		FItemData* ItemData = GameInstance->GetItemData( "Grill" );
+
+		check( ItemData );
+
+		AItemBase* Grill = GetWorld()->SpawnActor<AItemBase>( ItemData->ItemClass );
+
+		check( Grill );
+
+		AddItem( Grill );
+	}
 
 	SetCurrentItem( 0 );
 }
@@ -110,6 +126,8 @@ bool UPlayerInventoryComponent::AddItem(AItemBase* NewItem)
 		return true;
 	}
 
+	if ( OwningPlayerCharacter ) OwningPlayerCharacter->UpdateInventoryWidget();
+
 	return false;
 }
 
@@ -141,9 +159,8 @@ void UPlayerInventoryComponent::SetCurrentItem(int32 NewItemIndex)
 	AInGamePlayerController* PC = GetOwner<ACharacter>()->GetController<AInGamePlayerController>();
 	check( PC );
 	PC->SetCurrentItem( NewItemIndex );
-	
 
-	// Todo : Update Inventory Widget;
+	OwningPlayerCharacter->UpdateInventoryWidget();
 }
 
 AItemBase* UPlayerInventoryComponent::GetCurrentItem() const
@@ -154,6 +171,8 @@ AItemBase* UPlayerInventoryComponent::GetCurrentItem() const
 void UPlayerInventoryComponent::SetQuickSlotItemNull(int32 ItemIndex)
 {
 	QuickSlot->SetItem( ItemIndex , nullptr );
+
+	if ( OwningPlayerCharacter ) OwningPlayerCharacter->UpdateInventoryWidget();
 }
 
 UInventoryComponent* UPlayerInventoryComponent::GetQuickSlot() const
@@ -171,18 +190,17 @@ int32 UPlayerInventoryComponent::GetItemCount(FName TargetItemName)
 	return Sum;
 }
 
-void UPlayerInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCount)
+bool UPlayerInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCount)
 {
-	QuickSlot->RemoveItemCount( TargetItemName , RemoveCount);
-
-	if (RemoveCount > 0)
+	bool Result = QuickSlot->RemoveItemCount( TargetItemName , RemoveCount); 
+	if (Result == false)
 	{
-		Super::RemoveItemCount( TargetItemName , RemoveCount );
+		Result = Super::RemoveItemCount( TargetItemName , RemoveCount );
 	}
 
-	AInGamePlayerController* PC = GetOwner<ACharacter>()->GetController<AInGamePlayerController>();
-	check( PC );
-	PC->UpdateInventoryWidget(this);
+	if ( OwningPlayerCharacter ) OwningPlayerCharacter->UpdateInventoryWidget();
+
+	return Result;
 }
 
 bool UPlayerInventoryComponent::CanRemovableItems(TMap<FName, int32>& ItemMap)
@@ -195,17 +213,19 @@ bool UPlayerInventoryComponent::CanRemovableItems(TMap<FName, int32>& ItemMap)
 	return true;
 }
 
-void UPlayerInventoryComponent::RemoveItems(TMap<FName, int32>& ItemMap)
+bool UPlayerInventoryComponent::RemoveItems(TMap<FName, int32>& ItemMap)
 {
+	if (CanRemovableItems(ItemMap) == false) return false;
+	
 	for ( auto Iter : ItemMap )
 	{
 		int ItemCount = Iter.Value;
-		QuickSlot->RemoveItemCount( Iter.Key , ItemCount );
-		if (ItemCount > 0)
-		{
-			Super::RemoveItemCount( Iter.Key , ItemCount );
-		}
+		RemoveItemCount(Iter.Key, ItemCount);
 	}
+
+	if ( OwningPlayerCharacter ) OwningPlayerCharacter->UpdateInventoryWidget();
+
+	return true;
 }
 
 bool UPlayerInventoryComponent::HasEmptySpace()

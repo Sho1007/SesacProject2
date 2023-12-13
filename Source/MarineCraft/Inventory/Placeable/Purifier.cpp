@@ -7,6 +7,19 @@
 
 #include "MarineCraft/Character/CharacterBase.h"
 #include "MarineCraft/Inventory/PlayerInventoryComponent.h"
+#include "MarineCraft/Inventory/Tool/Cup.h"
+
+APurifier::APurifier()
+{
+	CupMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "CupMeshComponent" ) );
+	CupMeshComponent->SetupAttachment( RootComponent );
+	CupMeshComponent->SetVisibility( false );
+	CupMeshComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
+	WaterMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "WaterMeshComponent" ) );
+	WaterMeshComponent->SetupAttachment( CupMeshComponent );
+	WaterMeshComponent->SetVisibility( false );
+	WaterMeshComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
+}
 
 void APurifier::Interact(ACharacter* InteractCharacter)
 {
@@ -31,9 +44,6 @@ void APurifier::Interact(ACharacter* InteractCharacter)
 
 		FuelCount++;
 		Boil();
-
-		Cast<ACharacterBase>( InteractCharacter )->UpdateInventoryWidget();
-
 		return;
 	}
 
@@ -41,14 +51,18 @@ void APurifier::Interact(ACharacter* InteractCharacter)
 	if ( bIsPurified && TargetInventoryComponent->HasEmptySpace() )
 	{
 		// Todo : 깨끗한 물 한 컵을 인벤토리에 추가
-		/*AItemBase* CupOfFreshWater = GetWorld()->SpawnActor<AItemBase>();
-		InventoryComponent->AddItem();*/
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ACup* CupOfFreshWater = GetWorld()->SpawnActor<ACup>(CupClass, SpawnParameters);
+		CupOfFreshWater->PutWater( true );
+		TargetInventoryComponent->AddItem( CupOfFreshWater );
 
 		Cast<ACharacterBase>( InteractCharacter )->UpdateInventoryWidget();
 
 		bIsPurified = false;
 		bHasCupOfWater = false;
-		// Todo : 물 컵 메쉬 꺼주기
+
+		CupMeshComponent->SetVisibility( false, true );
 
 		return;
 	}
@@ -57,21 +71,19 @@ void APurifier::Interact(ACharacter* InteractCharacter)
 	// 1. 물이 든 컵이 없고
 	// 2. 손에 아이템을 들고 있고
 	// 2. 그 아이템의 이름이 물이 든 컵 이라면
-	if ( bHasCupOfWater == false && Item && Item->GetItemData()->ItemName.Compare( TEXT( "CupOfWater" ) ) == 0 )
+	if ( bHasCupOfWater == false && Item && Item->GetItemData()->ItemName.Compare( TEXT( "CupOfSaltWater" ) ) == 0 )
 	{
 		// 손에 있는 물이 든 컵을 지우고
 		TMap<FName , int32> ItemMap;
-		ItemMap.Add( TEXT( "CupOfWater" ) , 1 );
+		ItemMap.Add( TEXT( "CupOfSaltWater" ) , 1 );
 		TargetInventoryComponent->RemoveItems( ItemMap );
-
-		Cast<ACharacterBase>( InteractCharacter )->UpdateInventoryWidget();
 
 		// 컵을 가지고 있다고 정하고
 		bHasCupOfWater = true;
 
 		CurrentPurifyingTime = 0.0f;
 
-		// Todo : 물 컵 메쉬를 켜준다.
+		CupMeshComponent->SetVisibility( true , true );
 
 		Boil();
 	}
@@ -89,12 +101,8 @@ FText APurifier::GetInteractActorName( APlayerController* InteractPlayerControll
 	{
 		return FText::FromString(TEXT("Pick up fresh water"));
 	}
-	if ( bIsBoiling )
-	{
-		return FText::FromString( TEXT( "Boiling ..." ) );
-	}
 
-	if ( bHasCupOfWater == false && Item && Item->GetItemData()->ItemName.Compare( TEXT( "CupOfWater" ) ) == 0 )
+	if ( bHasCupOfWater == false && Item && Item->GetItemData()->ItemName.Compare( TEXT( "CupOfSaltWater" ) ) == 0 )
 	{
 		return FText::FromString( TEXT( "Put cup of water" ) );
 	}
@@ -102,6 +110,11 @@ FText APurifier::GetInteractActorName( APlayerController* InteractPlayerControll
 	if ( FuelCount < 2 && Item && Item->GetItemData()->ItemName.Compare( TEXT( "Plank" ) ) == 0 )
 	{
 		return FText::FromString( TEXT( "Put Plank to Fuel" ) );
+	}
+
+	if ( bIsBoiling )
+	{
+		return FText::FromString( TEXT( "Boiling ..." ) );
 	}
 
 	return Super::GetInteractActorName( InteractPlayerController );

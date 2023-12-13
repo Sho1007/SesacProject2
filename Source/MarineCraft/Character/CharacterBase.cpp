@@ -36,7 +36,6 @@ ACharacterBase::ACharacterBase()
 	check(SpringArmComponent);
 	//SpringArmComponent->SetupAttachment(GetMesh(), TEXT("head"));
 	//SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules( EAttachmentRule::SnapToTarget , EAttachmentRule::KeepWorld , EAttachmentRule::KeepWorld , false ) , TEXT( "head" ) );
-	SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "Head" ) );
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -55,6 +54,9 @@ ACharacterBase::ACharacterBase()
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "Head" ) );
+	
 	if (APlayerController* PlayerController = GetController<APlayerController>())
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -100,7 +102,7 @@ void ACharacterBase::Tick(float DeltaTime)
 	{
 		LookingAtActor = OutHit.GetActor();
 
-		UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) LookingAtActor : %s" ), *LookingAtActor->GetActorLabel() );
+		//UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick) LookingAtActor : %s" ), *LookingAtActor->GetActorLabel() );
 
 		if ( IInteractInterface* InteractInterface = Cast<IInteractInterface>( OutHit.GetActor() ) )
 		{
@@ -109,7 +111,7 @@ void ACharacterBase::Tick(float DeltaTime)
 			check( PC );
 			PC->UpdateInteractActor( InteractInterface );
 			InteractActor = OutHit.GetActor();
-			UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick ) Interact Actor : %s" ) , *InteractActor->GetActorLabel() );
+			// UE_LOG( LogTemp , Warning , TEXT( "ACharacterBase::Tick ) Interact Actor : %s" ) , *InteractActor->GetActorLabel() );
 		}
 		else
 		{
@@ -213,7 +215,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	AActor* DamageCauser)
 {
 	// LOG( TEXT( "DamageCauser : %s" ) , *DamageCauser->GetName() );
-
+	this;
 	if ( StatusComponent->IsDead() == false )
 	{
 		StatusComponent->AddDamage( DamageAmount );
@@ -226,8 +228,6 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		{
 			UGameplayStatics::PlaySoundAtLocation( GetWorld() , DeathSound , GetActorLocation() , GetActorRotation() );
 		}
-
-		GetController<AInGamePlayerController>()->Impact();
 	}
 
 	return Super::TakeDamage(DamageAmount , DamageEvent , EventInstigator , DamageCauser);
@@ -511,6 +511,7 @@ void ACharacterBase::SetGhostMeshMaterial()
 void ACharacterBase::SetQuickSlotItemNull(int32 QuickSlotIndex)
 {
 	InventoryComponent->SetQuickSlotItemNull( QuickSlotIndex );
+	UpdateInventoryWidget();
 }
 
 void ACharacterBase::OnGhostMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

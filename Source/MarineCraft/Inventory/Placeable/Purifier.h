@@ -9,6 +9,7 @@
 /**
  * 
  */
+class ACup;
 class APlayerController;
 UCLASS()
 class MARINECRAFT_API APurifier : public APlaceableBase
@@ -16,6 +17,8 @@ class MARINECRAFT_API APurifier : public APlaceableBase
 	GENERATED_BODY()
 	
 public:
+	APurifier();
+
 	virtual void Interact(ACharacter* InteractCharacter) override;
 	virtual FText GetInteractActorName( APlayerController* InteractPlayerController ) override;
 
@@ -48,4 +51,14 @@ private:
 	float CurrentPurifyingTime;
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	float MaxPurifyingTime;
+
+	// Class
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	TSubclassOf<ACup> CupClass;
+
+	// Component
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	UStaticMeshComponent* CupMeshComponent;
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	UStaticMeshComponent* WaterMeshComponent;
 };

@@ -138,7 +138,7 @@ int32 UInventoryComponent::GetItemCount(FName TargetItemName )
 	return Sum;
 }
 
-void UInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCount)
+bool UInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCount)
 {
 	for ( int i = 0; i < ItemArray.Num(); ++i )
 	{
@@ -158,10 +158,12 @@ void UInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCou
 
 				RemoveCount -= RemovableCount;
 
-				if ( RemoveCount == 0 ) return;
+				if ( RemoveCount == 0 ) return true;
 			}
 		}
 	}
+
+	return false;
 }
 
 bool UInventoryComponent::HasEmptySpace()

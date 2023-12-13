@@ -12,7 +12,7 @@ void UImpactWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	if (bIsDead == false) Img_Blood->SetOpacity( FMath::Clamp( Img_Blood->ColorAndOpacity.A - ( ( DisapearSpeed * InDeltaTime ) / ( Img_Blood->ColorAndOpacity.A + 0.001 ) ) , 0.0f , 1.0f ) );
 }
 
-void UImpactWidget::Impact()
+void UImpactWidget::Impact( float DamageAmount )
 {
 	Img_Blood->SetOpacity( FMath::Clamp( Img_Blood->ColorAndOpacity.A + OpacityIncreaseAmount , 0.0f , 1.0f ) );
 }

@@ -45,7 +45,7 @@ public:
 	void SetItem( int32 NewItemIndex , AItemBase* NewItem );
 
 	virtual int32 GetItemCount( FName TargetItemName );
-	virtual void RemoveItemCount( FName TargetItemName , int32& RemoveCount );
+	virtual bool RemoveItemCount( FName TargetItemName , int32& RemoveCount );
 
 	virtual bool HasEmptySpace();
 
