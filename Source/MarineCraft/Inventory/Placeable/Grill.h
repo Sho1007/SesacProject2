@@ -16,6 +16,8 @@ class MARINECRAFT_API AGrill : public APlaceableBase
 	GENERATED_BODY()
 
 public:
+	AGrill();
+	
 	virtual void Interact(ACharacter* InteractCharacter) override;
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -56,4 +58,9 @@ private:
 	TMap<FName, FVector> GrillOffsetMap;
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	TArray<FName> CookableFoodNameArray;
+
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	UParticleSystemComponent* FireParticleComponent;
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	UAudioComponent* FireSoundComponent;
 };

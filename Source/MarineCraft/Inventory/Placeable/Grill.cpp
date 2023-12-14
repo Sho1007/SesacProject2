@@ -3,10 +3,23 @@
 
 #include "../Placeable/Grill.h"
 
+#include "Components/AudioComponent.h"
 #include "MarineCraft/MarineCraftGameInstance.h"
 #include "MarineCraft/Character/CharacterBase.h"
 #include "MarineCraft/Inventory/PlayerInventoryComponent.h"
 #include "MarineCraft/Inventory/Food/FoodBase.h"
+#include "Particles/ParticleSystemComponent.h"
+
+AGrill::AGrill()
+{
+	FireParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FireParticleComponent"));
+	FireParticleComponent->SetupAttachment(StaticMeshComponent);
+	FireParticleComponent->SetAutoActivate(false);
+
+	FireSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("FireSoundComponent"));
+	FireSoundComponent->SetupAttachment(FireParticleComponent);
+	FireSoundComponent->SetAutoActivate(false);
+}
 
 void AGrill::Interact(ACharacter* InteractCharacter)
 {
@@ -111,7 +124,11 @@ void AGrill::Tick(float DeltaSeconds)
 		else
 		{
 			bIsCooking = false;
-			// Todo : 불 / 연기 이펙트 꺼주기
+			
+			FireParticleComponent->Deactivate();
+			FireSoundComponent->Deactivate();
+
+			
 			SetActorTickEnabled( false );
 		}
 	}
@@ -165,8 +182,10 @@ void AGrill::Cook()
 			{
 				CurrentFuelCount--;
 				CurrentFuelTime += MaxFuelTime;
+
+				FireParticleComponent->Activate();
+				FireSoundComponent->Activate();
 				
-				// Todo : 불 / 연기 이펙트 켜주기
 				bIsCooking = true;
 				
 				SetActorTickEnabled( true );

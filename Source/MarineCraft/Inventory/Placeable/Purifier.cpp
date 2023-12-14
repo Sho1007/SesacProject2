@@ -5,9 +5,11 @@
 
 #include <GameFramework/Character.h>
 
+#include "Components/AudioComponent.h"
 #include "MarineCraft/Character/CharacterBase.h"
 #include "MarineCraft/Inventory/PlayerInventoryComponent.h"
 #include "MarineCraft/Inventory/Tool/Cup.h"
+#include "Particles/ParticleSystemComponent.h"
 
 APurifier::APurifier()
 {
@@ -19,6 +21,14 @@ APurifier::APurifier()
 	WaterMeshComponent->SetupAttachment( CupMeshComponent );
 	WaterMeshComponent->SetVisibility( false );
 	WaterMeshComponent->SetCollisionProfileName( TEXT( "NoCollision" ) );
+
+	FireParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FireParticleComponent"));
+	FireParticleComponent->SetupAttachment(StaticMeshComponent);
+	FireParticleComponent->SetAutoActivate(false);
+
+	FireSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("FireSoundComponent"));
+	FireSoundComponent->SetupAttachment(FireParticleComponent);
+	FireSoundComponent->SetAutoActivate(false);
 }
 
 void APurifier::Interact(ACharacter* InteractCharacter)
@@ -139,6 +149,9 @@ void APurifier::Boil()
 			if ( FuelCount > 0 )
 			{
 				// Todo : 불 이펙트 / 연기 이펙트 켜주기
+				FireParticleComponent->Activate();
+				FireSoundComponent->Activate();
+				
 				bIsBoiling = true;
 
 				// 연료를 감소시키고 연료 시간을 증가
@@ -194,6 +207,9 @@ void APurifier::Tick(float DeltaSeconds)
 			// 끓이는 상태를 꺼주고
 			bIsBoiling = false;
 			// Todo : 불 / 연기 이펙트 꺼주기
+			FireParticleComponent->Deactivate();
+			FireSoundComponent->Deactivate();
+			
 			// 틱 멈추기
 			SetActorTickEnabled( false );
 		}

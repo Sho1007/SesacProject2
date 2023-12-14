@@ -61,4 +61,8 @@ private:
 	UStaticMeshComponent* CupMeshComponent;
 	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
 	UStaticMeshComponent* WaterMeshComponent;
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	UParticleSystemComponent* FireParticleComponent;
+	UPROPERTY( EditDefaultsOnly , Meta = ( AllowPrivateAccess ) )
+	UAudioComponent* FireSoundComponent;
 };
