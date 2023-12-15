@@ -36,6 +36,8 @@ public:
 
 	void SetCurrentItem( int32 NewItemIndex );
 
+	void SetHoverWidget(FItemData* NewItemData);
+
 	void ToggleInventory();
 
 	virtual FReply NativeOnKeyDown( const FGeometry& InGeometry , const FKeyEvent& InKeyEvent );
@@ -57,6 +59,12 @@ private:
 	UBorder* Brd_Inventory;
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UUniformGridPanel* UG_Inventory;
+	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
+	UImage* Img_HoveredItemImage;
+	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
+	UTextBlock* TB_HoveredItemName;
+	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
+	UTextBlock* TB_HoveredItemDiscription;
 
 	// Category
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))

@@ -12,6 +12,7 @@ void AToolBase::BeginPlay()
 
 void AToolBase::Use()
 {
+	// UE_LOG(LogTemp, Warning, TEXT("AToolBase::Use) Actor Name : %s"), *this->GetActorLabel());
 }
 
 void AToolBase::StopUse()

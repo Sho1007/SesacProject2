@@ -30,7 +30,7 @@ void APlaceableBase::SetInHand()
 	UStaticMeshComponent* GhostMesh = PlayerCharacter->GetGhostMeshComponent();
 	GhostMesh->SetStaticMesh( StaticMeshComponent->GetStaticMesh() );
 	GhostMesh->SetWorldScale3D( FVector( 1.0f , 1.0f , 1.0f ) );
-	GhostMesh->SetRelativeRotation( FRotator::ZeroRotator );
+	GhostMesh->SetRelativeRotation( GhostMeshRotation );
 
 	SetActorTickEnabled( true );
 	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
@@ -61,12 +61,13 @@ void APlaceableBase::Place()
 
 	if (GhostMesh->GetMaterial( 0 )->GetName().Contains(TEXT("Green")))
 	{
-		APlaceableBase* Placeable = GetWorld()->SpawnActor<APlaceableBase>( ItemData.ItemClass , GhostMesh->GetComponentLocation() + PlaceOffset, GhostMesh->GetComponentRotation() );
+		APlaceableBase* Placeable = GetWorld()->SpawnActor<APlaceableBase>( ItemData.ItemClass , GhostMesh->GetComponentLocation() + PlaceOffset, FRotator::ZeroRotator /*GhostMesh->GetComponentRotation()*/ );
 
 		UE_LOG( LogTemp , Warning , TEXT( " GhostMesh Location : %s, Placeable Location : %s " ) , *GhostMesh->GetComponentLocation().ToString() , *Placeable->GetActorLocation().ToString() );
 
 		Placeable->SetState( EItemState::InWorld );
 		Placeable->SetPlaced( PlacedFloor );
+		// Placeable->SetActorRotation(GhostMeshRotation);
 
 		if ( --InstanceData.CurrentStack > 0 )
 		{
@@ -99,7 +100,7 @@ void APlaceableBase::Tick(float DeltaSeconds)
 		return;
 	}
 
-	UE_LOG( LogTemp , Warning , TEXT( "APlaceableBase::Tick" ) );
+	// UE_LOG( LogTemp , Warning , TEXT( "APlaceableBase::Tick" ) );
 
 	FHitResult OutHit;
 
@@ -116,6 +117,7 @@ void APlaceableBase::Tick(float DeltaSeconds)
 		{
 			PlacedFloor = Floor;
 			GhostMesh->SetWorldLocation( OutHit.Location + GhostMeshOffset );
+			GhostMesh->SetWorldRotation(GhostMeshRotation);
 			PlayerCharacter->SetGhostMeshMaterial();
 			GhostMesh->SetVisibility( true );
 		}

@@ -7,6 +7,7 @@
 #include "PlayerInventoryComponent.generated.h"
 
 class AItemBase;
+class ACharacterBase;
 UCLASS()
 class MARINECRAFT_API UPlayerInventoryComponent : public UInventoryComponent
 {
@@ -29,13 +30,15 @@ public:
 
 	virtual int32 GetItemCount(FName TargetItemName) override;
 
-	virtual void RemoveItemCount(FName TargetItemName, int32& RemoveCount) override;
+	virtual bool RemoveItemCount(FName TargetItemName, int32& RemoveCount) override;
 
 	bool CanRemovableItems(TMap<FName, int32>& ItemMap);
-	void RemoveItems(TMap<FName, int32>& ItemMap);
+	bool RemoveItems(TMap<FName, int32>& ItemMap);
 
 	virtual bool HasEmptySpace() override;
 private:
+	UPROPERTY( VisibleInstanceOnly , Meta = ( AllowPrivateAccess ) )
+	ACharacterBase* OwningPlayerCharacter;
 	UPROPERTY(VisibleInstanceOnly, Meta = ( AllowPrivateAccess ))
 	int32 CurrentItemIndex = -1;
 	UPROPERTY(VisibleInstanceOnly, Meta = ( AllowPrivateAccess ))

@@ -26,6 +26,8 @@ struct FBuildingPartsData : public FTableRowBase
 	TSubclassOf<ABuildingPartsBase> Class;
 	UPROPERTY( BlueprintReadWrite , EditAnywhere )
 	TMap<FName, int32> BuildingMaterialMap;
+
+	FBuildingPartsData() : Mesh(nullptr), MeshLocationOffset(FVector::ZeroVector), SpawnLocationOffset(FVector::ZeroVector), Scale(FVector::ZeroVector), Class(nullptr), BuildingMaterialMap() {}
 };
 
 class UPrimitiveComponent;

@@ -26,7 +26,7 @@ public:
 	void UpdateInventoryWidget( UPlayerInventoryComponent* PlayerInventoryComponent );
 	void SetCurrentItem(int32 NewItemIndex);
 	void ToggleInventory();
-	void Impact();
+	void Impact( float DamageAmount );
 	void Die();
 
 private:

@@ -12,6 +12,7 @@ class UInteractWidget;
 class UChargeWidget;
 class UInventoryWidget;
 class UImpactWidget;
+class UStatusWidget;
 /**
  * 
  */
@@ -21,13 +22,14 @@ class MARINECRAFT_API UInGameWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void Setup();
+	void InitWidget();
+	
 	void SetChargePercent(float NewChargePercent);
 	void UpdateInteractActor(IInteractInterface* NewInteractActor);
 	void UpdateInventory(UPlayerInventoryComponent* PlayerInventoryComponent );
 	void SetCurrentItem( int32 NewItemIndex );
 	void ToggleInventory();
-	void Impact();
+	void Impact( float DamageAmount );
 	void ImpactOnDeath();
 private:
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
@@ -38,4 +40,6 @@ private:
 	UInventoryWidget* InventoryWidget;
 	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
 	UImpactWidget* ImpactWidget;
+	UPROPERTY(Meta = (AllowPrivateAccess, BindWidget))
+	UStatusWidget* StatusWidget;
 };

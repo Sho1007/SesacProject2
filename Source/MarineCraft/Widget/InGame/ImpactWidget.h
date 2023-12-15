@@ -18,7 +18,7 @@ class MARINECRAFT_API UImpactWidget : public UUserWidget
 public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	void Impact();
+	void Impact( float DamageAmount );
 
 	void ImpactOnDeath();
 

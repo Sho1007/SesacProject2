@@ -37,6 +37,7 @@ void UInventoryWidget::NativeConstruct()
 	{
 		if (UItemSlotWidget* ItemSlotWidget = Cast<UItemSlotWidget>(ChildWidgetArray[ i ]))
 		{
+			ItemSlotWidget->SetInventoryWidget(this);
 			QuickSlotWidgetArray.Add( ItemSlotWidget );
 		}
 	}
@@ -49,6 +50,7 @@ void UInventoryWidget::NativeConstruct()
 	{
 		if ( UItemSlotWidget* ItemSlotWidget = Cast<UItemSlotWidget>( ChildWidgetArray[ i ] ) )
 		{
+			ItemSlotWidget->SetInventoryWidget(this);
 			InventoryWidgetArray.Add( ItemSlotWidget );
 		}
 	}
@@ -104,6 +106,25 @@ void UInventoryWidget::SetCurrentItem(int32 NewItemIndex)
 		{
 			QuickSlotWidgetArray[ i ]->Unselect();
 		}
+	}
+}
+
+void UInventoryWidget::SetHoverWidget(FItemData* NewItemData)
+{
+	if (NewItemData == nullptr)
+	{
+		Img_HoveredItemImage->SetVisibility(ESlateVisibility::Collapsed);
+		TB_HoveredItemName->SetVisibility(ESlateVisibility::Collapsed);
+		TB_HoveredItemDiscription->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		Img_HoveredItemImage->SetBrushFromTexture(NewItemData->ItemImage);
+		TB_HoveredItemName->SetText(FText::FromName(NewItemData->ItemName));
+		TB_HoveredItemDiscription->SetText(NewItemData->ItemDiscription);
+		Img_HoveredItemImage->SetVisibility(ESlateVisibility::Visible);
+		TB_HoveredItemName->SetVisibility(ESlateVisibility::Visible);
+		TB_HoveredItemDiscription->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
