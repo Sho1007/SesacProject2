@@ -3,21 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "Blueprint/DragDropOperation.h"
 #include "DragWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MARINECRAFT_API UDragWidget : public UUserWidget
+class MARINECRAFT_API UDragWidget : public UDragDropOperation
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UUserWidget* WidgetReference;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector2D DragOffset;
 };

@@ -66,6 +66,8 @@ void AItemBase::SetInventoryComponent(UInventoryComponent* NewInventoryComponent
 	InventoryIndex = NewInventoryIndex;
 
 	PlayerCharacter = Cast<ACharacterBase>(InventoryComponent->GetOwner());
+	
+	this->AttachToActor( PlayerCharacter , FAttachmentTransformRules::SnapToTargetNotIncludingScale );
 }
 
 void AItemBase::Interact( ACharacter* InteractCharacter )

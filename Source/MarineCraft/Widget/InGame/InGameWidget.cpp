@@ -31,8 +31,8 @@ void UInGameWidget::UpdateInteractActor(IInteractInterface* NewInteractActor)
 
 void UInGameWidget::UpdateInventory(UPlayerInventoryComponent* PlayerInventoryComponent)
 {
-	InventoryWidget->UpdateQuickSlot( PlayerInventoryComponent->GetQuickSlot() );
-	InventoryWidget->UpdateInventory( PlayerInventoryComponent );
+	InventoryWidget->UpdateQuickSlot( );
+	InventoryWidget->UpdateInventory( );
 }
 
 void UInGameWidget::SetCurrentItem(int32 NewItemIndex)

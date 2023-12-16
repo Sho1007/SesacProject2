@@ -49,9 +49,15 @@ public:
 
 	virtual bool HasEmptySpace();
 
+	void GetItemFromInventory(UInventoryComponent* FromInventoryComponent, int32 FromInventoryIndex, int32 ToInventoryIndex);
+
 protected:
 	UPROPERTY(EditAnywhere)
 	TArray<FItemArray> ItemArray;
 	UPROPERTY(EditAnywhere)
 	int32 InventorySize;
+
+public:
+	DECLARE_MULTICAST_DELEGATE(FDele_Multi)
+	FDele_Multi OnInventoryChanged;
 };

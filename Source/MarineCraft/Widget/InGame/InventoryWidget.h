@@ -31,8 +31,8 @@ class MARINECRAFT_API UInventoryWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	void UpdateQuickSlot( UInventoryComponent* InventoryComponent );
-	void UpdateInventory( UInventoryComponent* InventoryComponent );
+	void UpdateQuickSlot( );
+	void UpdateInventory( );
 
 	void SetCurrentItem( int32 NewItemIndex );
 

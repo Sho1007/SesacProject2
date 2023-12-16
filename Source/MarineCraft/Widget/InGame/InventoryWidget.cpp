@@ -29,6 +29,11 @@ void UInventoryWidget::NativeConstruct()
 
 	bIsFocusable = true;
 
+	PlayerInventoryComponent = Cast<UPlayerInventoryComponent>( GetOwningPlayerPawn()->GetComponentByClass( UPlayerInventoryComponent::StaticClass() ) );
+
+	PlayerInventoryComponent->GetQuickSlot()->OnInventoryChanged.AddUObject(this, &UInventoryWidget::UpdateQuickSlot);
+	PlayerInventoryComponent->OnInventoryChanged.AddUObject(this, &UInventoryWidget::UpdateInventory);
+
 	// Setup QuickSlot
 
 	TArray<UWidget*> ChildWidgetArray = HB_QuickSlot->GetAllChildren();
@@ -37,7 +42,7 @@ void UInventoryWidget::NativeConstruct()
 	{
 		if (UItemSlotWidget* ItemSlotWidget = Cast<UItemSlotWidget>(ChildWidgetArray[ i ]))
 		{
-			ItemSlotWidget->SetInventoryWidget(this);
+			ItemSlotWidget->SetInventoryWidget(this, PlayerInventoryComponent->GetQuickSlot(), i);
 			QuickSlotWidgetArray.Add( ItemSlotWidget );
 		}
 	}
@@ -50,7 +55,7 @@ void UInventoryWidget::NativeConstruct()
 	{
 		if ( UItemSlotWidget* ItemSlotWidget = Cast<UItemSlotWidget>( ChildWidgetArray[ i ] ) )
 		{
-			ItemSlotWidget->SetInventoryWidget(this);
+			ItemSlotWidget->SetInventoryWidget(this, PlayerInventoryComponent, i);
 			InventoryWidgetArray.Add( ItemSlotWidget );
 		}
 	}
@@ -72,25 +77,26 @@ void UInventoryWidget::NativeConstruct()
 	}
 
 	Btn_CraftingButton->OnClicked.AddDynamic( this , &UInventoryWidget::OnCraftingButtonClicked );
-
-	PlayerInventoryComponent = Cast<UPlayerInventoryComponent>( GetOwningPlayerPawn()->GetComponentByClass( UPlayerInventoryComponent::StaticClass() ) );
 }
 
-void UInventoryWidget::UpdateQuickSlot( UInventoryComponent* InventoryComponent )
+void UInventoryWidget::UpdateQuickSlot(  )
 {
-	//UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::UpdateQuickSlot" ) );
+	UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::UpdateQuickSlot" ) );
+
+	UInventoryComponent* InventoryComponent = PlayerInventoryComponent->GetQuickSlot();
 	for (int i = 0; i < QuickSlotWidgetArray.Num(); ++i)
 	{
 		QuickSlotWidgetArray[ i ]->Init( InventoryComponent->GetItem( i ) );
 	}
 }
 
-void UInventoryWidget::UpdateInventory(UInventoryComponent* InventoryComponent)
+void UInventoryWidget::UpdateInventory()
 {
-	//UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::UpdateInventory" ) );
+	UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::UpdateInventory" ) );
+	UInventoryComponent* InventoryComponent = PlayerInventoryComponent->GetQuickSlot();
 	for ( int i = 0; i < InventoryWidgetArray.Num(); ++i )
 	{
-		InventoryWidgetArray[ i ]->Init( InventoryComponent->GetItem( i ) );
+		InventoryWidgetArray[ i ]->Init( PlayerInventoryComponent->GetItem( i ) );
 	}
 }
 
@@ -172,6 +178,14 @@ FReply UInventoryWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKey
 
 		ToggleInventory();
 		return FReply::Handled();
+	}
+	else if (InKeyEvent.GetKey() == EKeys::MouseScrollUp)
+	{
+		
+	}
+	else if (InKeyEvent.GetKey() == EKeys::MouseScrollDown)
+	{
+		
 	}
 
 	return Super::NativeOnKeyDown(InGeometry , InKeyEvent);
@@ -262,8 +276,8 @@ void UInventoryWidget::OnCraftingButtonClicked()
 		//UE_LOG( LogTemp , Warning , TEXT( "UInventoryWidget::OnCraftingButtonClicked) Valid" ) );
 
 		//  Todo : Update Inventory Not Only QuickSlot
-		UpdateInventory( PlayerInventoryComponent );
-		UpdateQuickSlot( PlayerInventoryComponent->GetQuickSlot() );
+		UpdateInventory( );
+		UpdateQuickSlot( );
 
 		UpdateCraftingButton();
 		UpdateCraftingMaterials();

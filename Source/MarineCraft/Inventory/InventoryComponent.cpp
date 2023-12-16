@@ -40,6 +40,8 @@ bool UInventoryComponent::AddItem(AItemBase* NewItem)
 	FItemInstanceData* NewInstanceData = NewItem->GetInstanceData();
 	FItemData* NewItemData = NewItem->GetItemData();
 
+	bool bResult = false;
+
 	// 1차 : Item이 있을 때 먼저 채워넣기
 	for ( int i = 0; i < ItemArray.Num(); ++i )
 	{
@@ -61,32 +63,37 @@ bool UInventoryComponent::AddItem(AItemBase* NewItem)
 					// 만약 다 넣었다면 true 반환
 					if ( NewInstanceData->CurrentStack == 0 )
 					{
-						return true;
+						bResult = true;
+						break;
 					}
 				}
 			}
 		}
+		if (bResult) break;
 	}
 
-
-	// 2차 빈 곳에 넣기
-	for (int i = 0; i < ItemArray.Num(); ++i)
+	if (NewInstanceData->CurrentStack > 0)
 	{
-		for (int j = 0; j < ItemArray[i].ItemArray.Num(); ++j)
+		// 2차 빈 곳에 넣기
+		for (int i = 0; i < ItemArray.Num(); ++i)
 		{
-			if ( ItemArray[ i ].ItemArray[ j ] == nullptr )
+			for (int j = 0; j < ItemArray[i].ItemArray.Num(); ++j)
 			{
-				// 해당 칸에 아이템을 넣고 true 반환
-				ItemArray[ i ].ItemArray[ j ] = NewItem;
-				ItemArray[ i ].ItemArray[ j ]->SetInventoryComponent( this , ( i * 5 ) + j );
-				NewItem->AttachToActor( GetOwner() , FAttachmentTransformRules::SnapToTargetNotIncludingScale );
-
-				return true;
+				if ( ItemArray[ i ].ItemArray[ j ] == nullptr )
+				{
+					// 해당 칸에 아이템을 넣고 true 반환
+					SetItem((i * 5) + j, NewItem);
+					bResult = true;
+					break;
+				}
 			}
+			if (bResult) break;
 		}
 	}
 
-	return false;
+	OnInventoryChanged.Broadcast();
+	
+	return bResult;
 }
 
 AItemBase* UInventoryComponent::GetItem(int32 ItemIndex)
@@ -117,6 +124,9 @@ void UInventoryComponent::SetItem(int32 NewItemIndex, AItemBase* NewItem)
 	}
 
 	ItemArray[ Row ].ItemArray[ Col ] = NewItem;
+	if (ItemArray[ Row ].ItemArray[ Col ]) ItemArray[ Row ].ItemArray[ Col ]->SetInventoryComponent( this , ( Row * 5 ) + Col );
+
+	OnInventoryChanged.Broadcast();
 }
 
 int32 UInventoryComponent::GetItemCount(FName TargetItemName )
@@ -140,6 +150,7 @@ int32 UInventoryComponent::GetItemCount(FName TargetItemName )
 
 bool UInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCount)
 {
+	bool bResult = false;
 	for ( int i = 0; i < ItemArray.Num(); ++i )
 	{
 		for ( int j = 0; j < ItemArray[ i ].ItemArray.Num(); ++j )
@@ -158,12 +169,18 @@ bool UInventoryComponent::RemoveItemCount(FName TargetItemName, int32& RemoveCou
 
 				RemoveCount -= RemovableCount;
 
-				if ( RemoveCount == 0 ) return true;
+				if ( RemoveCount == 0 )
+				{
+					bResult = true;
+					break;
+				}
 			}
 		}
 	}
 
-	return false;
+	OnInventoryChanged.Broadcast();
+
+	return bResult;
 }
 
 bool UInventoryComponent::HasEmptySpace()
@@ -177,4 +194,19 @@ bool UInventoryComponent::HasEmptySpace()
 	}
 
 	return false;
+}
+
+void UInventoryComponent::GetItemFromInventory(UInventoryComponent* FromInventoryComponent, int32 FromInventoryIndex,
+	int32 ToInventoryIndex)
+{
+	// 비어있다면
+	if (GetItem(ToInventoryIndex) == nullptr)
+	{
+		SetItem(ToInventoryIndex, FromInventoryComponent->GetItem(FromInventoryIndex));
+		FromInventoryComponent->SetItem(FromInventoryIndex, nullptr);
+	}
+	// Todo : 비어있지 않다면
+	else
+	{
+	}
 }

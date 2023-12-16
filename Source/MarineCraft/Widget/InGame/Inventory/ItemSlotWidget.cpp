@@ -11,9 +11,12 @@
 #include <Components/ProgressBar.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
+#include "DragPreviewWidget.h"
+#include "DragWidget.h"
 #include "../../../Inventory/ItemBase.h"
 #include "MarineCraft/Inventory/Tool/ToolBase.h"
 #include "../InventoryWidget.h"
+#include "MarineCraft/Inventory/InventoryComponent.h"
 
 void UItemSlotWidget::Init(AItemBase* NewItem)
 {
@@ -59,9 +62,11 @@ void UItemSlotWidget::Init(AItemBase* NewItem)
 	}
 }
 
-void UItemSlotWidget::SetInventoryWidget(UInventoryWidget* NewInventoryWidget)
+void UItemSlotWidget::SetInventoryWidget(UInventoryWidget* NewInventoryWidget, UInventoryComponent* NewInventoryComponent, int32 NewInventoryIndex)
 {
 	InventoryWidget = NewInventoryWidget;
+	InventoryComponent = NewInventoryComponent;
+	InventoryIndex = NewInventoryIndex;
 }
 
 void UItemSlotWidget::Select()
@@ -79,6 +84,16 @@ void UItemSlotWidget::Unselect()
 	{
 		BorderSlot->SetPadding( FMargin( 0.0f ) );
 	}
+}
+
+UInventoryComponent* UItemSlotWidget::GetInventoryComponent() const
+{
+	return InventoryComponent;
+}
+
+int32 UItemSlotWidget::GetInventoryIndex() const
+{
+	return InventoryIndex;
 }
 
 void UItemSlotWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -100,13 +115,31 @@ void UItemSlotWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 
 FReply UItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	return Super::NativeOnMouseButtonDown(InGeometry , InMouseEvent);
+	Super::NativeOnMouseButtonDown(InGeometry , InMouseEvent);
+
+	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
 }
 
 void UItemSlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
 	UDragDropOperation*& OutOperation)
 {
 	Super::NativeOnDragDetected(InGeometry , InMouseEvent , OutOperation);
+
+	UDragWidget* DragWidget = NewObject<UDragWidget>();
+	this->SetVisibility(ESlateVisibility::HitTestInvisible);
+
+	DragWidget->WidgetReference = this;
+	DragWidget->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+
+	check(DragPreviewWidgetClass);
+	UDragPreviewWidget* DragPreviewWidget = CreateWidget<UDragPreviewWidget>(GetOwningPlayer(), DragPreviewWidgetClass);
+	DragPreviewWidget->SetCurrentItem(CurrentItem);
+	
+	// Todo : DefaultDragVisual 에 Border 배경이 없는 새로운 Widget 만들어서 넣기
+	DragWidget->DefaultDragVisual = DragPreviewWidget;
+	DragWidget->Pivot = EDragPivot::MouseDown;
+
+	OutOperation = DragWidget;
 }
 
 void UItemSlotWidget::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
@@ -114,8 +147,52 @@ void UItemSlotWidget::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, U
 	Super::NativeOnDragLeave(InDragDropEvent , InOperation);
 }
 
+bool UItemSlotWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
+	UDragDropOperation* InOperation)
+{
+	Super::NativeOnDrop(InGeometry , InDragDropEvent , InOperation);
+	
+	if (UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation))
+	{
+		// const FVector2D DragWindowOffset =
+		// 	InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
+		// const FVector2D DragWindowOffsetResult = DragWindowOffset - DragWidgetResult->DragOffset;
+
+		UDragPreviewWidget* DragPreviewWidget = Cast<UDragPreviewWidget>(DragWidgetResult->DefaultDragVisual);
+
+		UItemSlotWidget* ItemSlotWidget = Cast<UItemSlotWidget>(DragWidgetResult->WidgetReference);
+
+		// UE_LOG(LogTemp, Warning, TEXT("UItemSlotWidget::NativeOnDrop) From : %s %d, To : %s %d"),
+		// 	*ItemSlotWidget->GetInventoryComponent()->GetName(), ItemSlotWidget->GetInventoryIndex(),
+		// 	*this->InventoryComponent->GetName(), this->InventoryIndex
+		// 	);
+		ItemSlotWidget->SetVisibility(ESlateVisibility::Visible);
+		this->InventoryComponent->GetItemFromInventory(ItemSlotWidget->GetInventoryComponent(), ItemSlotWidget->GetInventoryIndex(), InventoryIndex);
+
+		return true;
+	}
+	
+	return false;
+}
+
 FReply UItemSlotWidget::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey)
 {
-	// Todo :
+	if (InMouseEvent.GetEffectingButton() == DragKey)
+	{
+		FEventReply Reply;
+		Reply.NativeReply = FReply::Handled();
+
+		if (WidgetDetectingDrag)
+		{
+			TSharedPtr<SWidget> SlateWidgetDetectingDrag = WidgetDetectingDrag->GetCachedWidget();
+
+			if (SlateWidgetDetectingDrag.IsValid())
+			{
+				Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), DragKey);
+				return Reply.NativeReply;
+			}
+		}
+	}
+	
 	return FReply::Handled();
 }
