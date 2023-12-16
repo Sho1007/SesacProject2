@@ -21,7 +21,6 @@ AHook::AHook()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 	
 	BoxComponent->SetCollisionProfileName( TEXT( "Hook" ) );
 	BoxComponent->CanCharacterStepUpOn = ECB_No;
@@ -138,8 +137,8 @@ void AHook::SetInHand()
 	RopeMeshComponent->SetVisibility( true );
 	BoxComponent->SetCollisionEnabled( ECollisionEnabled::NoCollision );
 	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "ToolSocket" ) );
-	this->SetActorRelativeLocation( FVector(-2, 0, -18) );
-	this->SetActorRelativeRotation( FRotator(0, 180, 0) );
+	this->SetActorRelativeLocation( FVector(-2.82, 1.72, 4.98) );
+	this->SetActorRelativeRotation( FRotator(-19.68, 178.64, -150.29) );
 }
 
 void AHook::SetInInventory()
@@ -161,6 +160,7 @@ void AHook::SetInInventory()
 void AHook::OnBoxComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	LOG( TEXT( "Overlapped Actor : %s" ), *OtherActor->GetActorLabel());
 	if (AWaterBody* Water = Cast<AWaterBody>(OtherActor))
 	{
 		UGameplayStatics::PlaySoundAtLocation( GetWorld() , FallInWaterSound , GetActorLocation() , FRotator::ZeroRotator );

@@ -20,8 +20,9 @@ void ASpear::Use()
 	switch ( PlayerCharacter->GetCharacterMovement()->MovementMode )
 	{
 	case EMovementMode::MOVE_Walking:
-		this->SetActorRelativeLocation( FVector(0, -50, 0) );
-		this->SetActorRelativeRotation( FRotator::ZeroRotator );
+		// this->SetActorRelativeLocation( FVector(0, -50, 0) );
+		// this->SetActorRelativeRotation( FRotator::ZeroRotator );
+		this->SetActorRelativeTransform(AttackTransfrom);
 
 		PlayerCharacter->PlayAnimMontage( UseMontage );
 		break;
@@ -37,6 +38,8 @@ void ASpear::CheckAttackHit()
 	//UE_LOG( LogTemp , Warning , TEXT( "ASpear::CheckAttackHit" ) );
 
 	TArray<FHitResult> OutHitArray;
+
+	//DrawDebugSphere(GetWorld(), StaticMeshComponent->GetSocketLocation( TEXT( "AttackPoint" ) ), AttackRadius, 30, FColor::Red, true);
 
 	if (UKismetSystemLibrary::SphereTraceMulti(GetWorld(), StaticMeshComponent->GetSocketLocation( TEXT( "AttackPoint" ) ), StaticMeshComponent->GetSocketLocation( TEXT( "AttackPoint"		) ), AttackRadius,
 		UEngineTypes::ConvertToTraceType( ECC_Visibility ), false, {}, EDrawDebugTrace::None, OutHitArray, true))
@@ -71,8 +74,9 @@ void ASpear::EndAttack()
 	Super::EndAttack();
 
 	//UE_LOG( LogTemp , Warning , TEXT( "ASpear::EndAttack" ) );
-	this->SetActorRelativeLocation( FVector( 0 , -7 , 21 ) );
-	this->SetActorRelativeRotation( FRotator( 0 , 0 , -90 ) );
+	this->SetActorRelativeTransform(DefaultTransform);
+	// this->SetActorRelativeLocation( FVector( 5 , 10 , -7 ) );
+	// this->SetActorRelativeRotation( FRotator( 5.429 , -54.24 , 59.04) );
 }
 
 void ASpear::SetInHand()
@@ -95,6 +99,5 @@ void ASpear::SetInHand()
 	PlayerCharacter->MyPrintLog(Log);
 
 	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "ToolSocket" ) );
-	this->SetActorRelativeLocation( FVector(0, -7, 21) );
-	this->SetActorRelativeRotation( FRotator(0, 0, -90) );
+	EndAttack();
 }

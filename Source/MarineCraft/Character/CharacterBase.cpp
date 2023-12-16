@@ -34,7 +34,7 @@ ACharacterBase::ACharacterBase()
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	check(SpringArmComponent);
-	//SpringArmComponent->SetupAttachment(GetMesh(), TEXT("head"));
+	SpringArmComponent->SetupAttachment(GetMesh(), TEXT("head"));
 	//SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules( EAttachmentRule::SnapToTarget , EAttachmentRule::KeepWorld , EAttachmentRule::KeepWorld , false ) , TEXT( "head" ) );
 	SpringArmComponent->bUsePawnControlRotation = true;
 
@@ -55,7 +55,7 @@ void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "Head" ) );
+	// SpringArmComponent->AttachToComponent( GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "Head" ) );
 	
 	if (APlayerController* PlayerController = GetController<APlayerController>())
 	{
