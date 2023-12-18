@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "InGamePlayerController.generated.h"
 
+class UEndingWidget;
 class UGameOverWidget;
 class IInteractInterface;
 /**
@@ -32,6 +33,8 @@ public:
 	void ShowUI();
 	void HideUI();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void ShowEndingWidget();
 private:
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	TSubclassOf<UGameOverWidget> GameOverWidgetClass;
@@ -40,4 +43,9 @@ private:
 	TSubclassOf<UInGameWidget> InGameWidgetClass;
 	UPROPERTY(Meta = ( AllowPrivateAccess ) )
 	UInGameWidget* InGameWidget;
+
+	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
+	TSubclassOf<UEndingWidget> EndingWidgetClass;
+	UPROPERTY(BlueprintReadOnly, Meta = ( AllowPrivateAccess ) )
+	UEndingWidget* EndingWidget;
 };

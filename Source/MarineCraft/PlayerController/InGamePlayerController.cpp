@@ -4,6 +4,7 @@
 #include "../PlayerController/InGamePlayerController.h"
 
 #include "../Widget/InGame/InGameWidget.h"
+#include "../Widget/EndingWidget.h"
 #include "../Widget/GameOverWidget.h"
 #include "MarineCraft/Character/CharacterBase.h"
 
@@ -16,6 +17,10 @@ void AInGamePlayerController::BeginPlay()
 	InGameWidget = CreateWidget<UInGameWidget>( this , InGameWidgetClass, TEXT("InGameWidget"));
 	InGameWidget->AddToViewport();
 	InGameWidget->InitWidget();
+
+	EndingWidget = CreateWidget<UEndingWidget>( this , EndingWidgetClass, TEXT("EndingWidget"));
+	EndingWidget->AddToViewport();
+	EndingWidget->SetVisibility(ESlateVisibility::Collapsed);
 
 	SetInputMode(FInputModeGameOnly());
 	SetShowMouseCursor( false );
