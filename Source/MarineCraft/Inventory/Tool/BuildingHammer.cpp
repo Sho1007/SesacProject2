@@ -29,8 +29,8 @@ void ABuildingHammer::SetInHand()
 	SetActorTickEnabled( true );
 	StaticMeshComponent->SetVisibility( true );
 	this->AttachToComponent( PlayerCharacter->GetMesh() , FAttachmentTransformRules::SnapToTargetNotIncludingScale , TEXT( "ToolSocket" ) );
-	this->SetActorRelativeRotation( FRotator(0, 90, 180.0f) );
-	this->SetActorRelativeLocation( FVector(0, 0, -25.0f) );
+	this->SetActorRelativeLocation( FVector(-1.51f, 4.01f, 11.57f) );
+	this->SetActorRelativeRotation( FRotator(-8.84f, -87.95f, -4.36f) );
 
 	PlayerCharacter->GetGhostMeshComponent()->SetCollisionEnabled( ECollisionEnabled::QueryOnly );
 }
@@ -116,6 +116,7 @@ void ABuildingHammer::TraceBuildParts()
 	FCollisionQueryParams CollisionQueryParams;
 	CollisionQueryParams.AddIgnoredActor( this );
 
+
 	//DrawDebugLine( GetWorld() , Start , End , FColor::Cyan );
 
 	/*FCollisionObjectQueryParams CollisionObjectQueryParams;
@@ -123,7 +124,7 @@ void ABuildingHammer::TraceBuildParts()
 
 	if ( GetWorld()->LineTraceSingleByChannel( OutHit , Start , End , ECC_Camera , CollisionQueryParams ) )
 	{
-		//LOG( TEXT( "Hit Actor : %s" ) , *OutHit.GetActor()->GetName() );
+		LOG( TEXT( "Hit Actor : %s" ) , *OutHit.GetActor()->GetName() );
 
 		//if ( BuildTargetComponent == OutHit.GetComponent() ) return;
 

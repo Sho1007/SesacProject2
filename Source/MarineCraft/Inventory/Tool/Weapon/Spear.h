@@ -33,4 +33,9 @@ private:
 	USoundBase* AttackSound;
 	UPROPERTY( EditDefaultsOnly , Category = "SFX" , Meta = (AllowPrivateAccess) )
 	USoundBase* StabSound;
+
+	UPROPERTY( EditDefaultsOnly , Category = "Transform" , Meta = (AllowPrivateAccess) )
+	FTransform DefaultTransform;
+	UPROPERTY( EditDefaultsOnly , Category = "Transform" , Meta = (AllowPrivateAccess) )
+	FTransform AttackTransfrom;
 };
