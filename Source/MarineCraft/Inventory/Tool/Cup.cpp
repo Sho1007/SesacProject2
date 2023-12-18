@@ -107,14 +107,21 @@ void ACup::Use()
 	// 물이 없다면 -> 물 긷기	
 	else
 	{
-		if ( WaterActor )
+		/*
+		 * 23.12.18 OSH :
+		 * 원래는 Water Body를 체크해서 했어야 했지만 새로운 Level 에서 Water Body가 BP가 아닌 Instance 여서 그런지 Collision Check 가 안됐음
+		*/
+		PutWater(false);
+		/*
+		*if ( WaterActor )
 		{
 			// Todo : 만약 한정된 물 자원이라면 물 양 빼주기
 			// WaterActor->RemoveWater();
-
+		
 			// Todo : 만약 이미 정수된 물이라면 true 로 바꿔주기 (아직은 정수된 물 자원이 없음)
 			PutWater( false );
 		}
+		*/
 	}
 }
 

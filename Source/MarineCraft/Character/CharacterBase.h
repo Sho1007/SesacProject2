@@ -35,6 +35,11 @@ public:
 
 	virtual float TakeDamage( float DamageAmount , struct FDamageEvent const& DamageEvent , class AController* EventInstigator , AActor* DamageCauser ) override;
 
+	UFUNCTION(BlueprintCallable)
+	void ShowUI();
+	UFUNCTION(BlueprintCallable)
+	void HideUI();
+
 	// InputAction
 	void DoJump( const FInputActionValue& Value );
 	void Move(const FInputActionValue& Value);

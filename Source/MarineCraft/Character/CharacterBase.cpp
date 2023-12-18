@@ -186,9 +186,6 @@ void ACharacterBase::Tick(float DeltaTime)
 			}
 		}
 	}
-
-	if (bIsOnRaft) MyPrintLog( TEXT( "IsOnRaft" ) );
-	else MyPrintLog( TEXT( "IsNotOnRaft" ) );
 }
 
 // Called to bind functionality to input
@@ -231,6 +228,16 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	}
 
 	return Super::TakeDamage(DamageAmount , DamageEvent , EventInstigator , DamageCauser);
+}
+
+void ACharacterBase::ShowUI()
+{
+	GetController<AInGamePlayerController>()->ShowUI();
+}
+
+void ACharacterBase::HideUI()
+{
+	GetController<AInGamePlayerController>()->HideUI();
 }
 
 void ACharacterBase::DoJump(const FInputActionValue& Value)

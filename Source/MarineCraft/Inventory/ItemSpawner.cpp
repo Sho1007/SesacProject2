@@ -7,6 +7,7 @@
 
 #include "FloatsamBase.h"
 #include "../Building/Raft.h"
+#include "MarineCraft/Character/CharacterBase.h"
 
 // Sets default values
 AItemSpawner::AItemSpawner()
@@ -23,17 +24,21 @@ void AItemSpawner::BeginPlay()
 	// Find Boat in World
 	UWorld* World = GetWorld();
 	check( World );
-	TActorIterator<AActor> It( World , ARaft::StaticClass() );
-
-	Raft = Cast<ARaft>( *It );
-
+	TActorIterator<AActor> RaftIt( World , ARaft::StaticClass() );
+	Raft = Cast<ARaft>( *RaftIt );
 	check( Raft );
+
+	Player =  Cast<ACharacterBase>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 }
 
 // Called every frame
 void AItemSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (Player->IsOnRaft() == false) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("AItemSpawner::Tick"));
 
 	CurrentItemSpawnTime += DeltaTime;
 

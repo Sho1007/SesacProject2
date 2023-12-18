@@ -8,6 +8,7 @@
 
 class ARaft;
 class AFloatsamBase;
+class ACharacterBase;
 UCLASS()
 class MARINECRAFT_API AItemSpawner : public AActor
 {
@@ -29,6 +30,9 @@ private:
 	void SpawnItem();
 
 private:
+	// Player
+	UPROPERTY( VisibleInstanceOnly, Meta = ( AllowPrivateAccess ) )
+	ACharacterBase* Player;
 	// Raft
 	UPROPERTY( VisibleInstanceOnly, Meta = ( AllowPrivateAccess ) )
 	ARaft* Raft;
