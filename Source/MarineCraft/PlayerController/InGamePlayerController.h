@@ -29,6 +29,9 @@ public:
 	void Impact( float DamageAmount );
 	void Die();
 
+	void ShowUI();
+	void HideUI();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess))
 	TSubclassOf<UGameOverWidget> GameOverWidgetClass;

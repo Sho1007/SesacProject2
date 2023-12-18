@@ -74,3 +74,13 @@ void AInGamePlayerController::Die()
 
 	//SetPause( true );
 }
+
+void AInGamePlayerController::ShowUI()
+{
+	InGameWidget->SetVisibility(ESlateVisibility::Visible);
+}
+
+void AInGamePlayerController::HideUI()
+{
+	InGameWidget->SetVisibility(ESlateVisibility::Collapsed);
+}
