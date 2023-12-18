@@ -45,8 +45,8 @@ void ARaft::Tick(float DeltaTime)
 
 	if ( RootFoundation )
 	{
-		DrawDebugSphere( GetWorld() , RootFoundation->GetActorLocation() , 30.0f , 10 , FColor::Red );
-		DrawDebugSphere( GetWorld() , GetActorLocation() +RootLocation , 30.0f , 10 , FColor::Yellow );
+		//DrawDebugSphere( GetWorld() , RootFoundation->GetActorLocation() , 30.0f , 10 , FColor::Red );
+		//DrawDebugSphere( GetWorld() , GetActorLocation() +RootLocation , 30.0f , 10 , FColor::Yellow );
 	}
 
 	// Floating
